@@ -1,6 +1,5 @@
 import {
   Account,
-  ApiError,
   Beneficiary,
   Payout,
   PayoutClient,
@@ -31,7 +30,6 @@ import {
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
 import { PayoutDashboard as UIPayoutDashboard } from '../../ui/pages/PayoutDashboard/PayoutDashboard'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
-import { makeToast } from '../../ui/Toast/Toast'
 import { PayoutAuthoriseForm } from '../../ui/utils/PayoutAuthoriseForm'
 import PayoutDetailsModal from '../PayoutDetailsModal/PayoutDetailsModal'
 import SavePayoutModal from '../SavePayoutModal/SavePayoutModal'
@@ -40,25 +38,18 @@ export interface PayoutDashboardProps {
   token?: string // Example: "eyJhbGciOiJIUz..."
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId: string
-  onUnauthorized: () => void
 }
 
 const PayoutDashboard = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
-  onUnauthorized,
 }: PayoutDashboardProps) => {
   const queryClient = useQueryClient()
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PayoutDashboardMain
-        token={token}
-        merchantId={merchantId}
-        apiUrl={apiUrl}
-        onUnauthorized={onUnauthorized}
-      />
+      <PayoutDashboardMain token={token} merchantId={merchantId} apiUrl={apiUrl} />
     </QueryClientProvider>
   )
 }
@@ -69,7 +60,6 @@ const PayoutDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
-  onUnauthorized,
 }: PayoutDashboardProps) => {
   const [page, setPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState<number>(0)
@@ -215,8 +205,8 @@ const PayoutDashboardMain = ({
       setPayouts(payoutsResponse.data.content)
       setTotalRecords(payoutsResponse.data.totalSize)
     } else if (payoutsResponse?.status === 'error') {
-      makeToast('error', 'Error fetching payment requests.')
       console.error(payoutsResponse.error)
+      handleApiError()
     }
   }, [payoutsResponse])
 
@@ -224,9 +214,8 @@ const PayoutDashboardMain = ({
     if (metricsResponse?.status === 'success') {
       setMetrics(metricsResponse.data)
     } else if (metricsResponse?.status === 'error') {
-      makeToast('error', 'Error fetching metrics.')
       console.error(metricsResponse.error)
-      handleApiError(metricsResponse.error)
+      handleApiError()
     }
   }, [metricsResponse])
 
@@ -252,7 +241,7 @@ const PayoutDashboardMain = ({
       )
     } else if (merchantTagsResponse?.status === 'error') {
       console.warn(merchantTagsResponse.error)
-      handleApiError(merchantTagsResponse.error)
+      handleApiError()
     }
   }, [merchantTagsResponse])
 
@@ -300,10 +289,12 @@ const PayoutDashboardMain = ({
     }
   }, [userResponse])
 
-  const handleApiError = (error: ApiError) => {
-    if (error && error.status === 401) {
-      onUnauthorized()
-    }
+  const handleApiError = () => {
+    handleSystemErrorMessage({
+      title: "This page's data cannot be loaded at the moment",
+      message:
+        'An error occurred while trying to retrieve the data. Please try again later, or contact support if the error persists.',
+    })
   }
 
   const onPageChange = (page: number) => {

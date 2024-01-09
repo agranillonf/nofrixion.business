@@ -1,5 +1,4 @@
 import {
-  ApiError,
   SortDirection,
   useResendUserInvitation,
   UserMetrics,
@@ -23,7 +22,6 @@ export interface UserDashboardProps {
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId: string
   merchantName: string
-  onUnauthorized: () => void
 }
 
 const UserDashboard = ({
@@ -31,7 +29,6 @@ const UserDashboard = ({
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
   merchantName,
-  onUnauthorized,
 }: UserDashboardProps) => {
   const queryClient = useQueryClient()
 
@@ -42,7 +39,6 @@ const UserDashboard = ({
         merchantId={merchantId}
         merchantName={merchantName}
         apiUrl={apiUrl}
-        onUnauthorized={onUnauthorized}
       />
     </QueryClientProvider>
   )
@@ -55,7 +51,6 @@ const UserDashboardMain = ({
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
   merchantName,
-  onUnauthorized,
 }: UserDashboardProps) => {
   const [status, setStatus] = useState<UserStatus>(UserStatus.All)
   const [users, setUsers] = useState<UserRoleAndUserInvite[] | undefined>(undefined)
@@ -106,9 +101,8 @@ const UserDashboardMain = ({
       setUsers(usersResponse.data.content)
       setTotalRecords(usersResponse.data.totalSize)
     } else if (usersResponse?.status === 'error') {
-      makeToast('error', 'Error fetching users.')
       console.error(usersResponse.error)
-      handleApiError(usersResponse.error)
+      handleApiError()
     }
   }, [usersResponse])
 
@@ -116,16 +110,17 @@ const UserDashboardMain = ({
     if (metricsResponse?.status === 'success') {
       setMetrics(metricsResponse.data)
     } else if (metricsResponse?.status === 'error') {
-      makeToast('error', 'Error fetching user metrics.')
       console.error(metricsResponse.error)
-      handleApiError(metricsResponse.error)
+      handleApiError()
     }
   }, [metricsResponse])
 
-  const handleApiError = (error: ApiError) => {
-    if (error && error.status === 401) {
-      onUnauthorized()
-    }
+  const handleApiError = () => {
+    handleSystemErrorMessage({
+      title: "This page's data cannot be loaded at the moment",
+      message:
+        'An error occurred while trying to retrieve the data. Please try again later, or contact support if the error persists.',
+    })
   }
 
   const onPageChange = (page: number) => {

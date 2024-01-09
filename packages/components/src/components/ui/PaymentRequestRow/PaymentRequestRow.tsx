@@ -66,10 +66,16 @@ const Row = ({
   }
 
   const getPaymentAttemptCountByStatus = (paymentStatus: 'received' | 'pending' | 'failed') => {
-    return paymentAttempts.filter((attempt) => attempt.paymentStatus === paymentStatus).length
+    return paymentAttempts
+      ? paymentAttempts.filter((attempt) => attempt.paymentStatus === paymentStatus).length
+      : 0
   }
 
   const getPaymentAttemptPaymentMethod = () => {
+    if (!paymentAttempts || paymentAttempts.length === 0) {
+      return LocalPaymentMethodTypes.None
+    }
+
     const paymentMethods = paymentAttempts
       .map((attempt) => attempt.paymentMethod)
       .filter((paymentMethod, index, array) => {

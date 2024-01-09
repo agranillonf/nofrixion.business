@@ -22,8 +22,8 @@ export interface PaymentAttemptProps {
   onRefund: (paymentAttempt: LocalPaymentAttempt) => void
   onVoid: (paymentAttempt: LocalPaymentAttempt) => void
   onCapture: (paymentAttempt: LocalPaymentAttempt) => void
-  key: number
   className?: string
+  key: number | undefined
 }
 
 const PaymentAttempt = ({
@@ -31,7 +31,6 @@ const PaymentAttempt = ({
   onRefund,
   onVoid,
   onCapture,
-  key,
   className,
 }: PaymentAttemptProps) => {
   const formatter = new Intl.NumberFormat(navigator.language, {
@@ -48,8 +47,14 @@ const PaymentAttempt = ({
 
   const refundedAmount = getAmountRefunded(paymentAttempt)
   return (
-    <Fragment key={key}>
-      <button className={cn('w-full', className)} onClick={() => setIsExpanded((prev) => !prev)}>
+    <Fragment>
+      <div
+        className={cn('w-full', className)}
+        onKeyDown={() => setIsExpanded((prev) => !prev)}
+        role="button"
+        tabIndex={0}
+        onClick={() => setIsExpanded((prev) => !prev)}
+      >
         <div className="group whitespace-nowrap flex flex-row items-center">
           <div className="flex flex-row items-center w-44 mr-4">
             <span className="mr-2">{statusIconName && <Icon name={statusIconName} />}</span>
@@ -140,7 +145,7 @@ const PaymentAttempt = ({
             </AnimateHeightWrapper>
           )}
         </AnimatePresence>
-      </button>
+      </div>
     </Fragment>
   )
 }

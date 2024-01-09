@@ -2,6 +2,7 @@ import './index.css'
 
 import { useOutlet } from 'react-router-dom'
 
+import GoogleTagManagerInjection from './components/GoogleTagManagerInjection'
 import HotjarInjection from './components/HotjarInjection'
 
 const Root = () => {
@@ -9,9 +10,12 @@ const Root = () => {
 
   return (
     <>
+      <GoogleTagManagerInjection script="noscript" />
+
       <div className="font-inter h-full">{outlet}</div>
 
       <HotjarInjection />
+      <GoogleTagManagerInjection script="script" />
     </>
   )
 }

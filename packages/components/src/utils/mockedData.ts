@@ -2,6 +2,7 @@ import {
   Account,
   AccountIdentifierType,
   Currency,
+  PaymentResult,
   PayoutStatus,
   UserRoleAndUserInvite,
   UserRoles,
@@ -253,7 +254,7 @@ export const mockPaymentAttemptEvents: LocalPaymentAttemptEvent[] = [
     currency: Currency.EUR,
   },
   {
-    eventType: LocalPaymentAttemptEventType.RefundCancelled,
+    eventType: LocalPaymentAttemptEventType.RefundFailed,
     occurredAt: new Date('2023-05-18T00:00:00.000Z'),
     currency: Currency.EUR,
     refundedAmount: 5,
@@ -285,7 +286,7 @@ export const mockPaymentAttemptEvents: LocalPaymentAttemptEvent[] = [
 export const mockPaymentAttempts: LocalPaymentAttempt[] = [
   {
     attemptKey: 'a3b752d2-c0a6-4846-90e5-d783bb4ec005',
-    occurredAt: new Date('2023-05-18T00:00:00.000Z'),
+    occurredAt: undefined,
     paymentMethod: LocalPaymentMethodTypes.Card,
     amount: 20.02,
     currency: Currency.EUR,
@@ -301,6 +302,7 @@ export const mockPaymentAttempts: LocalPaymentAttempt[] = [
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.PartiallyRefunded,
     events: mockPaymentAttemptEvents,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
   {
     attemptKey: 'f4c6e747-6fd6-4a3c-be3b-4d3edd258b35',
@@ -319,6 +321,7 @@ export const mockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Refunded,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
   {
     attemptKey: 'ca2eb453-9c12-4f8f-b8b2-7c1c6af842ba',
@@ -337,6 +340,7 @@ export const mockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Received,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
   {
     attemptKey: '43535f79-a9f2-4331-9a78-db731e467c49',
@@ -355,6 +359,7 @@ export const mockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.InProgress,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
   {
     attemptKey: 'a9f6c19a-0172-47a6-803a-c3f59899cafc',
@@ -372,6 +377,7 @@ export const mockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Failed,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
   {
     attemptKey: '7bbb2998-8d78-4b2a-9334-84444c9915c8',
@@ -389,6 +395,7 @@ export const mockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Voided,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
 ]
 
@@ -410,6 +417,7 @@ export const partiallyPaidMockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Received,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
   {
     attemptKey: 'f4c6e747-6fd6-4a3c-be3b-4d3edd258b35',
@@ -428,6 +436,7 @@ export const partiallyPaidMockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Received,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
 ]
 export const overpaidMockPaymentAttempts: LocalPaymentAttempt[] = [
@@ -448,6 +457,7 @@ export const overpaidMockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Received,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
   {
     attemptKey: 'f4c6e747-6fd6-4a3c-be3b-4d3edd258b35',
@@ -466,6 +476,7 @@ export const overpaidMockPaymentAttempts: LocalPaymentAttempt[] = [
     status: 'paid',
     paymentStatus: 'received',
     displayStatus: LocalPaymentAttemptStatus.Received,
+    latestEventOccurredAt: new Date('2023-05-18T00:00:00.000Z'),
   },
 ]
 
@@ -509,6 +520,7 @@ const regular: LocalPaymentRequest = {
   productOrService: 'Flight lessons',
   paymentAttempts: mockPaymentAttempts,
   captureFunds: true,
+  remoteStatus: PaymentResult.None,
 }
 
 const partiallyPaidPaymentRequest: LocalPaymentRequest = {
@@ -556,6 +568,7 @@ const noShippingAddress: LocalPaymentRequest = {
   productOrService: 'Flight lessons',
   paymentAttempts: mockPaymentAttempts,
   captureFunds: true,
+  remoteStatus: PaymentResult.None,
 }
 
 const fewPaymentRequests: LocalPaymentRequest[] = [
@@ -601,7 +614,10 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
       firstName: 'John',
       lastName: 'Doe',
       email: 'johndoe@email.com',
+      isAdmin: true,
+      isAuthoriser: true,
     },
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '2',
@@ -652,7 +668,10 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
       firstName: 'JohnVeryLognNameThatWillBeTruncated',
       lastName: 'Doe',
       email: 'johndoe@email.com',
+      isAdmin: true,
+      isAuthoriser: true,
     },
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '3',
@@ -699,6 +718,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     productOrService: '',
     captureFunds: true,
     merchantTokenDescription: 'Test merchant token description',
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '4',
@@ -744,6 +764,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '5',
@@ -789,6 +810,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '6',
@@ -827,6 +849,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '7',
@@ -872,6 +895,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '8',
@@ -917,6 +941,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '9',
@@ -962,6 +987,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '10',
@@ -1007,6 +1033,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '11',
@@ -1052,6 +1079,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
   {
     id: '12',
@@ -1097,6 +1125,7 @@ const fewPaymentRequests: LocalPaymentRequest[] = [
     paymentAttempts: [],
     productOrService: '',
     captureFunds: true,
+    remoteStatus: PaymentResult.None,
   },
 ]
 
@@ -1249,6 +1278,7 @@ export const mockPayouts: LocalPayout[] = [
         merchantID: 'c544ae7e-e7f8-4482-552e-08daf005c17b',
       },
     ],
+    activities: [],
   },
   {
     accountID: '0678bfaa-4683-4dd9-8be8-cada724688d7',
@@ -1289,6 +1319,7 @@ export const mockPayouts: LocalPayout[] = [
         merchantID: 'c544ae7e-e7f8-4482-552e-08daf005c17b',
       },
     ],
+    activities: [],
   },
   {
     accountID: '0678bfaa-4683-4dd9-8be8-cada724688d7',
@@ -1329,6 +1360,7 @@ export const mockPayouts: LocalPayout[] = [
         merchantID: 'c544ae7e-e7f8-4482-552e-08daf005c17b',
       },
     ],
+    activities: [],
   },
   {
     accountID: '0678bfaa-4683-4dd9-8be8-cada724688d7',
@@ -1369,6 +1401,7 @@ export const mockPayouts: LocalPayout[] = [
         merchantID: 'c544ae7e-e7f8-4482-552e-08daf005c17b',
       },
     ],
+    activities: [],
   },
 ]
 
@@ -1922,6 +1955,8 @@ const accountsWithTransactionMetrics: LocalAccountWithTransactionMetrics[] = [
     totalIncomingAmount: 100000,
     totalOutgoingAmount: 0,
     numberOfTransactions: 1,
+    numberOfIncomingTransactions: 1,
+    numberOfOutgoingTransactions: 0,
   },
   {
     accountID: '4',
@@ -1932,6 +1967,8 @@ const accountsWithTransactionMetrics: LocalAccountWithTransactionMetrics[] = [
     totalIncomingAmount: 200,
     totalOutgoingAmount: 100,
     numberOfTransactions: 2,
+    numberOfIncomingTransactions: 1,
+    numberOfOutgoingTransactions: 0,
   },
   {
     accountID: '1',
@@ -1942,6 +1979,8 @@ const accountsWithTransactionMetrics: LocalAccountWithTransactionMetrics[] = [
     totalIncomingAmount: 200,
     totalOutgoingAmount: 100,
     numberOfTransactions: 2,
+    numberOfIncomingTransactions: 1,
+    numberOfOutgoingTransactions: 0,
   },
   {
     accountID: '71',
@@ -1952,6 +1991,8 @@ const accountsWithTransactionMetrics: LocalAccountWithTransactionMetrics[] = [
     totalIncomingAmount: 100000,
     totalOutgoingAmount: 0,
     numberOfTransactions: 1,
+    numberOfIncomingTransactions: 1,
+    numberOfOutgoingTransactions: 0,
   },
   {
     accountID: '41',
@@ -1962,6 +2003,8 @@ const accountsWithTransactionMetrics: LocalAccountWithTransactionMetrics[] = [
     totalIncomingAmount: 200,
     totalOutgoingAmount: 100,
     numberOfTransactions: 2,
+    numberOfIncomingTransactions: 1,
+    numberOfOutgoingTransactions: 0,
   },
   {
     accountID: '11',
@@ -1972,6 +2015,8 @@ const accountsWithTransactionMetrics: LocalAccountWithTransactionMetrics[] = [
     totalIncomingAmount: 200,
     totalOutgoingAmount: 100,
     numberOfTransactions: 2,
+    numberOfIncomingTransactions: 1,
+    numberOfOutgoingTransactions: 0,
   },
 ]
 

@@ -8,7 +8,7 @@ import {
 } from '@nofrixion/moneymoov'
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { redirect, useParams } from 'react-router-dom'
+import { useParams } from 'react-router-dom'
 
 import {
   ErrorType,
@@ -65,6 +65,7 @@ const CurrentAccountsMain = ({
   isWebComponent,
 }: CurrentAccountsListProps) => {
   const [isConnectingToBank, setIsConnectingToBank] = useState(false)
+
   const [banks, setBanks] = useState<BankSettings[] | undefined>(undefined)
   const { userSettings, updateUserSettings } = useUserSettings()
 
@@ -127,10 +128,9 @@ const CurrentAccountsMain = ({
   useEffect(() => {
     if (!isWebComponent && bankId) {
       const bank = banks?.find((bank) => bank.bankID === bankId)
-
       if (bank) {
         makeToast('success', `Your ${bank.bankName} connection is ready!`)
-        redirect(getRoute('/home/current-accounts'))
+        window.location.href = getRoute('/home/current-accounts')
       }
     }
   }, [bankId, banks])

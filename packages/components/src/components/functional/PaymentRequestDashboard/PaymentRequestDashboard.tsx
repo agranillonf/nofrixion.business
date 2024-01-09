@@ -1,5 +1,4 @@
 import {
-  ApiError,
   PaymentRequest,
   PaymentRequestMetrics,
   PaymentRequestStatus,
@@ -54,7 +53,6 @@ export interface PaymentRequestDashboardProps {
   token?: string // Example: "eyJhbGciOiJIUz..."
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId: string
-  onUnauthorized: () => void
   isWebComponent?: boolean
 }
 
@@ -62,18 +60,12 @@ const PaymentRequestDashboard = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
-  onUnauthorized,
   isWebComponent,
 }: PaymentRequestDashboardProps) => {
   const queryClientToUse = isWebComponent ? queryClient : useQueryClient()
   return (
     <QueryClientProvider client={queryClientToUse}>
-      <PaymentRequestDashboardMain
-        token={token}
-        merchantId={merchantId}
-        apiUrl={apiUrl}
-        onUnauthorized={onUnauthorized}
-      />
+      <PaymentRequestDashboardMain token={token} merchantId={merchantId} apiUrl={apiUrl} />
     </QueryClientProvider>
   )
 }
@@ -82,7 +74,6 @@ const PaymentRequestDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
-  onUnauthorized,
 }: PaymentRequestDashboardProps) => {
   const [page, setPage] = useState(1)
   const [sortBy, setSortBy] = useState<DoubleSortByPaymentRequests>({
@@ -141,10 +132,12 @@ const PaymentRequestDashboardMain = ({
     return tags.filter((tag) => tag.isSelected).map((tag) => tag.id)
   }
 
-  const handleApiError = (error: ApiError) => {
-    if (error && error.status === 401) {
-      onUnauthorized()
-    }
+  const handleApiError = () => {
+    handleSystemErrorMessage({
+      title: "This page's data cannot be loaded at the moment",
+      message:
+        'An error occurred while trying to retrieve the data. Please try again later, or contact support if the error persists.',
+    })
   }
 
   const { data: merchant } = useMerchant({ apiUrl, authToken: token }, { merchantId })
@@ -207,7 +200,17 @@ const PaymentRequestDashboardMain = ({
     true,
   )
 
-  const { data: accounts } = useAccounts({ merchantId }, { apiUrl, authToken: token })
+  const [accounts, setAccounts] = useState<LocalAccount[] | undefined>(undefined)
+
+  const { data: accountsResponse } = useAccounts({ merchantId }, { apiUrl, authToken: token })
+
+  useEffect(() => {
+    if (accountsResponse?.status === 'success') {
+      setAccounts(remoteAccountsToLocalAccounts(accountsResponse.data))
+    } else if (accountsResponse?.status === 'error') {
+      console.warn(accountsResponse.error)
+    }
+  }, [accountsResponse])
 
   const { data: metricsResponse, isLoading: isLoadingMetrics } = usePaymentRequestMetrics(
     {
@@ -242,10 +245,8 @@ const PaymentRequestDashboardMain = ({
       setPaymentRequests(paymentRequestsResponse.data.content)
       setTotalRecords(paymentRequestsResponse.data.totalSize)
     } else if (paymentRequestsResponse?.status === 'error') {
-      makeToast('error', 'Error fetching payment requests.')
       console.error(paymentRequestsResponse.error)
-
-      handleApiError(paymentRequestsResponse.error)
+      handleApiError()
     }
   }, [paymentRequestsResponse])
 
@@ -276,7 +277,7 @@ const PaymentRequestDashboardMain = ({
       )
     } else if (merchantTagsResponse?.status === 'error') {
       console.warn(merchantTagsResponse.error)
-      handleApiError(merchantTagsResponse.error)
+      handleApiError()
     }
   }, [merchantTagsResponse])
 
@@ -284,9 +285,8 @@ const PaymentRequestDashboardMain = ({
     if (metricsResponse?.status === 'success') {
       setMetrics(metricsResponse.data)
     } else if (metricsResponse?.status === 'error') {
-      makeToast('error', 'Error fetching metrics.')
       console.error(metricsResponse.error)
-      handleApiError(metricsResponse.error)
+      handleApiError()
     }
   }, [metricsResponse])
 
@@ -298,8 +298,6 @@ const PaymentRequestDashboardMain = ({
         title: 'Delete payment request has failed',
         message: response.error.detail,
       })
-
-      handleApiError(response.error)
 
       return
     }
@@ -384,7 +382,6 @@ const PaymentRequestDashboardMain = ({
         })
 
         if (voidResult.error) {
-          handleApiError(voidResult.error)
           return voidResult.error
         } else {
           makeToast('success', 'Payment successfully voided.')
@@ -397,7 +394,6 @@ const PaymentRequestDashboardMain = ({
         })
 
         if (refundResult.error) {
-          handleApiError(refundResult.error)
           return refundResult.error
         } else {
           makeToast('success', 'Payment successfully refunded.')
@@ -430,7 +426,6 @@ const PaymentRequestDashboardMain = ({
       })
 
       if (result.error) {
-        handleApiError(result.error)
         return result.error
       } else {
         makeToast('success', 'Refund successfully submitted for approval.')
@@ -447,7 +442,6 @@ const PaymentRequestDashboardMain = ({
       })
 
       if (result.error) {
-        handleApiError(result.error)
         return result.error
       } else {
         makeToast('success', 'Payment successfully captured.')
@@ -539,14 +533,16 @@ const PaymentRequestDashboardMain = ({
           Accounts Receivable
         </span>
         <div>
-          <Button
-            size="large"
-            onClick={onCreatePaymentRequest}
-            className="w-10 h-10 md:w-full md:h-full"
-          >
-            <span className="hidden md:inline-block">Create payment request</span>
-            <Icon name="add/16" className="md:hidden" />
-          </Button>
+          {accounts && accounts.length > 0 && (
+            <Button
+              size="large"
+              onClick={onCreatePaymentRequest}
+              className="w-10 h-10 md:w-full md:h-full"
+            >
+              <span className="hidden md:inline-block">Create payment request</span>
+              <Icon name="add/16" className="md:hidden" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -697,11 +693,7 @@ const PaymentRequestDashboardMain = ({
         minAmount={minAmountFilter}
         maxAmount={maxAmountFilter}
         tags={tagsFilter}
-        accounts={
-          accounts?.status === 'success' && accounts.data
-            ? remoteAccountsToLocalAccounts(accounts.data)
-            : []
-        }
+        accounts={accounts ?? []}
       ></PaymentRequestDetailsModal>
     </div>
   )

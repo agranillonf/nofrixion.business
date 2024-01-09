@@ -125,6 +125,8 @@ Playground.args = {
     firstName: 'John',
     lastName: 'Doe',
     email: 'johndoe@email.com',
+    isAdmin: true,
+    isAuthoriser: true,
   },
 }
 
@@ -144,6 +146,8 @@ ExampleToday.args = {
     firstName: 'JohnVeryLongNameWhichWillBeTruncated',
     lastName: 'Doe',
     email: 'johndoe@email.com',
+    isAdmin: true,
+    isAuthoriser: true,
   },
 }
 

@@ -88,6 +88,7 @@ const PaymentNotificationsModal = ({
           autoComplete="email"
           value={email}
           type="email"
+          maxLength={254}
           onChange={(e) => {
             setEmail(e.target.value)
             if (hasEmailError) {
