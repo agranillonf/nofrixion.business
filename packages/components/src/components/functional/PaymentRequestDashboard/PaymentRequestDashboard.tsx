@@ -17,10 +17,17 @@ import * as Tabs from '@radix-ui/react-tabs'
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { add, endOfDay, set, startOfDay } from 'date-fns'
 import { useEffect, useState } from 'react'
+import { useStore } from 'zustand'
 
 import { Button, Icon } from '../../../components/ui/atoms'
-import { LocalPartialPaymentMethods, LocalPaymentMethodTypes } from '../../../types/LocalEnums'
+import useAccountsReceivableColumnsStore from '../../../lib/stores/useAccountsReceivableColumnsStore'
 import {
+  LocalPartialPaymentMethods,
+  LocalPaymentMethodTypes,
+  LocalPaymentRequestTableColumns,
+} from '../../../types/LocalEnums'
+import {
+  Column,
   LocalAccount,
   LocalCounterparty,
   LocalPaymentRequest,
@@ -41,6 +48,7 @@ import { SortDirection } from '../../ui/ColumnHeader/ColumnHeader'
 import DashboardTab from '../../ui/DashboardTab/DashboardTab'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
 import FilterControlsRow from '../../ui/FilterControlsRow/FilterControlsRow'
+import SelectColumns from '../../ui/molecules/SelectColumns/SelectColumns'
 import PaymentRequestTable from '../../ui/PaymentRequestTable/PaymentRequestTable'
 import ScrollArea from '../../ui/ScrollArea/ScrollArea'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
@@ -82,6 +90,61 @@ const PaymentRequestDashboardMain = ({
       name: 'created',
     },
   })
+
+  const [columns, setColumns] = useState<Column[]>([
+    {
+      id: LocalPaymentRequestTableColumns.Created,
+      label: 'Created',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.For,
+      label: 'For',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.Requested,
+      label: 'Requested',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.Paid,
+      label: 'Paid',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.PaymentAttempts,
+      label: 'Payment Attempts',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.Tags,
+      label: 'Tags',
+      selected: true,
+    },
+  ])
+
+  const { accountsReceivableColumns, setAccountsReceivableColumns } = useStore(
+    useAccountsReceivableColumnsStore,
+    (state) => state,
+  ) ?? {
+    accountsReceivableColumns: undefined,
+  }
+
+  useEffect(() => {
+    if (accountsReceivableColumns) {
+      const newColumns = [...columns]
+      accountsReceivableColumns.forEach((column) => {
+        const foundColumn = newColumns.find((c) => c.id === column.id)
+        if (foundColumn) {
+          foundColumn.selected = column.selected
+        }
+      })
+
+      setAccountsReceivableColumns(columns)
+      setColumns(newColumns)
+    }
+  }, [accountsReceivableColumns])
 
   const [firstMetrics, setFirstMetrics] = useState<PaymentRequestMetrics | undefined>(undefined)
 
@@ -518,6 +581,11 @@ const PaymentRequestDashboardMain = ({
     setIsSystemErrorOpen(true)
   }
 
+  const handleChangeInColumns = (columns: Column[]) => {
+    setColumns(columns)
+    setAccountsReceivableColumns(columns)
+  }
+
   const paymentRequestsExists =
     !isLoadingMetrics &&
     metrics &&
@@ -641,7 +709,9 @@ const PaymentRequestDashboardMain = ({
           systemError={systemError}
           isSystemErrorOpen={isSystemErrorOpen}
           onCloseSystemError={onCloseSystemErrorModal}
+          columns={columns}
         />
+        <SelectColumns columns={columns} setColumns={handleChangeInColumns} />
       </div>
 
       {paymentRequests && paymentRequests.length < totalRecords && (

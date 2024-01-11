@@ -87,3 +87,14 @@ export enum LocalPaymentAttemptStatus {
   Refunded = 'Refunded',
   PartiallyRefunded = 'Partially refunded',
 }
+
+export enum LocalPaymentRequestTableColumns {
+  Created = 'Created',
+  For = 'For',
+  Requested = 'Requested',
+  Paid = 'Paid',
+  PaymentAttempts = 'PaymentAttempts',
+  PaymentRequestId = 'PaymentRequestId',
+  OrderId = 'OrderId',
+  Tags = 'Tags',
+}

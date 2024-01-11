@@ -2,8 +2,8 @@ import classNames from 'classnames'
 import { animate, AnimatePresence, motion } from 'framer-motion'
 import { useState } from 'react'
 
-import { LocalPaymentMethodTypes } from '../../../types/LocalEnums'
-import { LocalPaymentRequest } from '../../../types/LocalTypes'
+import { LocalPaymentMethodTypes, LocalPaymentRequestTableColumns } from '../../../types/LocalEnums'
+import { Column, LocalPaymentRequest } from '../../../types/LocalTypes'
 import { cn } from '../../../utils'
 import { formatAmount } from '../../../utils/formatters'
 import { formatCurrency } from '../../../utils/uiFormaters'
@@ -22,6 +22,7 @@ export interface PaymentRequestRowProps extends LocalPaymentRequest {
   onDelete?: () => void
   onOpenPaymentPage?: () => void
   selected: boolean
+  columns?: Column[]
 }
 
 const commonTdClasses = 'px-4 py-3'
@@ -47,6 +48,7 @@ const Row = ({
   hostedPayCheckoutUrl,
   amountReceived,
   amountRefunded,
+  columns,
 }: PaymentRequestRowProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -69,6 +71,10 @@ const Row = ({
     return paymentAttempts
       ? paymentAttempts.filter((attempt) => attempt.paymentStatus === paymentStatus).length
       : 0
+  }
+
+  const isColumnSelected = (columnId: LocalPaymentRequestTableColumns) => {
+    return columns && columns.find((x) => x.id == columnId)?.selected
   }
 
   const getPaymentAttemptPaymentMethod = () => {
@@ -105,106 +111,120 @@ const Row = ({
       )}
       onClick={onClick}
     >
-      <td className={classNames(commonTdClasses, `text-13px`)}>
-        <AnimatePresence>
-          {isDeleting && (
-            <motion.div
-              className={`flex absolute z-10 items-center left-0 top-0 bottom-0 my-auto w-full`}
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="ml-auto mr-11 space-x-1">
-                <button
-                  className="bg-negative-red rounded px-5 py-2 text-white font-normal text-sm hover:bg-darker-negative-red"
-                  onClick={onConfirmDeletePaymentRequestClicked}
-                >
-                  Delete
-                </button>
-                <button
-                  className="bg-white rounded px-5 py-2 text-default-text font-normal text-sm hover:text-grey-text"
-                  onClick={onCancelDeletingPaymentRequestClicked}
-                >
-                  Cancel
-                </button>
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-        <div className={`custom-backdrop-blur-${id}`}>
-          <Created
-            createdAt={createdAt}
-            createdByMerchantTokenDescription={merchantTokenDescription}
-            createdByUser={createdByUser}
-          />
-        </div>
-      </td>
-
-      <td className={classNames(commonTdClasses, `text-13px custom-backdrop-blur-${id}`)}>
-        <Contact name={title} email={customerName} size="small" />
-      </td>
-
-      <td
-        className={classNames(
-          commonTdClasses,
-          `text-right truncate tabular-nums custom-backdrop-blur-${id}`,
-        )}
-      >
-        <span className="font-medium">
-          {formatCurrency(currency)} {formatAmount(amount)}
-        </span>
-      </td>
-
-      <td
-        className={classNames(
-          commonTdClasses,
-          `text-right truncate tabular-nums custom-backdrop-blur-${id}`,
-        )}
-      >
-        <>
-          {hasSettledPaymentAttempts ? (
-            <TransactionsTooltip paymentAttempts={paymentAttempts}>
-              <span
-                className={cn('font-medium', {
-                  'text-grey-text': amountPaid === 0,
-                })}
+      {isColumnSelected(LocalPaymentRequestTableColumns.Created) && (
+        <td className={classNames(commonTdClasses, `text-13px`)}>
+          <AnimatePresence>
+            {isDeleting && (
+              <motion.div
+                className={`flex absolute z-10 items-center left-0 top-0 bottom-0 my-auto w-full`}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                onClick={(e) => e.stopPropagation()}
               >
-                {formatCurrency(currency)}{' '}
-                <span
-                  className={cn({
-                    'border-b-[0.094rem] border-dashed border-border-grey-highlighted pb-[0.125rem]':
-                      hasSettledPaymentAttempts,
-                  })}
-                >
-                  {formatAmount(amountPaid)}
-                </span>
-              </span>
-            </TransactionsTooltip>
-          ) : (
-            <span className="font-medium text-grey-text">
-              {formatCurrency(currency)} <span>{formatAmount(amountPaid)}</span>
-            </span>
+                <div className="ml-auto mr-11 space-x-1">
+                  <button
+                    className="bg-negative-red rounded px-5 py-2 text-white font-normal text-sm hover:bg-darker-negative-red"
+                    onClick={onConfirmDeletePaymentRequestClicked}
+                  >
+                    Delete
+                  </button>
+                  <button
+                    className="bg-white rounded px-5 py-2 text-default-text font-normal text-sm hover:text-grey-text"
+                    onClick={onCancelDeletingPaymentRequestClicked}
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </motion.div>
+            )}
+          </AnimatePresence>
+          <div className={`custom-backdrop-blur-${id}`}>
+            <Created
+              createdAt={createdAt}
+              createdByMerchantTokenDescription={merchantTokenDescription}
+              createdByUser={createdByUser}
+            />
+          </div>
+        </td>
+      )}
+
+      {isColumnSelected(LocalPaymentRequestTableColumns.For) && (
+        <td className={classNames(commonTdClasses, `text-13px custom-backdrop-blur-${id}`)}>
+          <Contact name={title} email={customerName} size="small" />
+        </td>
+      )}
+
+      {isColumnSelected(LocalPaymentRequestTableColumns.Requested) && (
+        <td
+          className={classNames(
+            commonTdClasses,
+            `text-right truncate tabular-nums custom-backdrop-blur-${id}`,
           )}
+        >
+          <span className="font-medium">
+            {formatCurrency(currency)} {formatAmount(amount)}
+          </span>
+        </td>
+      )}
+
+      {isColumnSelected(LocalPaymentRequestTableColumns.Paid) && (
+        <>
+          <td
+            className={classNames(
+              commonTdClasses,
+              `text-right truncate tabular-nums custom-backdrop-blur-${id}`,
+            )}
+          >
+            <>
+              {hasSettledPaymentAttempts ? (
+                <TransactionsTooltip paymentAttempts={paymentAttempts}>
+                  <span
+                    className={cn('font-medium', {
+                      'text-grey-text': amountPaid === 0,
+                    })}
+                  >
+                    {formatCurrency(currency)}{' '}
+                    <span
+                      className={cn({
+                        'border-b-[0.094rem] border-dashed border-border-grey-highlighted pb-[0.125rem]':
+                          hasSettledPaymentAttempts,
+                      })}
+                    >
+                      {formatAmount(amountPaid)}
+                    </span>
+                  </span>
+                </TransactionsTooltip>
+              ) : (
+                <span className="font-medium text-grey-text">
+                  {formatCurrency(currency)} <span>{formatAmount(amountPaid)}</span>
+                </span>
+              )}
+            </>
+          </td>
+          <td className={`py-3 custom-backdrop-blur-${id}`}>
+            <Status variant={status} size="medium" />
+          </td>
         </>
-      </td>
-      <td className={`py-3 custom-backdrop-blur-${id}`}>
-        <Status variant={status} size="medium" />
-      </td>
+      )}
 
-      <td className={classNames(commonTdClasses, `custom-backdrop-blur-${id}`)}>
-        <PaymentRequestAttemptsCell
-          successfulAttemptsCount={getPaymentAttemptCountByStatus('received')}
-          pendingAttemptsCount={getPaymentAttemptCountByStatus('pending')}
-          failedAttemptsCount={getPaymentAttemptCountByStatus('failed')}
-          hostedPaymentLink={hostedPayCheckoutUrl}
-          paymentMethod={getPaymentAttemptPaymentMethod()}
-        />
-      </td>
+      {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && (
+        <td className={classNames(commonTdClasses, `custom-backdrop-blur-${id}`)}>
+          <PaymentRequestAttemptsCell
+            successfulAttemptsCount={getPaymentAttemptCountByStatus('received')}
+            pendingAttemptsCount={getPaymentAttemptCountByStatus('pending')}
+            failedAttemptsCount={getPaymentAttemptCountByStatus('failed')}
+            hostedPaymentLink={hostedPayCheckoutUrl}
+            paymentMethod={getPaymentAttemptPaymentMethod()}
+          />
+        </td>
+      )}
 
-      <td className={classNames(commonTdClasses, `text-right pr-1.5 custom-backdrop-blur-${id}`)}>
-        <TagList labels={tags.map((tag) => tag.name)} />
-      </td>
+      {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
+        <td className={classNames(commonTdClasses, `text-right pr-1.5 custom-backdrop-blur-${id}`)}>
+          <TagList labels={tags.map((tag) => tag.name)} />
+        </td>
+      )}
 
       <td className={`pr-2 w-8 custom-backdrop-blur-${id}`}>
         <PaymentRequestActionMenu
