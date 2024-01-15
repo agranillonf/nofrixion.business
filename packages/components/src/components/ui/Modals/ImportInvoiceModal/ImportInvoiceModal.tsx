@@ -159,7 +159,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                     <TabsList className="h-10 flex justify-normal">
                       <TabsTrigger
                         value="upload"
-                        className="first:rounded-l-md last:rounded-r-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
+                        className="rounded-l-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
                         onClick={() => setSelectedTab('upload')}
                       >
                         <div className="pr-4">1</div>
@@ -167,7 +167,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                       </TabsTrigger>
                       <TabsTrigger
                         value="review"
-                        className="first:rounded-l-md last:rounded-r-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
+                        className="rounded-r-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
                         onClick={() => setSelectedTab('review')}
                         disabled={fileName == undefined}
                       >
@@ -255,9 +255,11 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                     return (
                       <div
                         key={`import-error-${i}`}
-                        className="py-3 border-b border-border-grey text-sm flex "
+                        className="py-3 border-b border-border-grey text-sm flex"
                       >
-                        <span className="font-semibold w-20">Line {result.lineNumber}</span>
+                        <span className="font-semibold w-20 min-w-[5rem]">
+                          Line {result.lineNumber}
+                        </span>
                         <div className="flex gap-x-4 gap-y-2 flex-wrap">
                           {result.errors?.map((err, i) => {
                             return (
