@@ -49,6 +49,7 @@ const Row = ({
   amountReceived,
   amountRefunded,
   columns,
+  orderID,
 }: PaymentRequestRowProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -219,21 +220,34 @@ const Row = ({
           />
         </td>
       )}
+      {isColumnSelected(LocalPaymentRequestTableColumns.OrderId) && (
+        <td className={classNames(commonTdClasses, `custom-backdrop-blur-${id} truncate`)}>
+          <span className="text-[13px]">{orderID}</span>
+        </td>
+      )}
+
+      {isColumnSelected(LocalPaymentRequestTableColumns.PaymentRequestId) && (
+        <td className={classNames(commonTdClasses, `custom-backdrop-blur-${id} truncate`)}>
+          <span className="text-[13px]">{id}</span>
+        </td>
+      )}
 
       <td className={classNames(commonTdClasses, `text-right pr-1.5 custom-backdrop-blur-${id}`)}>
-        <div className="flex flex-row justify-end">
+        <div className="flex flex-row justify-end ">
           {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
             <TagList labels={tags.map((tag) => tag.name)} />
           )}
-          <PaymentRequestActionMenu
-            onDuplicate={onDuplicate}
-            onCopyLink={onCopyLink}
-            onDelete={onDelete ? onDeletePaymentRequestClicked : undefined}
-            onBlur={onCancelDeletingPaymentRequestClicked}
-            onOpenPaymentPage={onOpenPaymentPage}
-          />
         </div>
       </td>
+      <div className="absolute top-4 right-3">
+        <PaymentRequestActionMenu
+          onDuplicate={onDuplicate}
+          onCopyLink={onCopyLink}
+          onDelete={onDelete ? onDeletePaymentRequestClicked : undefined}
+          onBlur={onCancelDeletingPaymentRequestClicked}
+          onOpenPaymentPage={onOpenPaymentPage}
+        />
+      </div>
     </tr>
   )
 }

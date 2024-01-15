@@ -100,6 +100,7 @@ const remotePaymentRequestToLocalPaymentRequest = (
     amountReceived,
     amountRefunded,
     amountPending,
+    orderID,
   } = remotePaymentRequest
 
   const parseApiStatusToLocalStatus = (status: PaymentResult): LocalPaymentStatus => {
@@ -583,6 +584,7 @@ const remotePaymentRequestToLocalPaymentRequest = (
       : undefined,
     merchantTokenDescription: remotePaymentRequest.merchantTokenDescription,
     remoteStatus: remotePaymentRequest.status,
+    orderID: orderID,
   }
 }
 

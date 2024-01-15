@@ -106,190 +106,215 @@ const PaymentRequestTable = ({
 
   return (
     <div className="flex justify-center w-full">
-      <div className="flex flex-col">
+      <div className="flex flex-col w-full">
         {/* Show table when loading so the skeletons are visible */}
         {/* or else show the table when has payment requests */}
-        {((paymentRequestsExist && !paymentRequests) ||
-          (paymentRequests && paymentRequests.length > 0)) && (
-          <table className="hidden lg:table table-fixed text-left w-full">
-            <colgroup>
-              {isColumnSelected(LocalPaymentRequestTableColumns.Created) && <col />}
-              {isColumnSelected(LocalPaymentRequestTableColumns.For) && <col />}
-              {isColumnSelected(LocalPaymentRequestTableColumns.Requested) && <col />}
-              {isColumnSelected(LocalPaymentRequestTableColumns.Paid) && (
-                <>
-                  <col />
-                  <col />
-                </>
-              )}
-              {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && <col />}
-              <col className="w-full" />
-            </colgroup>
-            <thead>
-              <tr>
-                {isColumnSelected(LocalPaymentRequestTableColumns.Created) && (
-                  <th className={classNames(commonThClasses, '2xl:w-36 xl:w-28 lg:w-24 text-left')}>
-                    <ColumnHeader
-                      label="Created"
-                      sortDirection={
-                        sortBy?.primary.name === 'created' ? sortBy.primary.direction : undefined
-                      }
-                      onSort={(direction) => handleOnSort({ name: 'created', direction })}
-                    />
-                  </th>
-                )}
-                {isColumnSelected(LocalPaymentRequestTableColumns.For) && (
-                  <th className={classNames(commonThClasses, '2xl:w-44 xl:w-32 lg:w-28 text-left')}>
-                    <ColumnHeader
-                      label="For"
-                      sortDirection={
-                        sortBy?.primary.name === 'title' ? sortBy.primary.direction : undefined
-                      }
-                      onSort={(direction) => handleOnSort({ name: 'title', direction })}
-                    />
-                  </th>
-                )}
-                {isColumnSelected(LocalPaymentRequestTableColumns.Requested) && (
-                  <th
-                    className={classNames(
-                      commonThClasses,
-                      '2xl:w-44 xl:w-36 lg:w-32 text-right pr-0',
-                    )}
-                  >
-                    <ColumnHeader
-                      label="Requested"
-                      sortDirection={
-                        sortBy?.primary.name === 'amount' ? sortBy.primary.direction : undefined
-                      }
-                      onSort={(direction) => handleOnSort({ name: 'amount', direction })}
-                    />
-                  </th>
-                )}
+        <div className="overflow-x-scroll">
+          {((paymentRequestsExist && !paymentRequests) ||
+            (paymentRequests && paymentRequests.length > 0)) && (
+            <table className="hidden lg:table table-fixed text-left w-full  bg-white">
+              <colgroup>
+                {isColumnSelected(LocalPaymentRequestTableColumns.Created) && <col />}
+                {isColumnSelected(LocalPaymentRequestTableColumns.For) && <col />}
+                {isColumnSelected(LocalPaymentRequestTableColumns.Requested) && <col />}
                 {isColumnSelected(LocalPaymentRequestTableColumns.Paid) && (
                   <>
-                    <th
-                      className={classNames(commonThClasses, '2xl:w-44 xl:w-40 lg:w-36 text-right')}
-                    >
-                      <ColumnHeader label="Paid" />
-                    </th>
-
-                    <th className={classNames('pb-11 2xl:w-32 xl:w-28 lg:w-24')}></th>
+                    <col />
+                    <col />
                   </>
                 )}
+                {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && <col />}
+                {isColumnSelected(LocalPaymentRequestTableColumns.OrderId) && <col />}
+                {isColumnSelected(LocalPaymentRequestTableColumns.PaymentRequestId) && <col />}
+                <col className="w-full min-w-[180px]" />
+              </colgroup>
+              <thead>
+                <tr>
+                  {isColumnSelected(LocalPaymentRequestTableColumns.Created) && (
+                    <th
+                      className={classNames(commonThClasses, '2xl:w-36 xl:w-28 lg:w-24 text-left')}
+                    >
+                      <ColumnHeader
+                        label="Created"
+                        sortDirection={
+                          sortBy?.primary.name === 'created' ? sortBy.primary.direction : undefined
+                        }
+                        onSort={(direction) => handleOnSort({ name: 'created', direction })}
+                      />
+                    </th>
+                  )}
+                  {isColumnSelected(LocalPaymentRequestTableColumns.For) && (
+                    <th
+                      className={classNames(commonThClasses, '2xl:w-44 xl:w-32 lg:w-28 text-left')}
+                    >
+                      <ColumnHeader
+                        label="For"
+                        sortDirection={
+                          sortBy?.primary.name === 'title' ? sortBy.primary.direction : undefined
+                        }
+                        onSort={(direction) => handleOnSort({ name: 'title', direction })}
+                      />
+                    </th>
+                  )}
+                  {isColumnSelected(LocalPaymentRequestTableColumns.Requested) && (
+                    <th
+                      className={classNames(
+                        commonThClasses,
+                        '2xl:w-44 xl:w-36 lg:w-32 text-right pr-0',
+                      )}
+                    >
+                      <ColumnHeader
+                        label="Requested"
+                        sortDirection={
+                          sortBy?.primary.name === 'amount' ? sortBy.primary.direction : undefined
+                        }
+                        onSort={(direction) => handleOnSort({ name: 'amount', direction })}
+                      />
+                    </th>
+                  )}
+                  {isColumnSelected(LocalPaymentRequestTableColumns.Paid) && (
+                    <>
+                      <th
+                        className={classNames(
+                          commonThClasses,
+                          '2xl:w-44 xl:w-40 lg:w-36 text-right',
+                        )}
+                      >
+                        <ColumnHeader label="Paid" />
+                      </th>
 
-                {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && (
-                  <th className={classNames(commonThClasses, 'w-64')}>
-                    <ColumnHeader label="Payment Attempts" />
-                  </th>
-                )}
+                      <th className={classNames('pb-11 2xl:w-32 xl:w-28 lg:w-24')}></th>
+                    </>
+                  )}
 
-                {/* 
+                  {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && (
+                    <th className={classNames(commonThClasses, 'w-64')}>
+                      <ColumnHeader label="Payment Attempts" />
+                    </th>
+                  )}
+                  {isColumnSelected(LocalPaymentRequestTableColumns.OrderId) && (
+                    <th
+                      className={classNames(commonThClasses, '2xl:w-44 xl:w-32 lg:w-28 text-left')}
+                    >
+                      <ColumnHeader label="Order ID" />
+                    </th>
+                  )}
+                  {isColumnSelected(LocalPaymentRequestTableColumns.PaymentRequestId) && (
+                    <th className={classNames(commonThClasses, 'w-80')}>
+                      <ColumnHeader label="Payment Request ID" />
+                    </th>
+                  )}
+
+                  {/* 
                 Tags column 
                 However, it's used to display the
                 pagination component in the table header
               */}
-                <th colSpan={2} className={classNames(commonThClasses, 'w-68')}>
-                  <Pager
-                    pageSize={pageSize}
-                    totalRecords={totalRecords}
-                    onPageChange={(newPage) => onPageChanged && onPageChanged(newPage)}
-                  />
-                </th>
-              </tr>
-            </thead>
-            <tbody>
-              {((isLoading && paymentRequestsExist) ||
-                (paymentRequestsExist && !paymentRequests)) &&
-                // Create array of 12 empty rows
-                // to display a loading skeleton
-                // while the data is being fetched
-                // from the server
-                Array.from(Array(12)).map((_, index) => (
-                  <tr
-                    key={`pr-placeholder-${index}`}
-                    className="animate-pulse border-b border-[#F1F2F3]"
-                  >
-                    {/* Created */}
-                    {isColumnSelected(LocalPaymentRequestTableColumns.Created) && (
-                      <td className="py-6">
-                        <div className="w-1/2 ml-4 h-2 bg-[#E0E9EB] rounded-lg" />
-                      </td>
-                    )}
-
-                    {/* For */}
-                    {isColumnSelected(LocalPaymentRequestTableColumns.For) && (
-                      <td className="py-6">
-                        <div className="w-1/2 ml-4 h-2 bg-[#E0E9EB] rounded-lg" />
-                      </td>
-                    )}
-
-                    {/* Amount */}
-                    {isColumnSelected(LocalPaymentRequestTableColumns.Requested) && (
-                      <td className="px-0 py-6 text-right">
-                        <div className="w-3/4 ml-auto h-2 bg-[#E0E9EB] rounded-l-lg" />
-                      </td>
-                    )}
-
-                    {/* Paid */}
-                    {/* Status */}
-                    {isColumnSelected(LocalPaymentRequestTableColumns.Paid) && (
-                      <>
-                        <td className="px-0 py-6">
-                          <div className="w-1/2 ml-auto h-2 bg-[#E0E9EB] rounded-l-lg" />
+                  <th colSpan={2} className={classNames(commonThClasses, 'w-68')}>
+                    <Pager
+                      pageSize={pageSize}
+                      totalRecords={totalRecords}
+                      onPageChange={(newPage) => onPageChanged && onPageChanged(newPage)}
+                    />
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {((isLoading && paymentRequestsExist) ||
+                  (paymentRequestsExist && !paymentRequests)) &&
+                  // Create array of 12 empty rows
+                  // to display a loading skeleton
+                  // while the data is being fetched
+                  // from the server
+                  Array.from(Array(12)).map((_, index) => (
+                    <tr
+                      key={`pr-placeholder-${index}`}
+                      className="animate-pulse border-b border-[#F1F2F3]"
+                    >
+                      {/* Created */}
+                      {isColumnSelected(LocalPaymentRequestTableColumns.Created) && (
+                        <td className="py-6">
+                          <div className="w-1/2 ml-4 h-2 bg-[#E0E9EB] rounded-lg" />
                         </td>
+                      )}
 
+                      {/* For */}
+                      {isColumnSelected(LocalPaymentRequestTableColumns.For) && (
+                        <td className="py-6">
+                          <div className="w-1/2 ml-4 h-2 bg-[#E0E9EB] rounded-lg" />
+                        </td>
+                      )}
+
+                      {/* Amount */}
+                      {isColumnSelected(LocalPaymentRequestTableColumns.Requested) && (
+                        <td className="px-0 py-6 text-right">
+                          <div className="w-3/4 ml-auto h-2 bg-[#E0E9EB] rounded-l-lg" />
+                        </td>
+                      )}
+
+                      {/* Paid */}
+                      {/* Status */}
+                      {isColumnSelected(LocalPaymentRequestTableColumns.Paid) && (
+                        <>
+                          <td className="px-0 py-6">
+                            <div className="w-1/2 ml-auto h-2 bg-[#E0E9EB] rounded-l-lg" />
+                          </td>
+
+                          <td className="px-0 py-6">
+                            <div className="w-1/2 h-2 bg-[#E0E9EB] rounded-r-lg mr-4" />
+                          </td>
+                        </>
+                      )}
+
+                      {/* Payment Attempts */}
+                      {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && (
                         <td className="px-0 py-6">
                           <div className="w-1/2 h-2 bg-[#E0E9EB] rounded-r-lg mr-4" />
                         </td>
-                      </>
-                    )}
+                      )}
 
-                    {/* Payment Attempts */}
-                    {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && (
-                      <td className="px-0 py-6">
-                        <div className="w-1/2 h-2 bg-[#E0E9EB] rounded-r-lg mr-4" />
-                      </td>
-                    )}
-
-                    {/* Extra */}
-                    {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
-                      <td className="py-6">
-                        <div className="w-full ml-auto h-2 bg-[#E0E9EB] rounded-lg mr-2" />
-                      </td>
-                    )}
-                  </tr>
-                ))}
-              {!isLoading &&
-                paymentRequests &&
-                paymentRequests.length > 0 &&
-                paymentRequests?.map((paymentRequest, index) => (
-                  <PaymentRequestRow
-                    key={`pr-${index}`}
-                    {...paymentRequest}
-                    onClick={(event) => onPaymentRequestClickedHandler(event, paymentRequest)}
-                    onDuplicate={() =>
-                      onPaymentRequestDuplicateClicked &&
-                      onPaymentRequestDuplicateClicked(paymentRequest)
-                    }
-                    onDelete={
-                      paymentRequest.remoteStatus === PaymentResult.None
-                        ? () =>
-                            onPaymentRequestDeleteClicked &&
-                            onPaymentRequestDeleteClicked(paymentRequest)
-                        : undefined
-                    }
-                    onCopyLink={() =>
-                      onPaymentRequestCopyLinkClicked &&
-                      onPaymentRequestCopyLinkClicked(paymentRequest)
-                    }
-                    onOpenPaymentPage={() => onOpenPaymentPage && onOpenPaymentPage(paymentRequest)}
-                    selected={selectedPaymentRequestID === paymentRequest.id}
-                    columns={columns}
-                  />
-                ))}
-            </tbody>
-          </table>
-        )}
+                      {/* Extra */}
+                      {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
+                        <td className="py-6">
+                          <div className="w-full ml-auto h-2 bg-[#E0E9EB] rounded-lg mr-2" />
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                {!isLoading &&
+                  paymentRequests &&
+                  paymentRequests.length > 0 &&
+                  paymentRequests?.map((paymentRequest, index) => (
+                    <PaymentRequestRow
+                      key={`pr-${index}`}
+                      {...paymentRequest}
+                      onClick={(event) => onPaymentRequestClickedHandler(event, paymentRequest)}
+                      onDuplicate={() =>
+                        onPaymentRequestDuplicateClicked &&
+                        onPaymentRequestDuplicateClicked(paymentRequest)
+                      }
+                      onDelete={
+                        paymentRequest.remoteStatus === PaymentResult.None
+                          ? () =>
+                              onPaymentRequestDeleteClicked &&
+                              onPaymentRequestDeleteClicked(paymentRequest)
+                          : undefined
+                      }
+                      onCopyLink={() =>
+                        onPaymentRequestCopyLinkClicked &&
+                        onPaymentRequestCopyLinkClicked(paymentRequest)
+                      }
+                      onOpenPaymentPage={() =>
+                        onOpenPaymentPage && onOpenPaymentPage(paymentRequest)
+                      }
+                      selected={selectedPaymentRequestID === paymentRequest.id}
+                      columns={columns}
+                    />
+                  ))}
+              </tbody>
+            </table>
+          )}
+        </div>
 
         {!isLoading && paymentRequests && paymentRequests.length > 0 && (
           <div className="py-2 mt-6">
