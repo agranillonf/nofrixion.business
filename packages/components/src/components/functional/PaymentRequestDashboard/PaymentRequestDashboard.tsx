@@ -20,7 +20,7 @@ import { useEffect, useState } from 'react'
 import { useStore } from 'zustand'
 
 import { Button, Icon } from '../../../components/ui/atoms'
-import useAccountsReceivableColumnsStore from '../../../lib/stores/useAccountsReceivableColumnsStore'
+import usePaymentRequestColumnsStore from '../../../lib/stores/usePaymentRequestColumnsStore'
 import {
   LocalPartialPaymentMethods,
   LocalPaymentMethodTypes,
@@ -48,7 +48,6 @@ import { SortDirection } from '../../ui/ColumnHeader/ColumnHeader'
 import DashboardTab from '../../ui/DashboardTab/DashboardTab'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
 import FilterControlsRow from '../../ui/FilterControlsRow/FilterControlsRow'
-import SelectColumns from '../../ui/molecules/SelectColumns/SelectColumns'
 import PaymentRequestTable from '../../ui/PaymentRequestTable/PaymentRequestTable'
 import ScrollArea from '../../ui/ScrollArea/ScrollArea'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
@@ -124,27 +123,27 @@ const PaymentRequestDashboardMain = ({
     },
   ])
 
-  const { accountsReceivableColumns, setAccountsReceivableColumns } = useStore(
-    useAccountsReceivableColumnsStore,
+  const { paymentRequestColumns, setPaymentRequestColumns } = useStore(
+    usePaymentRequestColumnsStore,
     (state) => state,
   ) ?? {
-    accountsReceivableColumns: undefined,
+    paymentRequestColumns: undefined,
   }
 
   useEffect(() => {
-    if (accountsReceivableColumns) {
+    if (paymentRequestColumns) {
       const newColumns = [...columns]
-      accountsReceivableColumns.forEach((column) => {
+      paymentRequestColumns.forEach((column) => {
         const foundColumn = newColumns.find((c) => c.id === column.id)
         if (foundColumn) {
           foundColumn.selected = column.selected
         }
       })
 
-      setAccountsReceivableColumns(columns)
+      setPaymentRequestColumns(columns)
       setColumns(newColumns)
     }
-  }, [accountsReceivableColumns])
+  }, [paymentRequestColumns])
 
   const [firstMetrics, setFirstMetrics] = useState<PaymentRequestMetrics | undefined>(undefined)
 
@@ -583,7 +582,7 @@ const PaymentRequestDashboardMain = ({
 
   const handleChangeInColumns = (columns: Column[]) => {
     setColumns(columns)
-    setAccountsReceivableColumns(columns)
+    setPaymentRequestColumns(columns)
   }
 
   const paymentRequestsExists =
@@ -710,8 +709,8 @@ const PaymentRequestDashboardMain = ({
           isSystemErrorOpen={isSystemErrorOpen}
           onCloseSystemError={onCloseSystemErrorModal}
           columns={columns}
+          setColumns={handleChangeInColumns}
         />
-        <SelectColumns columns={columns} setColumns={handleChangeInColumns} />
       </div>
 
       {paymentRequests && paymentRequests.length < totalRecords && (

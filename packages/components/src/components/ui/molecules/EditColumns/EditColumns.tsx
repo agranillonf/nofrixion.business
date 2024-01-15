@@ -5,20 +5,25 @@ import { cn } from '../../../../utils'
 import { Icon } from '../../atoms'
 import Checkbox from '../../Checkbox/Checkbox'
 
-export interface SelectColumnsProps {
+export interface EditColumnsProps {
   columns: Column[]
   className?: string
   setColumns: (columns: Column[]) => void
 }
 
-const SelectColumns = ({ columns, className, setColumns }: SelectColumnsProps) => {
+const EditColumns = ({ columns, className, setColumns }: EditColumnsProps) => {
+  const singleSelectedColumn =
+    columns.filter((column) => column.selected).length === 1
+      ? columns.find((column) => column.selected)
+      : undefined
+
   return (
     <Popover className={cn('relative', className)}>
       <Popover.Button>
         <Icon name="column-edit/16" />
       </Popover.Button>
 
-      <Popover.Panel className="absolute z-10 bottom-6 bg-white">
+      <Popover.Panel className="absolute z-9 bottom-6 bg-white">
         <div className="rounded shadow-[0_0_8px_0_rgba(4,41,49,0.10)] px-4 pt-4">
           {columns.map((column, index) => (
             <div key={index} className="pb-4">
@@ -30,6 +35,7 @@ const SelectColumns = ({ columns, className, setColumns }: SelectColumnsProps) =
                   newColumns[index].selected = value
                   setColumns(newColumns)
                 }}
+                disabled={singleSelectedColumn && singleSelectedColumn.id === column.id}
               />
             </div>
           ))}
@@ -39,4 +45,4 @@ const SelectColumns = ({ columns, className, setColumns }: SelectColumnsProps) =
   )
 }
 
-export default SelectColumns
+export default EditColumns

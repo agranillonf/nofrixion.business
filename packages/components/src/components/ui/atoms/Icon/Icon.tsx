@@ -1170,6 +1170,11 @@ export const Icons = {
       />
     </SVG>
   ),
+  'checked/12': (className: string) => (
+    <SVG className={className} size="12">
+      <path d="M1 5.70588L4.2 9L11 2" strokeWidth="2" strokeLinecap="round" />
+    </SVG>
+  ),
 } as const
 
 export type IconNames = keyof typeof Icons

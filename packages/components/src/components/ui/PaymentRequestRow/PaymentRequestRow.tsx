@@ -220,20 +220,19 @@ const Row = ({
         </td>
       )}
 
-      {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
-        <td className={classNames(commonTdClasses, `text-right pr-1.5 custom-backdrop-blur-${id}`)}>
-          <TagList labels={tags.map((tag) => tag.name)} />
-        </td>
-      )}
-
-      <td className={`pr-2 w-8 custom-backdrop-blur-${id}`}>
-        <PaymentRequestActionMenu
-          onDuplicate={onDuplicate}
-          onCopyLink={onCopyLink}
-          onDelete={onDelete ? onDeletePaymentRequestClicked : undefined}
-          onBlur={onCancelDeletingPaymentRequestClicked}
-          onOpenPaymentPage={onOpenPaymentPage}
-        />
+      <td className={classNames(commonTdClasses, `text-right pr-1.5 custom-backdrop-blur-${id}`)}>
+        <div className="flex flex-row justify-end">
+          {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
+            <TagList labels={tags.map((tag) => tag.name)} />
+          )}
+          <PaymentRequestActionMenu
+            onDuplicate={onDuplicate}
+            onCopyLink={onCopyLink}
+            onDelete={onDelete ? onDeletePaymentRequestClicked : undefined}
+            onBlur={onCancelDeletingPaymentRequestClicked}
+            onOpenPaymentPage={onOpenPaymentPage}
+          />
+        </div>
       </td>
     </tr>
   )
