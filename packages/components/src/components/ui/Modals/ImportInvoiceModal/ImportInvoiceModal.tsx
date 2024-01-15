@@ -212,7 +212,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                                   <Icon name="delete/16" className="text-control-grey-hover" />
                                 </button>
                               </div>
-                              <span className="font-normal text-base/8 text-control-grey">
+                              <span className="font-normal text-sm/8 text-control-grey">
                                 <span className="font-semibold">{invoices?.length}</span> invoice
                                 {invoices?.length == 1 ? ' ' : 's '}
                                 loaded

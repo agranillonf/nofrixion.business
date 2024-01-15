@@ -60,9 +60,9 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
         Note: keep in mind that the date in the CSV will come with UTC timezone
         so if the user is in a different timezone, the date shown in the UI will be different
       */}
-      <span className="w-[7.5rem]">{formatDateWithYear(new Date(InvoiceDate))}</span>
+      <span className="w-[7.5rem]">{formatDateWithYear(new Date(InvoiceDate), 'cardinal')}</span>
 
-      <span className="w-[7.5rem]">{formatDateWithYear(new Date(DueDate))}</span>
+      <span className="w-[7.5rem]">{formatDateWithYear(new Date(DueDate), 'cardinal')}</span>
 
       <span className="w-[7.5rem] font-medium">
         {/* TODO: Include subtotal, taxes and discounts as per design */}

@@ -99,7 +99,7 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
 
   return (
     <div className="font-inter bg-main-grey text-default-text h-full">
-      <div className="flex gap-8 justify-between items-center mb-8 md:mb-[68px] md:px-4 h-12">
+      <div className="flex gap-8 justify-between items-center mb-8 md:mb-9 md:px-4 h-12">
         <span className="leading-8 font-semibold text-2xl md:text-[1.75rem]">Accounts payable</span>
 
         <div className="flex">
@@ -152,6 +152,7 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
       <AnimatedTabs
         onTabChange={(tab) => onTabChange(tab as TabValues)}
         fullWidthTabs={false}
+        className="lg:mb-6"
         tabs={[
           {
             icon: 'outgoing/16',

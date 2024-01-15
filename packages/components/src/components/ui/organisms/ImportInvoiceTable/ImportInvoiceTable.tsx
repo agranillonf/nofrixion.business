@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { LocalInvoice } from '../../../../types/LocalTypes'
 import { DoubleSort, Sort } from '../../../../types/Sort'
@@ -23,6 +23,8 @@ const ImportInvoiceTable: React.FC<ImportInvoiceTableProps> = ({
   selectedInvoices,
   setSelectedInvoices,
 }) => {
+  const [stateMainSwitch, setStateMainSwitch] = useState<'all' | 'none'>('all')
+
   const [sortBy, setSortBy] = useState<DoubleSortByInvoices>({
     primary: {
       name: 'InvoiceNumber',
@@ -96,6 +98,14 @@ const ImportInvoiceTable: React.FC<ImportInvoiceTableProps> = ({
     return compare
   }
 
+  useEffect(() => {
+    if (selectedInvoices.length === 0) {
+      setStateMainSwitch('none')
+    } else if (selectedInvoices.length === invoices.length) {
+      setStateMainSwitch('all')
+    }
+  }, [selectedInvoices])
+
   return (
     <div>
       <div className="flex gap-x-6 w-full mb-8">
@@ -148,11 +158,13 @@ const ImportInvoiceTable: React.FC<ImportInvoiceTableProps> = ({
         </div>
         <div className="ml-auto">
           <Switch
-            value={selectedInvoices?.length === invoices.length}
-            onChange={(value) => {
-              if (value) {
+            value={stateMainSwitch === 'all'}
+            onChange={(newValue) => {
+              if (newValue) {
+                setStateMainSwitch('all')
                 setSelectedInvoices(invoices.map((invoice) => invoice.InvoiceNumber))
               } else {
+                setStateMainSwitch('none')
                 setSelectedInvoices([])
               }
             }}
@@ -172,7 +184,7 @@ const ImportInvoiceTable: React.FC<ImportInvoiceTableProps> = ({
                 setSelectedInvoices((prev) => prev.filter((id) => id !== invoice.InvoiceNumber))
               }
             }}
-            className="py-4"
+            className="pb-4"
             {...invoice}
           />
         ))}
