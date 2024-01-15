@@ -37,13 +37,22 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
   return (
     <div
       className={cn(
-        'flex text-sm/4 text-default-text gap-x-6 border-b border-border-grey',
+        'flex text-sm/4 text-default-text gap-x-6 border-b border-border-grey transition',
+        {
+          'text-disabled-text': !isSelected,
+        },
         className,
       )}
     >
       <div className="flex flex-col w-[5.5rem]">
         <span className="mb-2">{InvoiceNumber}</span>
-        <span className="text-xs text-grey-text">{PaymentTerms}</span>
+        <span
+          className={cn('text-xs text-grey-text transition', {
+            'text-disabled-text': !isSelected,
+          })}
+        >
+          {PaymentTerms}
+        </span>
       </div>
 
       {/* 
@@ -61,7 +70,14 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
       </span>
 
       <div className="w-[12.5rem] ml-10">
-        <Contact name={contact} email={RemittanceEmail} size="normal" />
+        <Contact
+          name={contact}
+          email={RemittanceEmail}
+          size="normal"
+          emailClassName={cn('transition', {
+            'text-disabled-text': !isSelected,
+          })}
+        />
       </div>
 
       {/* TODO: Better Support GBP UI for import (no design yet) */}

@@ -1,6 +1,7 @@
 import { cva, VariantProps } from 'class-variance-authority'
 
 import { LocalContact } from '../../../types/LocalTypes'
+import { cn } from '../../../utils'
 import { defaultAnonymousUserName } from '../../../utils/constants'
 
 const containerVariant = cva('flex flex-col', {
@@ -44,13 +45,14 @@ const emailVariants = cva('text-grey-text break-all', {
 
 export interface ContactProps extends LocalContact {
   size?: VariantProps<typeof nameVariants>['size']
+  emailClassName?: string
 }
 
-const Contact = ({ name, email, size = 'small' }: ContactProps) => {
+const Contact = ({ name, email, size = 'small', emailClassName }: ContactProps) => {
   return (
     <div className={containerVariant({ size })}>
       <p className={nameVariants({ size })}>{name ?? defaultAnonymousUserName}</p>
-      {email && <p className={emailVariants({ size })}>{email}</p>}
+      {email && <p className={cn(emailVariants({ size }), emailClassName)}>{email}</p>}
     </div>
   )
 }
