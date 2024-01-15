@@ -9,11 +9,11 @@ import { Icon } from '../atoms'
 
 export interface PaymentAttemptEventProps {
   paymentAttemptEvent: LocalPaymentAttemptEvent
-  key: number
+  key: number | undefined
   className?: string
 }
 
-const PaymentAttemptEvent = ({ paymentAttemptEvent, key, className }: PaymentAttemptEventProps) => {
+const PaymentAttemptEvent = ({ paymentAttemptEvent, className }: PaymentAttemptEventProps) => {
   const formatter = new Intl.NumberFormat(navigator.language, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2,
@@ -51,7 +51,7 @@ const PaymentAttemptEvent = ({ paymentAttemptEvent, key, className }: PaymentAtt
     }
   }
   return (
-    <Fragment key={key}>
+    <Fragment>
       <div className={cn('group whitespace-nowrap flex flex-row items-center', className)}>
         <div className="flex flex-row items-center mr-[18px]">
           <span>

@@ -200,7 +200,17 @@ const PaymentRequestDashboardMain = ({
     true,
   )
 
-  const { data: accounts } = useAccounts({ merchantId }, { apiUrl, authToken: token })
+  const [accounts, setAccounts] = useState<LocalAccount[] | undefined>(undefined)
+
+  const { data: accountsResponse } = useAccounts({ merchantId }, { apiUrl, authToken: token })
+
+  useEffect(() => {
+    if (accountsResponse?.status === 'success') {
+      setAccounts(remoteAccountsToLocalAccounts(accountsResponse.data))
+    } else if (accountsResponse?.status === 'error') {
+      console.warn(accountsResponse.error)
+    }
+  }, [accountsResponse])
 
   const { data: metricsResponse, isLoading: isLoadingMetrics } = usePaymentRequestMetrics(
     {
@@ -523,14 +533,16 @@ const PaymentRequestDashboardMain = ({
           Accounts Receivable
         </span>
         <div>
-          <Button
-            size="large"
-            onClick={onCreatePaymentRequest}
-            className="w-10 h-10 md:w-full md:h-full"
-          >
-            <span className="hidden md:inline-block">Create payment request</span>
-            <Icon name="add/16" className="md:hidden" />
-          </Button>
+          {accounts && accounts.length > 0 && (
+            <Button
+              size="large"
+              onClick={onCreatePaymentRequest}
+              className="w-10 h-10 md:w-full md:h-full"
+            >
+              <span className="hidden md:inline-block">Create payment request</span>
+              <Icon name="add/16" className="md:hidden" />
+            </Button>
+          )}
         </div>
       </div>
 
@@ -682,11 +694,7 @@ const PaymentRequestDashboardMain = ({
         minAmount={minAmountFilter}
         maxAmount={maxAmountFilter}
         tags={tagsFilter}
-        accounts={
-          accounts?.status === 'success' && accounts.data
-            ? remoteAccountsToLocalAccounts(accounts.data)
-            : []
-        }
+        accounts={accounts ?? []}
       ></PaymentRequestDetailsModal>
     </div>
   )

@@ -117,6 +117,7 @@ const InviteUserModal: React.FC<InviteUserModalProps> = ({
                     }}
                     warningValidation={onValidateEmail}
                     required
+                    maxLength={254}
                     formSubmitted={sendInviteClicked}
                   />
                 </div>
