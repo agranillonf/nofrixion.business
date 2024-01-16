@@ -96,6 +96,7 @@ export interface LocalPaymentAttempt {
   events?: LocalPaymentAttemptEvent[]
   displayStatus: LocalPaymentAttemptStatus
   latestEventOccurredAt?: Date
+  pispAuthorisationFailedAt?: Date
 }
 
 export interface LocalPaymentAttemptEvent {
