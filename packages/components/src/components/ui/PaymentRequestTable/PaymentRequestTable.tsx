@@ -292,7 +292,7 @@ const PaymentRequestTable = ({
         )}
 
         {!isLoading && paymentRequests && paymentRequests.length > 0 && (
-          <div className="py-2 mt-6">
+          <div className="pt-2 mt-6">
             {columns && setColumns && (
               <EditColumns columns={columns} setColumns={setColumns}></EditColumns>
             )}
