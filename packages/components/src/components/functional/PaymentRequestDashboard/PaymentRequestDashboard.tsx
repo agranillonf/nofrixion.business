@@ -694,7 +694,7 @@ const PaymentRequestDashboardMain = ({
         </Tabs.Root>
       </ScrollArea>
 
-      <div className="lg:bg-white lg:min-h-[18rem] lg:py-10 lg:px-6 lg:rounded-lg">
+      <div className="lg:bg-white lg:min-h-[18rem] lg:pt-10 lg:pb-6 lg:px-6 lg:rounded-lg">
         <PaymentRequestTable
           paymentRequests={paymentRequests?.map((paymentRequest) =>
             remotePaymentRequestToLocalPaymentRequest(paymentRequest),

@@ -23,7 +23,7 @@ const EditColumns = ({ columns, className, setColumns }: EditColumnsProps) => {
         <Icon name="column-edit/16" />
       </Popover.Button>
 
-      <Popover.Panel className="absolute z-9 bottom-6 bg-white">
+      <Popover.Panel className="absolute z-9 bottom-10 bg-white">
         <div className="rounded shadow-[0_0_8px_0_rgba(4,41,49,0.10)] px-4 pt-4">
           {columns.map((column, index) => (
             <div key={index} className="pb-4">
