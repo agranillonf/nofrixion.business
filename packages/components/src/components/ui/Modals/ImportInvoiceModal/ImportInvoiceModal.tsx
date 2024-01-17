@@ -180,7 +180,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                         value="review"
                         className="rounded-r-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
                         onClick={() => setSelectedTab('review')}
-                        disabled={fileName == undefined}
+                        disabled={fileName == undefined || !invoices || invoices?.length == 0}
                       >
                         <div className="pr-4">2</div>
                         <div>Review and import</div>
