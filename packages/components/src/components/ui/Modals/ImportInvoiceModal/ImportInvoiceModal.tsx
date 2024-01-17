@@ -198,7 +198,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                               {invoices && invoices.length == 0 && (
                                 <>
                                   {
-                                    "The CSV format doesn't match the template. Please make sure you are using "
+                                    'No valid invoices could be loaded. Please make sure you are using the right '
                                   }
                                   <a
                                     // TODO: Replace with actual link
@@ -207,8 +207,9 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                                     rel="noreferrer"
                                     className="underline"
                                   >
-                                    this file.
+                                    template
                                   </a>
+                                  {'.'}
                                 </>
                               )}
 
