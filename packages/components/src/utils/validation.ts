@@ -170,15 +170,17 @@ const validateInvoices = (invoicePayments: LocalInvoice[]): ValidationResult[] =
   invoicePayments.map((invoicePayment, index) => {
     const result = InvoiceSchema.safeParse(invoicePayment)
 
+    // Line number is index + 2 because the first line is the header and the index starts at 0
+
     if (result.success) {
       results.push({
-        lineNumber: index + 1,
+        lineNumber: index + 2,
         valid: true,
         result: result.data as LocalInvoice,
       })
     } else {
       results.push({
-        lineNumber: index + 1,
+        lineNumber: index + 2,
         valid: false,
         errors: result.error.issues,
         result: invoicePayment,
