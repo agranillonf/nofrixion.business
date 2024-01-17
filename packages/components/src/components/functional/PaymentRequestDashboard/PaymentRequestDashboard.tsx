@@ -17,10 +17,17 @@ import * as Tabs from '@radix-ui/react-tabs'
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { add, endOfDay, set, startOfDay } from 'date-fns'
 import { useEffect, useState } from 'react'
+import { useStore } from 'zustand'
 
 import { Button, Icon } from '../../../components/ui/atoms'
-import { LocalPartialPaymentMethods, LocalPaymentMethodTypes } from '../../../types/LocalEnums'
+import usePaymentRequestColumnsStore from '../../../lib/stores/usePaymentRequestColumnsStore'
 import {
+  LocalPartialPaymentMethods,
+  LocalPaymentMethodTypes,
+  LocalPaymentRequestTableColumns,
+} from '../../../types/LocalEnums'
+import {
+  Column,
   LocalAccount,
   LocalCounterparty,
   LocalPaymentRequest,
@@ -82,6 +89,61 @@ const PaymentRequestDashboardMain = ({
       name: 'created',
     },
   })
+
+  const [columns, setColumns] = useState<Column[]>([
+    {
+      id: LocalPaymentRequestTableColumns.Created,
+      label: 'Created',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.For,
+      label: 'For',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.Requested,
+      label: 'Requested',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.Paid,
+      label: 'Paid',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.PaymentAttempts,
+      label: 'Payment Attempts',
+      selected: true,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.Tags,
+      label: 'Tags',
+      selected: true,
+    },
+  ])
+
+  const { paymentRequestColumns, setPaymentRequestColumns } = useStore(
+    usePaymentRequestColumnsStore,
+    (state) => state,
+  ) ?? {
+    paymentRequestColumns: undefined,
+  }
+
+  useEffect(() => {
+    if (paymentRequestColumns) {
+      const newColumns = [...columns]
+      paymentRequestColumns.forEach((column) => {
+        const foundColumn = newColumns.find((c) => c.id === column.id)
+        if (foundColumn) {
+          foundColumn.selected = column.selected
+        }
+      })
+
+      setPaymentRequestColumns(columns)
+      setColumns(newColumns)
+    }
+  }, [paymentRequestColumns])
 
   const [firstMetrics, setFirstMetrics] = useState<PaymentRequestMetrics | undefined>(undefined)
 
@@ -518,6 +580,11 @@ const PaymentRequestDashboardMain = ({
     setIsSystemErrorOpen(true)
   }
 
+  const handleChangeInColumns = (columns: Column[]) => {
+    setColumns(columns)
+    setPaymentRequestColumns(columns)
+  }
+
   const paymentRequestsExists =
     !isLoadingMetrics &&
     metrics &&
@@ -617,7 +684,7 @@ const PaymentRequestDashboardMain = ({
         </Tabs.Root>
       </ScrollArea>
 
-      <div className="lg:bg-white lg:min-h-[18rem] lg:py-10 lg:px-6 lg:rounded-lg">
+      <div className="lg:bg-white lg:min-h-[18rem] lg:pt-10 lg:pb-6 lg:px-6 lg:rounded-lg">
         <PaymentRequestTable
           paymentRequests={paymentRequests?.map((paymentRequest) =>
             remotePaymentRequestToLocalPaymentRequest(paymentRequest),
@@ -641,6 +708,8 @@ const PaymentRequestDashboardMain = ({
           systemError={systemError}
           isSystemErrorOpen={isSystemErrorOpen}
           onCloseSystemError={onCloseSystemErrorModal}
+          columns={columns}
+          setColumns={handleChangeInColumns}
         />
       </div>
 

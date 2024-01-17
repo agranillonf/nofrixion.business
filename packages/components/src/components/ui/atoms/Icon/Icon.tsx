@@ -962,6 +962,25 @@ export const Icons = {
       />
     </SVG>
   ),
+  'column-edit/16': (className: string) => (
+    <SVG className={cn(className)} size="16">
+      <path
+        d="M1.5 0.5H2.5C2.5 0.5 3.5 0.5 3.5 1.5V14.5C3.5 14.5 3.5 15.5 2.5 15.5H1.5C1.5 15.5 0.5 15.5 0.5 14.5V1.5C0.5 1.5 0.5 0.5 1.5 0.5Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M7.5 0.5H8.5C8.5 0.5 9.5 0.5 9.5 1.5V14.5C9.5 14.5 9.5 15.5 8.5 15.5H7.5C7.5 15.5 6.5 15.5 6.5 14.5V1.5C6.5 1.5 6.5 0.5 7.5 0.5Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M13.5 0.5H14.5C14.5 0.5 15.5 0.5 15.5 1.5V14.5C15.5 14.5 15.5 15.5 14.5 15.5H13.5C13.5 15.5 12.5 15.5 12.5 14.5V1.5C12.5 1.5 12.5 0.5 13.5 0.5Z"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+    </SVG>
+  ),
   'success-tick/12': (className: string) => (
     <SVG className={cn(className)} size="12">
       <path
@@ -1149,6 +1168,11 @@ export const Icons = {
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+    </SVG>
+  ),
+  'checked/12': (className: string) => (
+    <SVG className={className} size="12">
+      <path d="M1 5.70588L4.2 9L11 2" strokeWidth="2" strokeLinecap="round" />
     </SVG>
   ),
 } as const

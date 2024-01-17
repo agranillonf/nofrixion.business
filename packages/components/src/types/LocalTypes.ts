@@ -281,6 +281,12 @@ export enum ApproveType {
   BATCH_PAYOUT = 'BatchPayout',
 }
 
+export interface Column {
+  id: string
+  label: string
+  selected: boolean
+}
+
 export interface AutoSuggestions {
   fieldId: string
   values: AutoSuggestionValue[]
