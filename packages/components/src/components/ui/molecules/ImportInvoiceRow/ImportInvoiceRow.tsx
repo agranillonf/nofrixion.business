@@ -22,7 +22,6 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
   Subtotal,
   Discounts,
   Taxes,
-  OutstandingAmount,
   Contact: contact,
   RemittanceEmail,
   DestinationIban,
@@ -95,12 +94,6 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
             </div>
           </PopoverContent>
         </Popover>
-        {OutstandingAmount !== undefined && (
-          <span className="text-xs font-normal text-grey-text mt-2 text-end">
-            {formatCurrency(Currency)}
-            {OutstandingAmount} outstanding
-          </span>
-        )}
       </span>
 
       <div className="w-[12.5rem] ml-10">

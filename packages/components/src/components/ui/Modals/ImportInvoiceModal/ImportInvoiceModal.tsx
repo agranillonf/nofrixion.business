@@ -261,7 +261,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                         </FileInput>
                       </div>
                     </TabsContent>
-                    <TabsContent value="review" className="mt-14">
+                    <TabsContent value="review" className="mt-14 pb-14">
                       {invoices && (
                         <ImportInvoiceTable
                           invoices={invoices}
