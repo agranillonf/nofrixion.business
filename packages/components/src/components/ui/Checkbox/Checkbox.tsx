@@ -1,7 +1,8 @@
 import * as RadixCheckbox from '@radix-ui/react-checkbox'
 import { useId } from 'react'
 
-import CheckedIcon from '../../../assets/icons/checked-icon.svg'
+import { cn } from '../../../utils'
+import { Icon } from '../atoms'
 import InfoTooltip from '../InfoTooltip/InfoTooltip'
 
 export interface CheckboxProps {
@@ -10,9 +11,10 @@ export interface CheckboxProps {
   infoText?: string
   value: boolean
   onChange: (value: boolean) => void
+  disabled?: boolean
 }
 
-const Checkbox = ({ label, description, value, infoText, onChange }: CheckboxProps) => {
+const Checkbox = ({ label, description, value, infoText, onChange, disabled }: CheckboxProps) => {
   const id = useId()
 
   return (
@@ -23,9 +25,15 @@ const Checkbox = ({ label, description, value, infoText, onChange }: CheckboxPro
         checked={value}
         onCheckedChange={onChange}
         onClick={(event) => event.stopPropagation()}
+        disabled={disabled}
       >
-        <RadixCheckbox.Indicator className="w-full h-full block">
-          <img src={CheckedIcon} alt="Checked icon" className="w-3 h-full m-auto" />
+        <RadixCheckbox.Indicator
+          className={cn('w-full h-full block p-[2px]', { 'bg-[#EDF2F7]': disabled })}
+        >
+          <Icon
+            name="checked/12"
+            className={cn('text-[#40BFBF] ', disabled ? 'text-[#ABB2BA]' : 'text-[#40BFBF]')}
+          />
         </RadixCheckbox.Indicator>
       </RadixCheckbox.Root>
 

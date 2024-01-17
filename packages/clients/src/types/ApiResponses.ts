@@ -96,6 +96,7 @@ export type PaymentRequestPaymentAttempt = {
   status: PaymentResult
   walletName?: Wallets
   reconciledTransactionID?: string
+  pispAuthorisationFailedAt?: Date
 }
 
 export type PaymentRequestMinimal = {

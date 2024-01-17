@@ -287,7 +287,7 @@ export const mockPaymentAttemptEvents: LocalPaymentAttemptEvent[] = [
 export const mockPaymentAttempts: LocalPaymentAttempt[] = [
   {
     attemptKey: 'a3b752d2-c0a6-4846-90e5-d783bb4ec005',
-    occurredAt: new Date('2023-05-18T00:00:00.000Z'),
+    occurredAt: new Date(),
     paymentMethod: LocalPaymentMethodTypes.Card,
     amount: 20.02,
     currency: Currency.EUR,

@@ -97,6 +97,7 @@ export interface LocalPaymentAttempt {
   events?: LocalPaymentAttemptEvent[]
   displayStatus: LocalPaymentAttemptStatus
   latestEventOccurredAt?: Date
+  pispAuthorisationFailedAt?: Date
 }
 
 export interface LocalPaymentAttemptEvent {
@@ -279,6 +280,12 @@ export interface LocalBeneficiary {
 export enum ApproveType {
   PAYOUT = 'Payout',
   BATCH_PAYOUT = 'BatchPayout',
+}
+
+export interface Column {
+  id: string
+  label: string
+  selected: boolean
 }
 
 export interface AutoSuggestions {

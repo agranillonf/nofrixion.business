@@ -33,7 +33,8 @@ const DetailsTabs: React.FC<DetailsTabsProps> = ({
                       x.settledAt ||
                       x.cardPayerAuthenticationSetupFailedAt ||
                       x.cardAuthoriseFailedAt ||
-                      x.settleFailedAt,
+                      x.settleFailedAt ||
+                      x.pispAuthorisationFailedAt,
                   )
                   .sort((a, b) => {
                     return (

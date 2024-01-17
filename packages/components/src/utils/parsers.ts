@@ -351,6 +351,14 @@ const remotePaymentRequestToLocalPaymentRequest = (
           currency: paymentAttempt.currency,
         })
       }
+
+      if (paymentAttempt.pispAuthorisationFailedAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.AuthenticationFailure,
+          occurredAt: new Date(paymentAttempt.pispAuthorisationFailedAt),
+          currency: paymentAttempt.currency,
+        })
+      }
     }
     return events.sort((a, b) => {
       return new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()
@@ -432,7 +440,8 @@ const remotePaymentRequestToLocalPaymentRequest = (
       remotePaymentAttempt.status === PaymentResult.None &&
       (remotePaymentAttempt.settleFailedAt ||
         remotePaymentAttempt.cardAuthoriseFailedAt ||
-        remotePaymentAttempt.cardPayerAuthenticationSetupFailedAt)
+        remotePaymentAttempt.cardPayerAuthenticationSetupFailedAt ||
+        remotePaymentAttempt.pispAuthorisationFailedAt)
     ) {
       return 'failed'
     }
@@ -499,6 +508,7 @@ const remotePaymentRequestToLocalPaymentRequest = (
             cardAuthoriseFailedAt,
             cardPayerAuthenticationSetupFailedAt,
             settleFailedAt,
+            pispAuthorisationFailedAt,
           } = remotePaymentAttempt
 
           const events = extractEventsFromPaymentAttempt(remotePaymentRequest, remotePaymentAttempt)
@@ -536,6 +546,9 @@ const remotePaymentRequestToLocalPaymentRequest = (
             displayStatus: getPaymentAttemptStatus(remotePaymentAttempt),
             events: events,
             latestEventOccurredAt: latestEventOccurredAt,
+            pispAuthorisationFailedAt: pispAuthorisationFailedAt
+              ? new Date(pispAuthorisationFailedAt)
+              : undefined,
           })
         })
       return localPaymentAttempts
