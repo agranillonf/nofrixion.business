@@ -3,6 +3,7 @@ import classNames from 'classnames'
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion'
 import { useState } from 'react'
 
+import { LocalPaymentMethodTypes } from '../../../types/LocalEnums'
 import { LocalPaymentAttempt, LocalPaymentRequest } from '../../../types/LocalTypes'
 import PaymentAttemptsList from '../PaymentAttemptsList/PaymentAttemptsList'
 import PaymentInfo from '../PaymentInfo/PaymentInfo'
@@ -94,7 +95,8 @@ const DetailsTabs: React.FC<DetailsTabsProps> = ({
                     x.cardPayerAuthenticationSetupFailedAt ||
                     x.cardAuthoriseFailedAt ||
                     x.settleFailedAt ||
-                    x.pispAuthorisationFailedAt,
+                    x.pispAuthorisationFailedAt ||
+                    x.paymentMethod === LocalPaymentMethodTypes.Lightning,
                 )
                 .sort((a, b) => {
                   return (

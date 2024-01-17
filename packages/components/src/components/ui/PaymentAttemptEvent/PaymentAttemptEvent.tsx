@@ -26,10 +26,12 @@ const PaymentAttemptEvent = ({ paymentAttemptEvent, className }: PaymentAttemptE
       case LocalPaymentAttemptEventType.SettlementFailed:
       case LocalPaymentAttemptEventType.CaptureFailed:
       case LocalPaymentAttemptEventType.RefundFailed:
+      case LocalPaymentAttemptEventType.InvoiceExpired:
         return <Icon name="close/12" className="text-negative-red"></Icon>
       case LocalPaymentAttemptEventType.Authorised:
         return <Icon name="authorise/12"></Icon>
 
+      case LocalPaymentAttemptEventType.InvoicePaid:
       case LocalPaymentAttemptEventType.Received:
         return <Icon name="check/12" className="text-positive-green"></Icon>
 
@@ -46,6 +48,7 @@ const PaymentAttemptEvent = ({ paymentAttemptEvent, className }: PaymentAttemptE
         return <Icon name="pending/12"></Icon>
       case LocalPaymentAttemptEventType.AuthenticationSetupStarted:
       case LocalPaymentAttemptEventType.BankPaymentInitiated:
+      case LocalPaymentAttemptEventType.InvoiceCreated:
       default:
         return <Icon name="start/12"></Icon>
     }
@@ -64,7 +67,7 @@ const PaymentAttemptEvent = ({ paymentAttemptEvent, className }: PaymentAttemptE
             paymentAttemptEvent.refundedAmount > 0 &&
             !paymentAttemptEvent.isCardVoid &&
             paymentAttemptEvent.eventType ===
-              LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
+            LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
               <span className="text-xs font-normal leading-6 mr-1">
                 {paymentAttemptEvent.currency === Currency.EUR ? '€' : '£'}
                 {formatter.format(Number(paymentAttemptEvent.refundedAmount))}
@@ -76,7 +79,7 @@ const PaymentAttemptEvent = ({ paymentAttemptEvent, className }: PaymentAttemptE
             paymentAttemptEvent.refundedAmount > 0 &&
             !paymentAttemptEvent.isCardVoid &&
             paymentAttemptEvent.eventType !==
-              LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
+            LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
               <span className="text-xs font-normal leading-6 ml-1">
                 {paymentAttemptEvent.currency === Currency.EUR ? '€' : '£'}
                 {formatter.format(Number(paymentAttemptEvent.refundedAmount))}

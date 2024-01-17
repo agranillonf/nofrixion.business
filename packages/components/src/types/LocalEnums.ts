@@ -76,6 +76,9 @@ export enum LocalPaymentAttemptEventType {
   Voided = 'Voided',
   RefundAwaitingAuthorisation = 'refund awaiting authorisation',
   BankPaymentInitiated = 'Bank payment initiated',
+  InvoicePaid = 'Invoice paid',
+  InvoiceCreated = 'Invoice created',
+  InvoiceExpired = '  Invoice expired',
 }
 
 export enum LocalPaymentAttemptStatus {
