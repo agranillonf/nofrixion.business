@@ -201,6 +201,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                                     "The CSV format doesn't match the template. Please make sure you are using "
                                   }
                                   <a
+                                    // TODO: Replace with actual link
                                     href="https://google.com"
                                     target="_blank"
                                     rel="noreferrer"
