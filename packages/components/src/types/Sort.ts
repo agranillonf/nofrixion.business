@@ -1,6 +1,6 @@
 import { SortDirection } from '@nofrixion/moneymoov'
 
-interface Sort<T> {
+export interface Sort<T> {
   name: T
   direction: SortDirection
 }

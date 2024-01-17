@@ -225,6 +225,7 @@ const AccountDashboardMain = ({
       }
       onPageChange={onPageChange}
       onSort={onSort}
+      dateRange={dateRange}
       onDateChange={onDateChange}
       onSearch={setSearchFilter}
       searchFilter={searchFilter}

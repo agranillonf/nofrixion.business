@@ -1,11 +1,12 @@
 import { Meta, StoryFn } from '@storybook/react'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 
 import { apiUrls } from '../../../utils/constants'
-import PayoutDashboard from './PayoutDashboard'
+import AccountsPayableDashboard from './AccountsPayableDashboard'
 
-const meta: Meta<typeof PayoutDashboard> = {
-  title: 'Functional/PayoutDashboard',
-  component: PayoutDashboard,
+const meta: Meta<typeof AccountsPayableDashboard> = {
+  title: 'Functional/AccountsPayableDashboard',
+  component: AccountsPayableDashboard,
   argTypes: {
     token: {
       control: {
@@ -25,9 +26,17 @@ const meta: Meta<typeof PayoutDashboard> = {
       action: 'onUnauthorized',
     },
   },
-} as Meta<typeof PayoutDashboard>
+} as Meta<typeof AccountsPayableDashboard>
 
-const Template: StoryFn<typeof PayoutDashboard> = (args) => <PayoutDashboard {...args} />
+const Template: StoryFn<typeof AccountsPayableDashboard> = (args) => {
+  const queryClient = new QueryClient()
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <AccountsPayableDashboard {...args} />
+    </QueryClientProvider>
+  )
+}
 
 export const Showcase = Template.bind({})
 
