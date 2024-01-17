@@ -21,12 +21,20 @@ export interface ImportInvoiceModalProps {
 const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalProps) => {
   const [validationResults, setValidationResults] = useState<ValidationResult[] | null>(null)
   const [invoices, setInvoices] = useState<LocalInvoice[] | undefined>()
-  const [isError, setIsError] = useState(false)
+  const [hasUploadError, setHasUploadError] = useState(false)
   const [selectedTab, setSelectedTab] = useState<'upload' | 'review'>('upload')
   const [isLoading, setIsLoading] = useState(false)
   const [selectedInvoices, setSelectedInvoices] = useState<string[]>([])
   const [showErrorModal, setShowErrorModal] = useState(false)
   const [fileName, setFilename] = useState<string>()
+
+  const linesWithErrors = validationResults?.filter((result) => !result.valid)
+
+  // Show error warning if user uploaded a file but there are no invoices
+  // or if there are invoices but there are lines with errors
+  const displayErrorWarning =
+    (fileName && (!invoices || invoices.length == 0)) ||
+    (linesWithErrors && linesWithErrors.length > 0)
 
   useEffect(() => {
     if (isOpen) {
@@ -38,11 +46,9 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
     }
   }, [isOpen])
 
-  const linesWithErrors = validationResults?.filter((result) => !result.valid)
-
   const handleFileAdded = (file: File) => {
     if (file && file.type != 'text/csv') {
-      setIsError(true)
+      setHasUploadError(true)
       setIsLoading(false)
       return
     }
@@ -61,6 +67,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
           transform: (value: string) => (value == '' ? undefined : value),
           complete: (results: ParseResult<LocalInvoice>) => {
             const validationResults = validateInvoices(results.data)
+            console.log(validationResults)
             setValidationResults(validationResults)
 
             // If there's at least one valid invoice, set the valid invoice(s)
@@ -74,13 +81,17 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
             setSelectedInvoices(validResults.map((invoice) => invoice.InvoiceNumber))
 
             setIsLoading(false)
-            setSelectedTab('review')
+
+            // Only set the tab to review if there's at least one valid invoice
+            if (validResults.length > 0) {
+              setSelectedTab('review')
+            }
 
             setFilename(file.name)
           },
           error: () => {
             setIsLoading(false)
-            setIsError(true)
+            setHasUploadError(true)
           },
         })
       }
@@ -169,13 +180,13 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                         value="review"
                         className="rounded-r-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
                         onClick={() => setSelectedTab('review')}
-                        disabled={fileName == undefined}
+                        disabled={fileName == undefined || !invoices || invoices?.length == 0}
                       >
                         <div className="pr-4">2</div>
                         <div>Review and import</div>
                       </TabsTrigger>
                       <AnimatePresence>
-                        {linesWithErrors && linesWithErrors.length > 0 && (
+                        {displayErrorWarning && (
                           <motion.div
                             className="bg-error-bg p-3 flex rounded ml-auto h-11"
                             initial={{ opacity: 0 }}
@@ -184,12 +195,41 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                             transition={{ duration: 0.2 }}
                           >
                             <span className="text-sm">
-                              <span className="font-bold">{linesWithErrors.length}</span>{' '}
-                              {linesWithErrors.length == 1 ? 'entry' : 'entries'} not included
-                              because {linesWithErrors.length == 1 ? 'it has' : 'they have'} errors.{' '}
-                              <button onClick={() => setShowErrorModal(true)} className="underline">
-                                Show details
-                              </button>
+                              {invoices && invoices.length == 0 && (
+                                <>
+                                  {
+                                    'No valid invoices could be loaded. Please make sure you are using the right '
+                                  }
+                                  <a
+                                    // TODO: Replace with actual link
+                                    href="https://google.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline"
+                                  >
+                                    template
+                                  </a>
+                                  {'.'}
+                                </>
+                              )}
+
+                              {invoices &&
+                                invoices.length > 0 &&
+                                linesWithErrors &&
+                                linesWithErrors.length > 0 && (
+                                  <>
+                                    <span className="font-bold">{linesWithErrors.length}</span>{' '}
+                                    {linesWithErrors.length == 1 ? 'entry' : 'entries'} not included
+                                    because {linesWithErrors.length == 1 ? 'it has' : 'they have'}{' '}
+                                    errors.{' '}
+                                    <button
+                                      onClick={() => setShowErrorModal(true)}
+                                      className="underline"
+                                    >
+                                      Show details
+                                    </button>
+                                  </>
+                                )}
                             </span>
                           </motion.div>
                         )}
@@ -199,8 +239,8 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                       <div className="pt-12">
                         <FileInput
                           onFileAdded={handleFileAdded}
-                          isError={isError}
-                          setIsError={setIsError}
+                          isError={hasUploadError}
+                          setIsError={setHasUploadError}
                           isLoading={isLoading}
                           setIsLoading={setIsLoading}
                         >
@@ -222,8 +262,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                         </FileInput>
                       </div>
                     </TabsContent>
-                    <TabsContent value="review" className="mt-14">
-                      {/* TODO: Validate length */}
+                    <TabsContent value="review" className="mt-14 pb-14">
                       {invoices && (
                         <ImportInvoiceTable
                           invoices={invoices}
