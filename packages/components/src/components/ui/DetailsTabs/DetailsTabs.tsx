@@ -6,7 +6,7 @@ import { useState } from 'react'
 import { LocalPaymentAttempt, LocalPaymentRequest } from '../../../types/LocalTypes'
 import PaymentAttemptsList from '../PaymentAttemptsList/PaymentAttemptsList'
 import PaymentInfo from '../PaymentInfo/PaymentInfo'
-import ScrollArea from '../ScrollArea/ScrollArea'
+import TableScrollbar from '../TableScrollbar/TableScrollbar'
 
 const tabs = ['Payment attempts', 'Payment info']
 
@@ -83,7 +83,7 @@ const DetailsTabs: React.FC<DetailsTabsProps> = ({
           })}
         </Tabs.List>
         <TabContent value={tabs[0]} selectedTab={selectedTab}>
-          <ScrollArea>
+          <TableScrollbar>
             <PaymentAttemptsList
               paymentAttempts={paymentRequest.paymentAttempts
                 .filter(
@@ -106,7 +106,7 @@ const DetailsTabs: React.FC<DetailsTabsProps> = ({
               onVoid={onVoid}
               onCapture={onCapture}
             ></PaymentAttemptsList>
-          </ScrollArea>
+          </TableScrollbar>
         </TabContent>
         <TabContent value={tabs[1]} selectedTab={selectedTab}>
           <PaymentInfo {...paymentRequest} />

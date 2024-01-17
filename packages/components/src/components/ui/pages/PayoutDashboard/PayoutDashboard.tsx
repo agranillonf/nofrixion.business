@@ -13,7 +13,7 @@ import FilterControlsRow from '../../FilterControlsRow/FilterControlsRow'
 import { Loader } from '../../Loader/Loader'
 import SystemErrorModal from '../../Modals/SystemErrorModal/SystemErrorModal'
 import { PayoutsTable } from '../../organisms/PayoutsTable/PayoutsTable'
-import ScrollArea from '../../ScrollArea/ScrollArea'
+import TableScrollbar from '../../TableScrollbar/TableScrollbar'
 import { FilterableTag } from '../../TagFilter/TagFilter'
 import { Toaster } from '../../Toast/Toast'
 import LayoutWrapper from '../../utils/LayoutWrapper'
@@ -185,7 +185,7 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
           />
         </div>
 
-        <ScrollArea hideScrollbar>
+        <TableScrollbar hideScrollbar>
           <Tabs.Root
             defaultValue={PayoutStatus.All}
             onValueChange={(value) => setStatus && setStatus(value as PayoutStatus)}
@@ -238,7 +238,7 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
             </Tabs.List>
             <Tabs.Content value=""></Tabs.Content>
           </Tabs.Root>
-        </ScrollArea>
+        </TableScrollbar>
 
         <div className="flex-row bg-white rounded-lg px-7 py-8">
           <PayoutsTable
