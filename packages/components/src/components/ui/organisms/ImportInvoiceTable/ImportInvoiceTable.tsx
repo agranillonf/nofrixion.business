@@ -141,6 +141,7 @@ const ImportInvoiceTable: React.FC<ImportInvoiceTableProps> = ({
               sortBy.primary.name === 'TotalAmount' ? sortBy.primary.direction : undefined
             }
             onSort={(direction) => handleOnSort({ name: 'TotalAmount', direction })}
+            className="flex justify-end text-end w-full"
           />
         </div>
         <div className="w-[12.5rem] ml-10">
@@ -172,7 +173,7 @@ const ImportInvoiceTable: React.FC<ImportInvoiceTableProps> = ({
         </div>
       </div>
 
-      <div className="flex flex-col gap-y-8">
+      <div className="flex flex-col gap-y-4">
         {invoices.sort(sortByInvoices(sortBy)).map((invoice, i) => (
           <ImportInvoiceRow
             key={`invoice-${i}`}

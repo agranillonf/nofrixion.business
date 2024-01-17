@@ -90,7 +90,7 @@ const InvoiceSchema = object({
       .min(1, 'Total amount must be greater than 0.'),
   ),
   OutstandingAmount: string({
-    required_error: 'Total amount missing.',
+    required_error: 'Outstanding amount missing.',
   }).pipe(
     coerce
       .number({

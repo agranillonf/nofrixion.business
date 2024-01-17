@@ -68,7 +68,7 @@ const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
                   'relative flex items-center justify-center gap-2 h-10 select-none text-sm/6 text-grey-text transition hover:text-default-text data-[state=active]:text-default-text',
                   {
                     'w-full': fullWidthTabs,
-                    'px-4 py-2': !fullWidthTabs,
+                    'px-4 pt-2 text-sm/8 pb-4': !fullWidthTabs,
                   },
                 )}
                 value={tab.title}

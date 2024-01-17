@@ -11,9 +11,10 @@ export interface ColumnHeaderProps {
   label: string
   sortDirection?: SortDirection
   onSort?: (event: SortDirection) => void
+  className?: string
 }
 
-const ColumnHeader = ({ label, sortDirection, onSort }: ColumnHeaderProps) => {
+const ColumnHeader = ({ label, sortDirection, onSort, className }: ColumnHeaderProps) => {
   const doSort = () => {
     if (sortDirection === SortDirection.NONE) {
       onSort && onSort(SortDirection.DESC)
@@ -26,17 +27,21 @@ const ColumnHeader = ({ label, sortDirection, onSort }: ColumnHeaderProps) => {
 
   return (
     <button
-      className={cn('inline-flex text-sm text-grey-text transition items-center group', {
-        'hover:text-grey-text-hover': onSort,
-        'cursor-auto': !onSort,
-      })}
+      className={cn(
+        'inline-flex text-sm text-grey-text transition items-center group relative',
+        {
+          'hover:text-grey-text-hover': onSort,
+          'cursor-auto': !onSort,
+        },
+        className,
+      )}
       onClick={doSort}
     >
       <span className="select-none uppercase">{label}</span>
 
       {onSort && (
         <div
-          className="ml-1 space-y-1 w-2.5 transition opacity-0 group-hover:opacity-100 data-[direction-selected='true']:opacity-100"
+          className="absolute -right-4 space-y-1 w-2.5 transition opacity-0 group-hover:opacity-100 data-[direction-selected='true']:opacity-100"
           data-direction-selected={sortDirection != SortDirection.NONE}
         >
           {sortDirection == SortDirection.ASC && (

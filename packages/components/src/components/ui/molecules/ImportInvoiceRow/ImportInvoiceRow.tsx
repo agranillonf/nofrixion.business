@@ -2,6 +2,7 @@ import { LocalInvoice } from '../../../../types/LocalTypes'
 import { cn } from '../../../../utils'
 import { formatAmount, formatDateWithYear } from '../../../../utils/formatters'
 import { formatCurrency } from '../../../../utils/uiFormaters'
+import { Popover, PopoverContent, PopoverTrigger } from '../../atoms/Popover/Popover'
 import Contact from '../../Contact/Contact'
 import Switch from '../../Switch/Switch'
 
@@ -18,6 +19,10 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
   DueDate,
   Currency,
   TotalAmount,
+  Subtotal,
+  Discounts,
+  Taxes,
+  OutstandingAmount,
   Contact: contact,
   RemittanceEmail,
   DestinationIban,
@@ -33,6 +38,13 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
     : DestinationAccountNumber && DestinationSortCode
     ? `${DestinationAccountNumber} - ${DestinationSortCode}`
     : '-'
+
+  const renderPopupItem = (label: string, value: string) => (
+    <div className="flex justify-between items-center w-full">
+      <span className="text-grey-text text-xs">{label}</span>
+      <span className="font-medium text-sm/4">{value}</span>
+    </div>
+  )
 
   return (
     <div
@@ -55,18 +67,40 @@ const ImportInvoiceRow: React.FC<ImportInvoiceRowProps> = ({
         </span>
       </div>
 
-      {/* 
-        TODO: Change date format to include the timezone
-        Note: keep in mind that the date in the CSV will come with UTC timezone
-        so if the user is in a different timezone, the date shown in the UI will be different
-      */}
       <span className="w-[7.5rem]">{formatDateWithYear(new Date(InvoiceDate), 'cardinal')}</span>
 
       <span className="w-[7.5rem]">{formatDateWithYear(new Date(DueDate), 'cardinal')}</span>
 
-      <span className="w-[7.5rem] font-medium">
-        {/* TODO: Include subtotal, taxes and discounts as per design */}
-        {`${formatCurrency(Currency)}${formatAmount(Math.abs(TotalAmount))}`}
+      <span className="w-[7.5rem] font-medium flex flex-col items-end">
+        <Popover>
+          <PopoverTrigger className="text-sm/5">
+            {formatCurrency(Currency)}
+            <span className="border-b-[0.094rem] border-dashed border-border-grey-highlighted pb-[0.125rem]">
+              {formatAmount(TotalAmount)}
+            </span>
+          </PopoverTrigger>
+          <PopoverContent className="bg-white" sideOffset={8}>
+            <div className="flex flex-col gap-y-4">
+              {Subtotal !== undefined &&
+                renderPopupItem('Subtotal', `${formatCurrency(Currency)}${formatAmount(Subtotal)}`)}
+
+              {Discounts !== undefined &&
+                renderPopupItem(
+                  'Discounts',
+                  `- ${formatCurrency(Currency)}${formatAmount(Discounts)}`,
+                )}
+
+              {Taxes !== undefined &&
+                renderPopupItem('Taxes', `${formatCurrency(Currency)}${formatAmount(Taxes)}`)}
+            </div>
+          </PopoverContent>
+        </Popover>
+        {OutstandingAmount !== undefined && (
+          <span className="text-xs font-normal text-grey-text mt-2 text-end">
+            {formatCurrency(Currency)}
+            {OutstandingAmount} outstanding
+          </span>
+        )}
       </span>
 
       <div className="w-[12.5rem] ml-10">
