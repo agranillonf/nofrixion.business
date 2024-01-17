@@ -67,7 +67,7 @@ const PaymentAttemptEvent = ({ paymentAttemptEvent, className }: PaymentAttemptE
             paymentAttemptEvent.refundedAmount > 0 &&
             !paymentAttemptEvent.isCardVoid &&
             paymentAttemptEvent.eventType ===
-            LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
+              LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
               <span className="text-xs font-normal leading-6 mr-1">
                 {paymentAttemptEvent.currency === Currency.EUR ? '€' : '£'}
                 {formatter.format(Number(paymentAttemptEvent.refundedAmount))}
@@ -79,7 +79,7 @@ const PaymentAttemptEvent = ({ paymentAttemptEvent, className }: PaymentAttemptE
             paymentAttemptEvent.refundedAmount > 0 &&
             !paymentAttemptEvent.isCardVoid &&
             paymentAttemptEvent.eventType !==
-            LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
+              LocalPaymentAttemptEventType.RefundAwaitingAuthorisation && (
               <span className="text-xs font-normal leading-6 ml-1">
                 {paymentAttemptEvent.currency === Currency.EUR ? '€' : '£'}
                 {formatter.format(Number(paymentAttemptEvent.refundedAmount))}
