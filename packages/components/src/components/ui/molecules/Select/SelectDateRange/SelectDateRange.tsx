@@ -36,8 +36,17 @@ const SelectDateRange: React.FC<SelectDateRangePros> = ({
   className,
   ...props
 }) => {
+  const handleOnValueChange = (value: string) => {
+    onValueChange && onValueChange(value as TDateRangeOptions)
+  }
+
   return (
-    <Select defaultValue={defaultValue} value={value} onValueChange={onValueChange} {...props}>
+    <Select
+      defaultValue={defaultValue}
+      value={value}
+      onValueChange={handleOnValueChange}
+      {...props}
+    >
       <SelectTrigger subText={subText} className={cn('w-full md:w-[130px]', className)}>
         <SelectValue>{value != undefined ? options[value] : 'Custom'}</SelectValue>
       </SelectTrigger>

@@ -290,20 +290,24 @@ export const getPaymentAttemptStatus = (
   ) {
     return LocalPaymentAttemptStatus.PartiallyRefunded
   }
+
   if (
     remotePaymentAttempt.refundAttempts.find((x) => x.refundSettledAt) &&
     remotePaymentAttempt.status === PaymentResult.None
   ) {
     return LocalPaymentAttemptStatus.Refunded
   }
+
   if (remotePaymentAttempt.settledAt || remotePaymentAttempt.cardAuthorisedAt) {
     return LocalPaymentAttemptStatus.Received
   }
+
   if (
     remotePaymentAttempt.status === PaymentResult.None &&
     (remotePaymentAttempt.settleFailedAt ||
       remotePaymentAttempt.cardAuthoriseFailedAt ||
-      remotePaymentAttempt.cardPayerAuthenticationSetupFailedAt)
+      remotePaymentAttempt.cardPayerAuthenticationSetupFailedAt ||
+      remotePaymentAttempt.pispAuthorisationFailedAt)
   ) {
     return LocalPaymentAttemptStatus.Failed
   }

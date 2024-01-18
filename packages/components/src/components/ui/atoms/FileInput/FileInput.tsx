@@ -3,12 +3,18 @@ import { useRef, useState } from 'react'
 import { cn } from '../../../../utils'
 import { Loader } from '../../Loader/Loader'
 
+export interface LoadedFileDetails {
+  name: string
+  message: string
+}
+
 export interface FileInputProps {
   onFileAdded: (file: File) => void
   isLoading?: boolean
   isError?: boolean
   setIsError?: (isError: boolean) => void
   setIsLoading?: (isLoading: boolean) => void
+  children?: React.ReactNode
 }
 
 const FileInput = ({
@@ -17,6 +23,7 @@ const FileInput = ({
   isError,
   setIsError,
   setIsLoading,
+  children,
 }: FileInputProps) => {
   const hiddenFileInput = useRef<HTMLInputElement>(null)
   const [isDragging, setIsDragging] = useState(false)
@@ -61,7 +68,7 @@ const FileInput = ({
   return (
     <div>
       <div
-        className={cn('border border-dashed rounded-lg bg-main-grey py-20', {
+        className={cn('border border-dashed rounded-lg bg-main-grey py-20 h-[12.5rem]', {
           'border-control-grey-hover border-solid': isDragging,
         })}
         onDrop={handleDrop}
@@ -75,7 +82,7 @@ const FileInput = ({
             <div className="w-fit mx-auto mt-4">Uploading file</div>
           </div>
         )}
-        {!isError && !isLoading && (
+        {!isError && !isLoading && !children && (
           <>
             <div className="font-normal text-sm w-fit mx-auto">
               <div className="w-fit">Drop your CSV file here or</div>
@@ -92,6 +99,7 @@ const FileInput = ({
             />
           </>
         )}
+
         {isError && (
           <div className="font-normal text-sm w-fit mx-auto items-center">
             <div className="w-fit mx-auto">
@@ -140,19 +148,23 @@ const FileInput = ({
             </div>
           </div>
         )}
+
+        {children}
       </div>
-      <div className="flex text-xs text-grey-text mt-4 w-fit mx-auto items-center">
-        <div>Which format to use?</div>{' '}
-        <div className="ml-2">
-          {/* TODO: Replace with href */}
-          <button
-            className="underline hover:no-underline"
-            onClick={() => setIsError && setIsError(false)}
-          >
-            Download an invoice CSV template
-          </button>
+      {!children && (
+        <div className="flex text-xs text-grey-text mt-4 w-fit mx-auto items-center">
+          <div>Which format to use?</div>{' '}
+          <div className="ml-2">
+            {/* TODO: Replace with href */}
+            <button
+              className="underline hover:no-underline"
+              onClick={() => setIsError && setIsError(false)}
+            >
+              Download an invoice CSV template
+            </button>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   )
 }

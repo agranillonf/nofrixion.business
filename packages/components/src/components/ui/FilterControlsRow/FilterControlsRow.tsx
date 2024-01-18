@@ -11,6 +11,7 @@ import SearchBar from '../SearchBar/SearchBar'
 import TagFilter, { FilterableTag } from '../TagFilter/TagFilter'
 
 export interface FilterControlsRowProps {
+  dateRange: DateRange
   setDateRange: (dateRange: DateRange) => void
   searchFilter: string
   setSearchFilter: (value: string) => void
@@ -28,6 +29,7 @@ export interface FilterControlsRowProps {
 }
 
 const FilterControlsRow = ({
+  dateRange,
   setDateRange,
   searchFilter,
   setSearchFilter,
@@ -82,10 +84,7 @@ const FilterControlsRow = ({
 
   return (
     <div className="flex md:w-auto md:flex justify-between md:p-3 bg-white rounded-lg">
-      <DateRangePicker
-        firstDate={firstDate}
-        onDateChange={(dateRange) => setDateRange(dateRange)}
-      />
+      <DateRangePicker firstDate={firstDate} dateRange={dateRange} onDateChange={setDateRange} />
 
       <div className="md:hidden">
         <SelectSorter

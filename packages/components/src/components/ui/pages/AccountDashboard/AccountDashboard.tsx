@@ -30,6 +30,7 @@ export interface AccountDashboardProps extends React.HTMLAttributes<HTMLDivEleme
   merchantCreatedAt?: Date
   onPageChange: (page: number) => void
   onSort: (sortInfo: DoubleSortByTransactions) => void
+  dateRange: DateRange
   onDateChange: (dateRange: DateRange) => void
   onSearch: (searchFilter: string) => void
   onAllCurrentAccountsClick?: () => void
@@ -48,6 +49,7 @@ const AccountDashboard: React.FC<AccountDashboardProps> = ({
   pagination,
   searchFilter,
   merchantCreatedAt,
+  dateRange,
   onDateChange,
   onSearch,
   onPageChange,
@@ -198,6 +200,7 @@ const AccountDashboard: React.FC<AccountDashboardProps> = ({
 
       <div className="bg-white rounded-[10px] h-16 flex justify-between items-center px-3 mb-4">
         <DateRangePicker
+          dateRange={dateRange}
           onDateChange={onDateChange}
           // Set first date to the first day of the year the merchant was created
           firstDate={merchantCreatedAt ? set(merchantCreatedAt, { month: 0, date: 1 }) : undefined}

@@ -8,6 +8,7 @@ import {
   SortDirection,
   useAccounts,
   useBeneficiaries,
+  useCreatePayrun,
   useMerchant,
   useMerchantTags,
   usePayoutMetrics,
@@ -18,9 +19,17 @@ import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { add, endOfDay, startOfDay } from 'date-fns'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
-import { ApproveType, LocalPayout, LocalTag, SystemError } from '../../../types/LocalTypes'
-import { DoubleSortByPayouts } from '../../../types/Sort'
 import {
+  ApproveType,
+  LocalInvoice,
+  LocalPayout,
+  LocalTag,
+  SystemError,
+} from '../../../types/LocalTypes'
+import { DoubleSortByPayouts } from '../../../types/Sort'
+import { formatDateWithYear } from '../../../utils/formatters'
+import {
+  localInvoicesToRemoteInvoices,
   parseApiTagToLocalTag,
   parseApiUserToLocalUser,
   remoteAccountsToLocalAccounts,
@@ -28,39 +37,40 @@ import {
   remotePayoutsToLocal,
 } from '../../../utils/parsers'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
-import { PayoutDashboard as UIPayoutDashboard } from '../../ui/pages/PayoutDashboard/PayoutDashboard'
+import { AccountsPayableDashboard as UIAccountsPayableDashboard } from '../../ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
+import { makeToast } from '../../ui/Toast/Toast'
 import { PayoutAuthoriseForm } from '../../ui/utils/PayoutAuthoriseForm'
 import PayoutDetailsModal from '../PayoutDetailsModal/PayoutDetailsModal'
 import SavePayoutModal from '../SavePayoutModal/SavePayoutModal'
 
-export interface PayoutDashboardProps {
+export interface AccountsPayableDashboardProps {
   token?: string // Example: "eyJhbGciOiJIUz..."
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId: string
 }
 
-const PayoutDashboard = ({
+const AccountsPayableDashboard = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
-}: PayoutDashboardProps) => {
+}: AccountsPayableDashboardProps) => {
   const queryClient = useQueryClient()
 
   return (
     <QueryClientProvider client={queryClient}>
-      <PayoutDashboardMain token={token} merchantId={merchantId} apiUrl={apiUrl} />
+      <AccountsPayableDashboardMain token={token} merchantId={merchantId} apiUrl={apiUrl} />
     </QueryClientProvider>
   )
 }
 
 const pageSize = 20
 
-const PayoutDashboardMain = ({
+const AccountsPayableDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
-}: PayoutDashboardProps) => {
+}: AccountsPayableDashboardProps) => {
   const [page, setPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState<number>(0)
   const [payouts, setPayouts] = useState<Payout[] | undefined>(undefined)
@@ -97,6 +107,9 @@ const PayoutDashboardMain = ({
 
   const [systemError, setSystemError] = useState<SystemError | undefined>(undefined)
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
+
+  const [isImportInvoiceModalOpen, setIsImportInvoiceModalOpen] = useState(false)
+  const { createPayrun } = useCreatePayrun({ apiUrl: apiUrl, authToken: token })
 
   const { data: metricsResponse, isLoading: isLoadingMetrics } = usePayoutMetrics(
     {
@@ -387,6 +400,28 @@ const PayoutDashboardMain = ({
     }
   }
 
+  const onImportInvoices = async (invoices: LocalInvoice[]) => {
+    const response = await createPayrun({
+      merchantID: merchantId,
+      name: `${formatDateWithYear(new Date())} payments`,
+      invoices: localInvoicesToRemoteInvoices(invoices),
+      totalAmount: 0,
+    })
+
+    if (response.status === 'error') {
+      handleSystemErrorMessage({
+        title: "We couldn't create the payrun",
+        message: response.error?.detail ?? 'Something went wrong, please try again later',
+      })
+      return
+    }
+
+    if (response.data) {
+      setIsImportInvoiceModalOpen(false)
+      makeToast('success', 'Payrun created successfully.')
+    }
+  }
+
   const onPayoutEditClicked = () => {
     setCreatePayoutClicked(true)
   }
@@ -401,50 +436,57 @@ const PayoutDashboardMain = ({
   }
 
   return (
-    <div>
-      <UIPayoutDashboard
-        payouts={payouts ? remotePayoutsToLocal(payouts) : undefined}
-        payoutMetrics={metrics}
-        pagination={{
-          pageSize: pageSize,
-          totalSize: totalRecords,
+    <>
+      <UIAccountsPayableDashboard
+        payoutProps={{
+          payouts: payouts ? remotePayoutsToLocal(payouts) : undefined,
+          payoutMetrics: metrics,
+          pagination: {
+            pageSize: pageSize,
+            totalSize: totalRecords,
+          },
+          onPageChange: onPageChange,
+          dateRange: dateRange,
+          onDateChange: onDateChange,
+          onSearch: setSearchFilter,
+          onSort: onSort,
+          searchFilter: searchFilter,
+          isLoading: isLoadingPayouts,
+          isLoadingMetrics: isLoadingMetrics,
+          isInitialState: isInitialState,
+          merchantCreatedAt:
+            merchant?.status == 'success' ? new Date(merchant?.data.inserted) : undefined,
+          setStatus: setStatus,
+          currency: currencyFilter,
+          setCurrency: setCurrencyFilter,
+          minAmount: minAmountFilter,
+          setMinAmount: setMinAmountFilter,
+          maxAmount: maxAmountFilter,
+          setMaxAmount: setMaxAmountFilter,
+          onPayoutClicked: onPayoutRowClicked,
+          selectedPayoutId: selectedPayoutId,
+          tags: tags,
+          setTags: setTags,
+          sortBy: sortBy,
+          status: status,
+          onAddPayoutForAuthorise: addPayoutForAuthorise,
+          onRemovePayoutForAuthorise: removePayoutForAuthorise,
+          selectedPayouts: selectedPayouts,
+          payoutsExist: payoutsExists,
+          isUserAuthoriser: isUserAuthoriser,
+          systemError: systemError,
+          isSystemErrorOpen: isSystemErrorOpen,
+          onCloseSystemError: onCloseSystemErrorModal,
         }}
-        onPageChange={onPageChange}
-        onDateChange={onDateChange}
-        onSearch={setSearchFilter}
-        onSort={onSort}
-        searchFilter={searchFilter}
-        isLoading={isLoadingPayouts}
-        isLoadingMetrics={isLoadingMetrics}
-        isInitialState={isInitialState}
         onCreatePayout={onCreatePayout}
-        merchantCreatedAt={
-          merchant?.status == 'success' ? new Date(merchant?.data.inserted) : undefined
-        }
-        setStatus={setStatus}
-        currency={currencyFilter}
-        setCurrency={setCurrencyFilter}
-        minAmount={minAmountFilter}
-        setMinAmount={setMinAmountFilter}
-        maxAmount={maxAmountFilter}
-        setMaxAmount={setMaxAmountFilter}
-        onPayoutClicked={onPayoutRowClicked}
-        selectedPayoutId={selectedPayoutId}
-        tags={tags}
-        setTags={setTags}
-        sortBy={sortBy}
-        status={status}
-        onAddPayoutForAuthorise={addPayoutForAuthorise}
-        onRemovePayoutForAuthorise={removePayoutForAuthorise}
-        selectedPayouts={selectedPayouts}
         onApproveBatchPayouts={onApproveBatchPayouts}
-        payoutsExist={payoutsExists}
-        isUserAuthoriser={isUserAuthoriser}
+        onImportInvoices={onImportInvoices}
         systemError={systemError}
         isSystemErrorOpen={isSystemErrorOpen}
         onCloseSystemError={onCloseSystemErrorModal}
+        isImportInvoiceModalOpen={isImportInvoiceModalOpen}
+        setIsImportInvoiceModalOpen={setIsImportInvoiceModalOpen}
       />
-
       <PayoutDetailsModal
         open={!!selectedPayoutId}
         apiUrl={apiUrl}
@@ -465,6 +507,7 @@ const PayoutDashboardMain = ({
         isUserAuthoriser={isUserAuthoriser}
         onEdit={onPayoutEditClicked}
         onSystemError={handleSystemErrorMessage}
+        token={token}
       />
 
       {merchantId && accounts && accounts.find((x) => x.merchantID === merchantId) && (
@@ -492,8 +535,8 @@ const PayoutDashboardMain = ({
           approveType={ApproveType.BATCH_PAYOUT}
         />
       )}
-    </div>
+    </>
   )
 }
 
-export default PayoutDashboard
+export default AccountsPayableDashboard

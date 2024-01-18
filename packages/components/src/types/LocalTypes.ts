@@ -1,4 +1,5 @@
 import { Currency, PaymentResult, PayoutEventTypesEnum, PayoutStatus } from '@nofrixion/moneymoov'
+import { ZodIssue } from 'zod'
 
 import {
   FieldID,
@@ -97,6 +98,7 @@ export interface LocalPaymentAttempt {
   events?: LocalPaymentAttemptEvent[]
   displayStatus: LocalPaymentAttemptStatus
   latestEventOccurredAt?: Date
+  pispAuthorisationFailedAt?: Date
 }
 
 export interface LocalPaymentAttemptEvent {
@@ -385,29 +387,40 @@ export interface SystemError {
   message: string
 }
 
-export interface LocalInvoice {
+interface BaseInvoice {
   InvoiceNumber: string
   PaymentTerms: string
-  InvoiceDate: string
-  DueDate: string
+  InvoiceDate: Date
+  DueDate: Date
   Contact: string
-  DestinationIban: string
-  DestinationAccountNumber: string
-  DestinationSortCode: string
-  Currency: string
-  Subtotal: string
-  Discounts: string
-  Taxes: string
-  TotalAmount: string
-  OutstandingAmount: string
+  Currency: Currency
+  Subtotal: number
+  Discounts: number
+  Taxes: number
+  TotalAmount: number
+  OutstandingAmount: number
   InvoiceStatus: string
   Reference: string
   RemittanceEmail: string
 }
 
+interface IbanDetails {
+  DestinationIban: string
+  DestinationAccountNumber?: never
+  DestinationSortCode?: never
+}
+
+interface AccountDetails {
+  DestinationIban?: never
+  DestinationAccountNumber: number
+  DestinationSortCode: number
+}
+
+export type LocalInvoice = BaseInvoice & (IbanDetails | AccountDetails)
+
 export interface ValidationResult {
   lineNumber: number
   valid: boolean
-  errors?: string[]
+  errors?: ZodIssue[]
   result: LocalInvoice
 }
