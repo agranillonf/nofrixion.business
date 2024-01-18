@@ -309,6 +309,16 @@ const PaymentRequestTable = ({
                             <div className="w-1/2 h-2 bg-[#E0E9EB] rounded-r-lg mr-4" />
                           </td>
                         )}
+                        {isColumnSelected(LocalPaymentRequestTableColumns.OrderId) && (
+                          <td className="px-0 py-6">
+                            <div className="w-1/2 h-2 bg-[#E0E9EB] rounded-lg" />
+                          </td>
+                        )}
+                        {isColumnSelected(LocalPaymentRequestTableColumns.PaymentRequestId) && (
+                          <td className="px-0 py-6">
+                            <div className="w-1/2 h-2 bg-[#E0E9EB] rounded-r-lg mr-4" />
+                          </td>
+                        )}
 
                         {/* Extra */}
                         {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
