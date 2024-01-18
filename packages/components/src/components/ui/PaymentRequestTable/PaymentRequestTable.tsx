@@ -10,6 +10,7 @@ import ColumnHeader from '../ColumnHeader/ColumnHeader'
 import { Loader } from '../Loader/Loader'
 import SystemErrorModal from '../Modals/SystemErrorModal/SystemErrorModal'
 import EditColumns from '../molecules/EditColumns/EditColumns'
+import Pager from '../Pager/Pager'
 import PaymentRequestMobileCard from '../PaymentRequestMobileCard/PaymentRequestMobileCard'
 import PaymentRequestRow from '../PaymentRequestRow/PaymentRequestRow'
 import TableScrollbar from '../TableScrollbar/TableScrollbar'
@@ -63,6 +64,9 @@ const PaymentRequestTable = ({
   onCloseSystemError,
   columns,
   setColumns,
+  pageSize,
+  onPageChanged,
+  totalRecords,
 }: PaymentRequestTableProps) => {
   const onPaymentRequestClickedHandler = (
     event: React.MouseEvent<HTMLTableRowElement | HTMLButtonElement | HTMLDivElement, MouseEvent>,
@@ -137,7 +141,7 @@ const PaymentRequestTable = ({
                   {isColumnSelected(LocalPaymentRequestTableColumns.PaymentAttempts) && <col />}
                   {isColumnSelected(LocalPaymentRequestTableColumns.OrderId) && <col />}
                   {isColumnSelected(LocalPaymentRequestTableColumns.PaymentRequestId) && <col />}
-                  <col />
+                  {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && <col />}
                   <col />
                 </colgroup>
                 <thead>
@@ -164,7 +168,7 @@ const PaymentRequestTable = ({
                       <th
                         className={classNames(
                           commonThClasses,
-                          '2xl:w-44 xl:w-32 lg:w-28 text-left',
+                          '2xl:w-44 xl:w-32 lg:w-24 text-left',
                         )}
                       >
                         <ColumnHeader
@@ -197,7 +201,7 @@ const PaymentRequestTable = ({
                         <th
                           className={classNames(
                             commonThClasses,
-                            '2xl:w-44 xl:w-40 lg:w-36 text-right',
+                            '2xl:w-44 xl:w-40 lg:w-28 text-right',
                           )}
                         >
                           <ColumnHeader label="Paid" />
@@ -234,16 +238,22 @@ const PaymentRequestTable = ({
                 pagination component in the table header
               */}
                     {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
-                      <th className={classNames(commonThClasses, '2xl:w-96 xl:w-36 lg:w-32')}></th>
+                      <th className={classNames(commonThClasses, '2xl:w-52 xl:w-32')}></th>
                     )}
                     <th
                       className={classNames(
                         commonThClasses,
-                        isColumnSelected(LocalPaymentRequestTableColumns.Tags)
-                          ? 'w-[50px]'
+                        'bg-gradient-to-l from-white via-white to-transparent sticky right-0 pr-2',
+                        isColumnSelected(LocalPaymentRequestTableColumns.Tags) || scrollbarVisible
+                          ? 'w-14'
                           : 'w-full',
                       )}
-                    ></th>
+                    >
+                      <div className="float-right">
+                        {/*Will contain export icon here later */}
+                        <div className="w-4 h-4" />
+                      </div>
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -344,10 +354,15 @@ const PaymentRequestTable = ({
           </TableScrollbar>
 
           {!isLoading && paymentRequests && paymentRequests.length > 0 && (
-            <div className="hidden lg:block pt-2 mt-6">
+            <div className="hidden lg:flex pt-2 mt-6 justify-between">
               {columns && setColumns && (
                 <EditColumns columns={columns} setColumns={setColumns}></EditColumns>
               )}
+              <Pager
+                pageSize={pageSize}
+                totalRecords={totalRecords}
+                onPageChange={(newPage) => onPageChanged && onPageChanged(newPage)}
+              />
             </div>
           )}
         </div>

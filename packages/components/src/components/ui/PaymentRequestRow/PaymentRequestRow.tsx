@@ -240,7 +240,7 @@ const Row = ({
       <td
         className={classNames(
           commonTdClasses,
-          `text-right pl-0 pr-1.5 sticky right-0 custom-backdrop-blur-${id}`,
+          `text-right pl-0 pr-1.5 sticky right-0 custom-backdrop-blur-${id} bg-gradient-to-l from-white via-white to-transparent`,
         )}
       >
         <PaymentRequestActionMenu
