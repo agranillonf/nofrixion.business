@@ -7,7 +7,7 @@ import { Button, Icon } from '../../atoms'
 import DashboardTab from '../../DashboardTab/DashboardTab'
 import SystemErrorModal from '../../Modals/SystemErrorModal/SystemErrorModal'
 import UserTable from '../../organisms/UsersTable/UserTable'
-import TableScrollbar from '../../TableScrollbar/TableScrollbar'
+import ScrollArea from '../../ScrollArea/ScrollArea'
 import { Toaster } from '../../Toast/Toast'
 
 export interface UserDashboardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -68,7 +68,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
           </div>
         </div>
 
-        <TableScrollbar hideScrollbar>
+        <ScrollArea hideScrollbar>
           <Tabs.Root
             defaultValue={UserStatus.All}
             onValueChange={(value) => setStatus && setStatus(value as UserStatus)}
@@ -99,7 +99,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
             </Tabs.List>
             <Tabs.Content value=""></Tabs.Content>
           </Tabs.Root>
-        </TableScrollbar>
+        </ScrollArea>
 
         <div className="flex-row bg-white rounded-lg px-7 py-8">
           <UserTable

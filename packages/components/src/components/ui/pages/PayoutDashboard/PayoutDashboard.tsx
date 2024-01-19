@@ -9,7 +9,7 @@ import { DateRange } from '../../DateRangePicker/DateRangePicker'
 import FilterControlsRow from '../../FilterControlsRow/FilterControlsRow'
 import SystemErrorModal from '../../Modals/SystemErrorModal/SystemErrorModal'
 import { PayoutsTable } from '../../organisms/PayoutsTable/PayoutsTable'
-import TableScrollbar from '../../TableScrollbar/TableScrollbar'
+import ScrollArea from '../../ScrollArea/ScrollArea'
 import { FilterableTag } from '../../TagFilter/TagFilter'
 
 export interface PayoutDashboardProps extends React.HTMLAttributes<HTMLDivElement> {
@@ -133,7 +133,7 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
           />
         </div>
 
-        <TableScrollbar hideScrollbar>
+        <ScrollArea hideScrollbar>
           <Tabs.Root
             defaultValue={PayoutStatus.All}
             onValueChange={(value) => setStatus && setStatus(value as PayoutStatus)}
@@ -186,7 +186,7 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
             </Tabs.List>
             <Tabs.Content value=""></Tabs.Content>
           </Tabs.Root>
-        </TableScrollbar>
+        </ScrollArea>
 
         <div className="flex-row bg-white rounded-lg px-7 py-8">
           <PayoutsTable

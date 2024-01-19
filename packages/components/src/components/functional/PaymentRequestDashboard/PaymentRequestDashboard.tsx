@@ -49,7 +49,7 @@ import DashboardTab from '../../ui/DashboardTab/DashboardTab'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
 import FilterControlsRow from '../../ui/FilterControlsRow/FilterControlsRow'
 import PaymentRequestTable from '../../ui/PaymentRequestTable/PaymentRequestTable'
-import TableScrollbar from '../../ui/TableScrollbar/TableScrollbar'
+import ScrollArea from '../../ui/ScrollArea/ScrollArea'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
 import { makeToast } from '../../ui/Toast/Toast'
 import PaymentRequestDetailsModal from '../PaymentRequestDetailsModal/PaymentRequestDetailsModal'
@@ -647,7 +647,7 @@ const PaymentRequestDashboardMain = ({
           }
         />
       </div>
-      <TableScrollbar hideScrollbar>
+      <ScrollArea hideScrollbar>
         <Tabs.Root
           defaultValue={PaymentRequestStatus.All}
           onValueChange={(value) => setStatus(value as PaymentRequestStatus)}
@@ -693,7 +693,7 @@ const PaymentRequestDashboardMain = ({
           </Tabs.List>
           <Tabs.Content value=""></Tabs.Content>
         </Tabs.Root>
-      </TableScrollbar>
+      </ScrollArea>
 
       <div className="lg:bg-white lg:min-h-[18rem] lg:pt-10 lg:pb-6 lg:px-6 lg:rounded-lg">
         <PaymentRequestTable
