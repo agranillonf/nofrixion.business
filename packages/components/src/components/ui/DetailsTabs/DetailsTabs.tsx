@@ -1,4 +1,3 @@
-import { LocalPaymentMethodTypes } from '../../../types/LocalEnums'
 import { LocalPaymentAttempt, LocalPaymentRequest } from '../../../types/LocalTypes'
 import AnimatedTabs from '../molecules/AnimatedTabs/AnimatedTabs'
 import PaymentAttemptsList from '../PaymentAttemptsList/PaymentAttemptsList'
@@ -35,8 +34,7 @@ const DetailsTabs: React.FC<DetailsTabsProps> = ({
                       x.cardPayerAuthenticationSetupFailedAt ||
                       x.cardAuthoriseFailedAt ||
                       x.settleFailedAt ||
-                      x.pispAuthorisationFailedAt ||
-                      x.paymentMethod === LocalPaymentMethodTypes.Lightning,
+                      x.pispAuthorisationFailedAt,
                   )
                   .sort((a, b) => {
                     return (
