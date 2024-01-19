@@ -121,6 +121,16 @@ const PaymentRequestDashboardMain = ({
       label: 'Tags',
       selected: true,
     },
+    {
+      id: LocalPaymentRequestTableColumns.OrderId,
+      label: 'Order ID',
+      selected: false,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.PaymentRequestId,
+      label: 'Payment Request ID',
+      selected: false,
+    },
   ])
 
   const { paymentRequestColumns, setPaymentRequestColumns } = useStore(
