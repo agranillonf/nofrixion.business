@@ -124,12 +124,12 @@ const PaymentRequestDashboardMain = ({
     {
       id: LocalPaymentRequestTableColumns.OrderId,
       label: 'Order ID',
-      selected: true,
+      selected: false,
     },
     {
       id: LocalPaymentRequestTableColumns.PaymentRequestId,
       label: 'Payment Request ID',
-      selected: true,
+      selected: false,
     },
   ])
 

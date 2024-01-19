@@ -102,6 +102,8 @@ const Row = ({
       (x) => x.settledAmount > 0 || (x.cardAuthorisedAmount && x.cardAuthorisedAmount > 0),
     ).length > 0
 
+  const [isRowHovered, setIsRowHovered] = useState(false)
+
   return (
     <tr
       className={classNames(
@@ -111,6 +113,10 @@ const Row = ({
         },
       )}
       onClick={onClick}
+      onMouseEnter={() => {
+        setIsRowHovered(true)
+      }}
+      onMouseLeave={() => setIsRowHovered(false)}
     >
       {isColumnSelected(LocalPaymentRequestTableColumns.Created) && (
         <td className={classNames(commonTdClasses, `text-13px`)}>
@@ -240,7 +246,10 @@ const Row = ({
       <td
         className={classNames(
           commonTdClasses,
-          `text-right pl-0 pr-1.5 sticky right-0 custom-backdrop-blur-${id} bg-gradient-to-l from-white via-white to-transparent`,
+          `text-right pl-0 pr-1.5 sticky right-0 custom-backdrop-blur-${id} `,
+          isRowHovered
+            ? 'bg-gradient-to-l from-[#F6F8F9] via-[#F6F8F9] to-transparent'
+            : 'bg-gradient-to-l from-white via-white to-transparent',
         )}
       >
         <PaymentRequestActionMenu
@@ -249,6 +258,7 @@ const Row = ({
           onDelete={onDelete ? onDeletePaymentRequestClicked : undefined}
           onBlur={onCancelDeletingPaymentRequestClicked}
           onOpenPaymentPage={onOpenPaymentPage}
+          onMouseEnter={() => setIsRowHovered(false)}
         />
       </td>
     </tr>
