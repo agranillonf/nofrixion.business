@@ -4,7 +4,6 @@ import IconAccountsPayable from '../assets/icons/accounts-payable.svg'
 import IconAccountsReceivable from '../assets/icons/accounts-receivable.svg'
 import IconCurrentAccounts from '../assets/icons/current-accounts.svg'
 import IconDashboard from '../assets/icons/dashboard.svg'
-import IconPayouts from '../assets/icons/payouts.svg'
 import { getRoute } from './utils/utils'
 
 const NOFRIXION_API_URL = '/api'
@@ -44,14 +43,8 @@ const navItems: INavItem[] = [
   },
   {
     leftIcon: IconAccountsPayable,
-    label: 'Accounts Payable (soon)',
+    label: 'Accounts Payable',
     href: 'accounts-payable',
-    minimumRequiredRole: LocalUserRoles.User,
-  },
-  {
-    leftIcon: IconPayouts,
-    label: 'Payouts',
-    href: 'payouts',
     minimumRequiredRole: LocalUserRoles.User,
   },
 ]

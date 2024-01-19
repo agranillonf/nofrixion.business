@@ -2,10 +2,10 @@ import { Switch as SwitchHeadless } from '@headlessui/react'
 import classNames from 'classnames'
 
 export interface SwitchProps {
-  label: string
+  label?: string
   value: boolean
   onChange: (value: boolean) => void
-  icon: string
+  icon?: string
   className?: string
 }
 
@@ -13,10 +13,12 @@ const Switch = ({ label, value, icon, className, onChange }: SwitchProps) => {
   return (
     <div className={classNames('flex w-full select-none items-center', className)}>
       <SwitchHeadless.Group>
-        <SwitchHeadless.Label className="cursor-pointer flex items-center flex-1">
-          <img src={icon} alt={`${label} icon`} className="w-6 h-6 mr-4 inline-block" />
-          <span className="align-middle pr-2">{label}</span>
-        </SwitchHeadless.Label>
+        {label && (
+          <SwitchHeadless.Label className="cursor-pointer flex items-center flex-1">
+            <img src={icon} alt={`${label} icon`} className="w-6 h-6 mr-4 inline-block" />
+            <span className="align-middle pr-2">{label}</span>
+          </SwitchHeadless.Label>
+        )}
         <SwitchHeadless
           checked={value}
           onChange={onChange}

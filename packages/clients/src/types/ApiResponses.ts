@@ -1,3 +1,4 @@
+import { Invoice } from './ApiRequests'
 import {
   AccountIdentifierType,
   AddressType,
@@ -576,4 +577,15 @@ export type AccountMetrics = {
 export type PeriodicBalance = {
   balanceAt: Date
   balance: number
+}
+
+export interface Payrun {
+  id: string
+  name?: string
+  merchantID: string
+  invoices: Invoice[]
+  totalAmount: number
+  inserted: Date
+  lastUpdated: Date
+  scheduleDate?: Date
 }

@@ -1,23 +1,43 @@
-import ComingSoonUI from '../../components/ComingSoonUI'
+import { AccountsPayableDashboard } from '@nofrixion/components'
+import { makeToast } from '@nofrixion/components/src/components/ui/Toast/Toast'
+import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { useStore } from 'zustand'
 
-const comingSoonItems = [
-  'Connect with Xero',
-  'Import approved invoices',
-  'Automatically create Payruns',
-  'Create, edit, approve Payruns',
-  'Remittance notes',
-  'Automatic invoice reconciliation with XERO',
-]
+import { NOFRIXION_API_URL } from '../../lib/constants'
+import { ErrorType, useErrorsStore } from '../../lib/stores/useErrorsStore'
+import useMerchantStore from '../../lib/stores/useMerchantStore'
 
 const AccountPayablePage = () => {
+  const { payoutId, result } = useParams()
+  const merchant = useStore(useMerchantStore, (state) => state.merchant)
+  const { errors, removeError } = useErrorsStore()
+  const location = useLocation()
+
+  if (result) {
+    if (result === 'success') {
+      makeToast('success', 'Payout authorised')
+    } else if (result === 'error') {
+      const error = errors.find(
+        (payoutError) => payoutError.type === ErrorType.PAYOUT && payoutError.id === payoutId,
+      )?.error
+
+      if (error) {
+        makeToast('error', error.detail)
+      }
+
+      if (payoutId && error) {
+        removeError(payoutId)
+      }
+    }
+
+    return <Navigate to={location.pathname.replace(`/${payoutId}`, '').replace(`/${result}`, '')} />
+  }
   return (
-    <ComingSoonUI
-      title="Accounts Payable"
-      comingSoonItems={comingSoonItems}
-      video={{
-        url: 'https://cdn.nofrixion.com/videos/accounts-payable.mp4',
-      }}
-    />
+    // Div is needed to prevent the dashboard from being
+    // rendered as two separate components
+    <div>
+      {merchant && <AccountsPayableDashboard merchantId={merchant.id} apiUrl={NOFRIXION_API_URL} />}
+    </div>
   )
 }
 
