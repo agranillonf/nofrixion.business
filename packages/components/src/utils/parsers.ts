@@ -361,6 +361,33 @@ const remotePaymentRequestToLocalPaymentRequest = (
         })
       }
     }
+
+    if (paymentAttempt.paymentMethod === PaymentMethodTypes.Lightning) {
+      if (paymentAttempt.initiatedAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.InvoiceCreated,
+          occurredAt: new Date(paymentAttempt.initiatedAt),
+          currency: paymentAttempt.currency,
+        })
+      }
+
+      if (paymentAttempt.settledAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.InvoicePaid,
+          occurredAt: new Date(paymentAttempt.settledAt),
+          currency: paymentAttempt.currency,
+        })
+      }
+
+      if (paymentAttempt.settleFailedAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.InvoiceExpired,
+          occurredAt: new Date(paymentAttempt.settleFailedAt),
+          currency: paymentAttempt.currency,
+        })
+      }
+    }
+
     return events.sort((a, b) => {
       return new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()
     })
