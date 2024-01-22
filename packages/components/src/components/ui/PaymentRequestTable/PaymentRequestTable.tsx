@@ -341,7 +341,7 @@ const PaymentRequestTable = ({
         paymentRequests !== undefined &&
         paymentRequests?.length === 0 &&
         !isEmpty && (
-          // If `isEmpty` is true means that there're are no payment requests at all, no matter which tab is selected
+          // If `isEmpty` is true means that there are no payment requests at all, no matter which tab is selected
           // Else,  there are no payment requests matching the filters
           <EmptyState state="nothingFound" onCreatePaymentRequest={onCreatePaymentRequest} />
         )}
