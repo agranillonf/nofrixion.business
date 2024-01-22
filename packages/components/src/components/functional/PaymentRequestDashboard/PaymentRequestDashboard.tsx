@@ -296,7 +296,6 @@ const PaymentRequestDashboardMain = ({
   useEffect(() => {
     if (isLoadingMetrics) {
       setMetrics(undefined)
-      setFirstMetrics(undefined)
     }
   }, [isLoadingMetrics])
 
