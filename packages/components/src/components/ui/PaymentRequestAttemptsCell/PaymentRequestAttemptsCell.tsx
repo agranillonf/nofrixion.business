@@ -17,7 +17,7 @@ const getPaymentMethodName = (paymentMethod: LocalPaymentMethodTypes): string =>
     case LocalPaymentMethodTypes.Pisp:
       return 'bank '
     case LocalPaymentMethodTypes.Lightning:
-      return 'bitcoin '
+      return 'lightning '
     default:
       return ''
   }

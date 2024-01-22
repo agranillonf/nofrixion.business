@@ -358,111 +358,60 @@ export const Icons = {
   ),
   'bitcoinInProgress/28': (className: string) => (
     <SVG className={className} size="28">
-      <circle cx="22" cy="8" r="6" fill="#454D54" />
-      <path d="M22 8V6.125" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
-      <path d="M22 8L24.3435 10.344" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
-      <path
-        d="M9.11523 13.1265L13.4619 14.2912"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.1777 9.55624L13.6953 7.62439"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.8477 18.2496L10.33 20.1815"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M9.11523 13.1265L13.4619 14.2912" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M13.1777 9.55624L13.6953 7.62439" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10.8477 18.2496L10.33 20.1815" strokeLinecap="round" strokeLinejoin="round" />
       <path
         d="M14.626 9.94447C15.2024 10.0989 15.6938 10.476 15.9922 10.9928C16.2905 11.5096 16.3714 12.1237 16.217 12.7001C16.0625 13.2766 15.6854 13.768 15.1686 14.0664C14.6518 14.3647 14.0377 14.4456 13.4613 14.2911C14.0377 14.4456 14.5291 14.8227 14.8275 15.3395C15.1259 15.8563 15.2067 16.4704 15.0523 17.0468C14.8978 17.6232 14.5207 18.1147 14.0039 18.413C13.4871 18.7114 12.873 18.7923 12.2966 18.6378L7.94993 17.4731L10.2793 8.77979L14.626 9.94447Z"
-        stroke="#454D54"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M12 24C17.5228 24 22 19.5228 22 14C22 8.47715 17.5228 4 12 4C6.47715 4 2 8.47715 2 14C2 19.5228 6.47715 24 12 24Z"
-        stroke="#454D54"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
+      <circle cx="22" cy="8" r="6" fill="#454D54" stroke="none" />
+      <path d="M22 8V6.125" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M22 8L24.3435 10.344" stroke="white" strokeLinecap="round" strokeLinejoin="round" />
     </SVG>
   ),
   'bitcoinFailed/28': (className: string) => (
     <SVG className={className} size="28">
-      <path
-        d="M9.11523 13.1265L13.4619 14.2912"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.1777 9.55624L13.6953 7.62439"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.8477 18.2496L10.33 20.1815"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M9.11523 13.1265L13.4619 14.2912" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M13.1777 9.55624L13.6953 7.62439" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10.8477 18.2496L10.33 20.1815" strokeLinecap="round" strokeLinejoin="round" />
       <path
         d="M14.626 9.94447C15.2024 10.0989 15.6938 10.476 15.9922 10.9928C16.2905 11.5096 16.3714 12.1237 16.217 12.7001C16.0625 13.2766 15.6854 13.768 15.1686 14.0664C14.6518 14.3647 14.0377 14.4456 13.4613 14.2911C14.0377 14.4456 14.5291 14.8227 14.8275 15.3395C15.1259 15.8563 15.2067 16.4704 15.0523 17.0468C14.8978 17.6232 14.5207 18.1147 14.0039 18.413C13.4871 18.7114 12.873 18.7923 12.2966 18.6378L7.94993 17.4731L10.2793 8.77979L14.626 9.94447Z"
-        stroke="#454D54"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M12 24C17.5228 24 22 19.5228 22 14C22 8.47715 17.5228 4 12 4C6.47715 4 2 8.47715 2 14C2 19.5228 6.47715 24 12 24Z"
-        stroke="#454D54"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="22" cy="8" r="6" fill="#F32448" />
+      <circle cx="22" cy="8" r="6" fill="#F32448" stroke="none" />
       <path d="M19.333 5.33337L24.6663 10.6667" stroke="white" strokeLinecap="round" />
       <path d="M24.667 5.33337L19.3337 10.6667" stroke="white" strokeLinecap="round" />
     </SVG>
   ),
   'bitcoinPaid/28': (className: string) => (
     <SVG className={className} size="28">
-      <path
-        d="M9.11523 13.1265L13.4619 14.2912"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M13.1777 9.55624L13.6953 7.62439"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M10.8477 18.2496L10.33 20.1815"
-        stroke="#454D54"
-        strokeLinecap="round"
-        strokeLinejoin="round"
-      />
+      <path d="M9.11523 13.1265L13.4619 14.2912" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M13.1777 9.55624L13.6953 7.62439" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M10.8477 18.2496L10.33 20.1815" strokeLinecap="round" strokeLinejoin="round" />
       <path
         d="M14.626 9.94447C15.2024 10.0989 15.6938 10.476 15.9922 10.9928C16.2905 11.5096 16.3714 12.1237 16.217 12.7001C16.0625 13.2766 15.6854 13.768 15.1686 14.0664C14.6518 14.3647 14.0377 14.4456 13.4613 14.2911C14.0377 14.4456 14.5291 14.8227 14.8275 15.3395C15.1259 15.8563 15.2067 16.4704 15.0523 17.0468C14.8978 17.6232 14.5207 18.1147 14.0039 18.413C13.4871 18.7114 12.873 18.7923 12.2966 18.6378L7.94993 17.4731L10.2793 8.77979L14.626 9.94447Z"
-        stroke="#454D54"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
       <path
         d="M12 24C17.5228 24 22 19.5228 22 14C22 8.47715 17.5228 4 12 4C6.47715 4 2 8.47715 2 14C2 19.5228 6.47715 24 12 24Z"
-        stroke="#454D54"
         strokeLinecap="round"
         strokeLinejoin="round"
       />
-      <circle cx="22" cy="8" r="6" fill="#29A37A" />
+      <circle cx="22" cy="8" r="6" fill="#29A37A" stroke="none" />
       <path
         d="M25.1667 5.66667L20.8333 10L19 8.16667"
         stroke="white"
