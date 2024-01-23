@@ -945,7 +945,7 @@ const SavePayoutModal: React.FC<SavePayoutModalProps> = ({
                   )}
                   {changesMade && (
                     <Button
-                      variant="secondary"
+                      variant={isUserAuthoriser ? 'secondary' : 'primaryDark'}
                       size="large"
                       className="disabled:!bg-grey-text disabled:!opacity-100 disabled:cursor-not-allowed mt-4"
                       onClick={onSavePayoutClick}
@@ -954,7 +954,11 @@ const SavePayoutModal: React.FC<SavePayoutModalProps> = ({
                       {isCreatePayoutButtonDisabled ? (
                         <Loader className="h-6 w-6 mx-auto" />
                       ) : (
-                        <span>Save for later authorisation</span>
+                        <span>
+                          {isUserAuthoriser && selectedPayout
+                            ? 'Save for later authorisation'
+                            : 'Submit for authorisation'}
+                        </span>
                       )}
                     </Button>
                   )}
