@@ -939,7 +939,9 @@ const SavePayoutModal: React.FC<SavePayoutModalProps> = ({
                       {isCreateAndApproveButtonDisabled ? (
                         <Loader className="h-6 w-6 mx-auto" />
                       ) : (
-                        <span>Save and authorise</span>
+                        <span>
+                          {selectedPayout ? 'Save and authorise' : 'Create and authorise'}
+                        </span>
                       )}
                     </Button>
                   )}
