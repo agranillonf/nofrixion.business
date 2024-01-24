@@ -1070,6 +1070,7 @@ const localInvoicesToRemoteInvoices = (
 
 const localInvoiceToRemoteInvoice = (localInvoicePayment: LocalInvoice): Invoice => {
   const {
+    Id,
     InvoiceNumber,
     PaymentTerms,
     InvoiceDate,
@@ -1090,6 +1091,7 @@ const localInvoiceToRemoteInvoice = (localInvoicePayment: LocalInvoice): Invoice
   } = localInvoicePayment
 
   return {
+    id: Id,
     invoiceNumber: InvoiceNumber,
     paymentTerms: PaymentTerms,
     invoiceDate: new Date(InvoiceDate),
