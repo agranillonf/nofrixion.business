@@ -75,6 +75,8 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
   isImportInvoiceModalOpen,
   setIsImportInvoiceModalOpen,
 }) => {
+  console.log('payoutProps', payoutProps.onPageSizeChange)
+  console.log('payoutProps1', payoutProps.onPageChange)
   const [isApproveButtonDisabled, setIsApproveButtonDisabled] = useState(false)
   const [currentTab, setCurrentTab] = useState<TabValues>(TabValues.PAYOUTS)
 

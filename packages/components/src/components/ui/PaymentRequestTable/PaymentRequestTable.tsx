@@ -40,6 +40,7 @@ export interface PaymentRequestTableProps {
   onCloseSystemError?: () => void
   columns?: Column[]
   setColumns?: (columns: Column[]) => void
+  onPageSizeChange: (newPageSize: number) => void
 }
 
 const commonThClasses = 'px-4 pb-4 font-normal'
@@ -67,6 +68,7 @@ const PaymentRequestTable = ({
   pageSize,
   onPageChanged,
   totalRecords,
+  onPageSizeChange,
 }: PaymentRequestTableProps) => {
   const onPaymentRequestClickedHandler = (
     event: React.MouseEvent<HTMLTableRowElement | HTMLButtonElement | HTMLDivElement, MouseEvent>,
@@ -363,16 +365,22 @@ const PaymentRequestTable = ({
             </div>
           </TableScrollbar>
 
-          {!isLoading && paymentRequests && paymentRequests.length > 0 && (
-            <div className="hidden lg:flex pt-2 mt-6 justify-between">
+          {((paymentRequestsExist && !paymentRequests) ||
+            (paymentRequests && paymentRequests.length > 0)) && (
+            <div className="hidden lg:flex pt-2 mt-6 items-center gap-4">
               {columns && setColumns && (
                 <EditColumns columns={columns} setColumns={setColumns}></EditColumns>
               )}
-              <Pager
-                pageSize={pageSize}
-                totalRecords={totalRecords}
-                onPageChange={(newPage) => onPageChanged && onPageChanged(newPage)}
-              />
+              <div className="flex-grow-[1]">
+                <Pager
+                  pageSize={pageSize}
+                  totalRecords={totalRecords}
+                  onPageChange={(newPage) => onPageChanged && onPageChanged(newPage)}
+                  onPageSizeChange={(newPageSize) => {
+                    onPageSizeChange(newPageSize)
+                  }}
+                />
+              </div>
             </div>
           )}
         </div>

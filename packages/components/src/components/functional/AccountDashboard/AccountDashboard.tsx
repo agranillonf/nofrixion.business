@@ -56,8 +56,6 @@ const AccountDashboard = ({
   )
 }
 
-const pageSize = 10
-
 const AccountDashboardMain = ({
   token,
   accountId,
@@ -80,6 +78,7 @@ const AccountDashboardMain = ({
     },
     { apiUrl: apiUrl, authToken: token },
   )
+  const [pageSize, setPageSize] = useState(10)
 
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [isConnectingToBank, setIsConnectingToBank] = useState(false)
@@ -235,6 +234,7 @@ const AccountDashboardMain = ({
       isConnectingToBank={isConnectingToBank}
       isLoadingTransactions={isLoadingTransactions}
       isLoadingAccount={isLoadingAccount}
+      onPageSizeChange={setPageSize}
     />
   )
 }

@@ -40,6 +40,7 @@ export interface AccountDashboardProps extends React.HTMLAttributes<HTMLDivEleme
   isConnectingToBank: boolean
   isLoadingTransactions?: boolean
   isLoadingAccount?: boolean
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const AccountDashboard: React.FC<AccountDashboardProps> = ({
@@ -61,6 +62,7 @@ const AccountDashboard: React.FC<AccountDashboardProps> = ({
   isConnectingToBank,
   isLoadingTransactions,
   isLoadingAccount,
+  onPageSizeChange,
 }) => {
   const [localAccountName, setLocalAccountName] = useState(account?.accountName ?? '')
 
@@ -220,6 +222,7 @@ const AccountDashboard: React.FC<AccountDashboardProps> = ({
           onSort={onSort}
           isLoading={isLoadingTransactions}
           isShowingConnectedAccount={account?.isConnectedAccount}
+          onPageSizeChange={onPageSizeChange}
         />
       </div>
 

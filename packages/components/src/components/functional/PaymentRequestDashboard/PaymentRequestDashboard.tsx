@@ -69,6 +69,7 @@ const PaymentRequestDashboard = ({
   merchantId,
   isWebComponent,
 }: PaymentRequestDashboardProps) => {
+  console.log('pr dashboard rendered', merchantId, token, apiUrl, isWebComponent)
   const queryClientToUse = isWebComponent ? queryClient : useQueryClient()
   return (
     <QueryClientProvider client={queryClientToUse}>
@@ -82,6 +83,7 @@ const PaymentRequestDashboardMain = ({
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
 }: PaymentRequestDashboardProps) => {
+  console.log('pr dashboard main rendered', merchantId, token, apiUrl)
   const [page, setPage] = useState(1)
   const [sortBy, setSortBy] = useState<DoubleSortByPaymentRequests>({
     primary: {
@@ -186,7 +188,7 @@ const PaymentRequestDashboardMain = ({
   const [systemError, setSystemError] = useState<SystemError | undefined>(undefined)
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
 
-  const pageSize = 20
+  const [pageSize, setPageSize] = useState(20)
 
   const onPaymentRequestRowClicked = (paymentRequest: LocalPaymentRequest) => {
     setSelectedPaymentRequestID(paymentRequest.id)
@@ -271,6 +273,7 @@ const PaymentRequestDashboardMain = ({
     { apiUrl: apiUrl, authToken: token },
     true,
   )
+  console.log('page', page)
 
   const [accounts, setAccounts] = useState<LocalAccount[] | undefined>(undefined)
 
@@ -322,6 +325,7 @@ const PaymentRequestDashboardMain = ({
   }, [paymentRequestsResponse])
 
   useEffect(() => {
+    console.log('resetting')
     setMetrics(undefined)
     setFirstMetrics(undefined)
     setPage(1)
@@ -717,7 +721,9 @@ const PaymentRequestDashboardMain = ({
           )}
           pageSize={pageSize}
           totalRecords={totalRecords}
-          onPageChanged={setPage}
+          onPageChanged={(page) => {
+            console.log('setting page', page), setPage(page)
+          }}
           sortBy={sortBy}
           onSort={onSort}
           onPaymentRequestDuplicateClicked={onDuplicatePaymentRequest}
@@ -736,6 +742,10 @@ const PaymentRequestDashboardMain = ({
           onCloseSystemError={onCloseSystemErrorModal}
           columns={columns}
           setColumns={handleChangeInColumns}
+          onPageSizeChange={(newPageSize) => {
+            console.log('setting page size', newPageSize)
+            setPageSize(newPageSize)
+          }}
         />
       </div>
 

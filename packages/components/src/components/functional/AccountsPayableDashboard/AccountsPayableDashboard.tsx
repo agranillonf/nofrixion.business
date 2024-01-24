@@ -64,8 +64,6 @@ const AccountsPayableDashboard = ({
   )
 }
 
-const pageSize = 20
-
 const AccountsPayableDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
@@ -109,6 +107,7 @@ const AccountsPayableDashboardMain = ({
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
 
   const [isImportInvoiceModalOpen, setIsImportInvoiceModalOpen] = useState(false)
+  const [pageSize, setPageSize] = useState(20)
   const { createPayrun } = useCreatePayrun({ apiUrl: apiUrl, authToken: token })
 
   const { data: metricsResponse, isLoading: isLoadingMetrics } = usePayoutMetrics(
@@ -314,6 +313,10 @@ const AccountsPayableDashboardMain = ({
     setPage(page)
   }
 
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize)
+  }
+
   const onDateChange = (dateRange: DateRange) => {
     setDateRange(dateRange)
   }
@@ -445,6 +448,7 @@ const AccountsPayableDashboardMain = ({
             pageSize: pageSize,
             totalSize: totalRecords,
           },
+
           onPageChange: onPageChange,
           dateRange: dateRange,
           onDateChange: onDateChange,
@@ -477,6 +481,7 @@ const AccountsPayableDashboardMain = ({
           systemError: systemError,
           isSystemErrorOpen: isSystemErrorOpen,
           onCloseSystemError: onCloseSystemErrorModal,
+          onPageSizeChange: onPageSizeChange,
         }}
         onCreatePayout={onCreatePayout}
         onApproveBatchPayouts={onApproveBatchPayouts}
