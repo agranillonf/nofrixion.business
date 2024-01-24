@@ -224,6 +224,10 @@ export interface PayoutProps {
   payoutId?: string
 }
 
+export interface PayrunProps {
+  payrunId?: string
+}
+
 export interface DeleteConnectedAccountProps {
   accountId: string
 }

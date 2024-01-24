@@ -67,7 +67,6 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
           transform: (value: string) => (value == '' ? undefined : value),
           complete: (results: ParseResult<LocalInvoice>) => {
             const validationResults = validateInvoices(results.data)
-            console.log(validationResults)
             setValidationResults(validationResults)
 
             // If there's at least one valid invoice, set the valid invoice(s)
