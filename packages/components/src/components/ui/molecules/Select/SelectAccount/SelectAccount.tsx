@@ -45,10 +45,10 @@ const SelectAccount: React.FC<SelectAccountPros> = ({
             <div className="w-full flex justify-between align-middle">
               {account && (
                 <>
-                  <span className="break-keep">
+                  <span className="break-keep truncate">
                     {accounts.find((x) => x.id === value)?.accountName}
                   </span>
-                  <span className="text-[#73888C]">
+                  <span className="text-[#73888C] whitespace-nowrap">
                     {account && formatCurrency(account.currency)}{' '}
                     <span className="tabular-nums">
                       {account && formatAmount(account.availableBalance)}
