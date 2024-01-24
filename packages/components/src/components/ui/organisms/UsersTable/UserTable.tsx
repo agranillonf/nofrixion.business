@@ -31,6 +31,7 @@ export interface UserTableProps extends React.HTMLAttributes<HTMLDivElement> {
   onResendInvitation?: (inviteID?: string) => void
   isLoading?: boolean
   selectedUserId: string | undefined
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -43,6 +44,7 @@ const UserTable: React.FC<UserTableProps> = ({
   isLoading,
   selectedUserId,
   onResendInvitation,
+  onPageSizeChange,
   ...props
 }: UserTableProps) => {
   const onUserClickedHandler = (
@@ -137,6 +139,7 @@ const UserTable: React.FC<UserTableProps> = ({
                     onPageChange={onPageChange}
                     pageSize={pagination.pageSize}
                     totalRecords={pagination.totalSize}
+                    onPageSizeChange={onPageSizeChange}
                   />
                 </TableHead>
               </TableRow>

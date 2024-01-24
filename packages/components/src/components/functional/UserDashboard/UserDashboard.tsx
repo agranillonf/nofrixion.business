@@ -44,8 +44,6 @@ const UserDashboard = ({
   )
 }
 
-const pageSize = 20
-
 const UserDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
@@ -70,6 +68,7 @@ const UserDashboardMain = ({
 
   const [systemError, setSystemError] = useState<SystemError | undefined>(undefined)
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
+  const [pageSize, setPageSize] = useState(20)
 
   const { data: usersResponse, isLoading: isLoadingUsers } = useUsersAndInvites(
     {
@@ -191,6 +190,7 @@ const UserDashboardMain = ({
         systemError={systemError}
         isSystemErrorOpen={isSystemErrorOpen}
         onCloseSystemError={onCloseSystemErrorModal}
+        onPageSizeChange={setPageSize}
       />
 
       {merchantId && (
