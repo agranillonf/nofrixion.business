@@ -11,6 +11,7 @@ import AnimatedTabs from '../../molecules/AnimatedTabs/AnimatedTabs'
 import { Toaster } from '../../Toast/Toast'
 import LayoutWrapper from '../../utils/LayoutWrapper'
 import { PayoutDashboard, PayoutDashboardProps } from '../PayoutDashboard/PayoutDashboard'
+import { PayrunDashboard, PayrunDashboardProps } from '../PayrunDashboard/PayrunDashboard'
 import payrunEmptyState from './assets/payrun-empty-state.svg'
 
 export interface AccountsPayableDashboardProps {
@@ -20,6 +21,7 @@ export interface AccountsPayableDashboardProps {
   onCreatePayout: () => void
   onApproveBatchPayouts: () => void
   payoutProps: PayoutDashboardProps
+  payrunProps: PayrunDashboardProps
   onImportInvoices: (invoices: LocalInvoice[]) => void
   isImportInvoiceModalOpen: boolean
   setIsImportInvoiceModalOpen: (isOpen: boolean) => void
@@ -71,6 +73,7 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
   onCreatePayout,
   onApproveBatchPayouts,
   payoutProps,
+  payrunProps,
   onImportInvoices,
   isImportInvoiceModalOpen,
   setIsImportInvoiceModalOpen,
@@ -133,20 +136,20 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
               </AnimatePresence>
             </div>
           )}
-          <AnimatePresence>
-            {currentTab == tabs.payouts && (
-              <LayoutWrapper layout={'preserve-aspect'}>
-                <Button
-                  size="large"
-                  onClick={onCreatePayout}
-                  className="w-10 h-10 md:w-full md:h-full"
-                >
-                  <span className="hidden md:inline-block">Create payout</span>
-                  <Icon name="add/16" className="md:hidden" />
-                </Button>
-              </LayoutWrapper>
-            )}
-          </AnimatePresence>
+          {!(currentTab === tabs.payruns && payrunProps.payruns?.length === 0) && (
+            <Button
+              size="large"
+              onClick={() =>
+                currentTab == tabs.payouts ? onCreatePayout : setIsImportInvoiceModalOpen(true)
+              }
+              className="w-10 h-10 md:w-full md:h-full"
+            >
+              <span className="hidden md:inline-block">
+                {currentTab == tabs.payouts ? 'Create payout' : 'Create payrun'}
+              </span>
+              <Icon name="add/16" className="md:hidden" />
+            </Button>
+          )}
         </div>
       </div>
       <AnimatedTabs
@@ -162,7 +165,12 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
           {
             icon: 'payrun/16',
             title: tabs.payruns,
-            content: <PayrunsEmptyState onImportPaymentsFileClick={onImportPaymentsFileClick} />,
+            content:
+              payrunProps.payruns && payrunProps.payruns.length > 0 ? (
+                <PayrunDashboard {...payrunProps} />
+              ) : (
+                <PayrunsEmptyState onImportPaymentsFileClick={onImportPaymentsFileClick} />
+              ),
           },
         ]}
       />

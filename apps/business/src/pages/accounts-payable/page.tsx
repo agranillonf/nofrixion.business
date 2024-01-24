@@ -1,6 +1,6 @@
 import { AccountsPayableDashboard } from '@nofrixion/components'
 import { makeToast } from '@nofrixion/components/src/components/ui/Toast/Toast'
-import { Navigate, useLocation, useParams } from 'react-router-dom'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useStore } from 'zustand'
 
 import { NOFRIXION_API_URL } from '../../lib/constants'
@@ -12,6 +12,7 @@ const AccountPayablePage = () => {
   const merchant = useStore(useMerchantStore, (state) => state.merchant)
   const { errors, removeError } = useErrorsStore()
   const location = useLocation()
+  const navigate = useNavigate()
 
   if (result) {
     if (result === 'success') {
@@ -36,7 +37,15 @@ const AccountPayablePage = () => {
     // Div is needed to prevent the dashboard from being
     // rendered as two separate components
     <div>
-      {merchant && <AccountsPayableDashboard merchantId={merchant.id} apiUrl={NOFRIXION_API_URL} />}
+      {merchant && (
+        <AccountsPayableDashboard
+          merchantId={merchant.id}
+          apiUrl={NOFRIXION_API_URL}
+          onPayrunClick={(payrun) => {
+            navigate('payruns/' + payrun.id)
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -158,6 +158,11 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
 
   // Check if selected accounts to pay using each currency have balance after the payment
   const isBalanceAfterPaymentValid = Object.keys(selectedAccountsId).every((currency) => {
+    // If currency is not in the currencies list, just return true
+    if (!currenciesFromInvoices.includes(currency as Currency)) {
+      return true
+    }
+
     const selectedAccount = accounts.find(
       (account) => account.id === selectedAccountsId[currency as Currency],
     )

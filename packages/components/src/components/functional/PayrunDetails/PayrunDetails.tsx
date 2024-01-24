@@ -10,6 +10,7 @@ export interface PayrunDetailsProps {
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId?: string // Example: "5f9f8a7f-..."
   payrunId: string
+  onAllPayrunsClick: () => void
 }
 
 const PayrunDetails = ({
@@ -17,6 +18,7 @@ const PayrunDetails = ({
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
   payrunId,
+  onAllPayrunsClick,
 }: PayrunDetailsProps) => {
   const queryClient = useQueryClient()
 
@@ -27,6 +29,7 @@ const PayrunDetails = ({
         merchantId={merchantId}
         payrunId={payrunId}
         apiUrl={apiUrl}
+        onAllPayrunsClick={onAllPayrunsClick}
       />
     </QueryClientProvider>
   )
@@ -37,6 +40,7 @@ const PayrunDetailsMain = ({
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
   payrunId,
+  onAllPayrunsClick,
 }: PayrunDetailsProps) => {
   const [payrun, setPayrun] = useState<Payrun | undefined>()
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -61,8 +65,9 @@ const PayrunDetailsMain = ({
     }
   }, [accountsResponse])
 
-  const onRequestAuthClicked = () => {
+  const onRequestAuth = () => {
     // TODO: Implement
+    console.log('onRequestAuth')
   }
 
   if (!payrun) {
@@ -72,8 +77,8 @@ const PayrunDetailsMain = ({
   return (
     <UIPayrunDetails
       payrun={payrun}
-      onRequestAuth={onRequestAuthClicked}
-      onAllPayrunsClick={() => {}}
+      onRequestAuth={onRequestAuth}
+      onAllPayrunsClick={onAllPayrunsClick}
       accounts={remoteAccountsToLocalAccounts(accounts)}
     />
   )

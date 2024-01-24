@@ -228,6 +228,10 @@ export interface PayrunProps {
   payrunId?: string
 }
 
+export interface PayrunsProps {
+  merchantId: string
+}
+
 export interface DeleteConnectedAccountProps {
   accountId: string
 }

@@ -5,6 +5,7 @@ import {
   PayoutClient,
   PayoutMetrics,
   PayoutStatus,
+  Payrun,
   SortDirection,
   useAccounts,
   useBeneficiaries,
@@ -13,6 +14,7 @@ import {
   useMerchantTags,
   usePayoutMetrics,
   usePayouts,
+  usePayruns,
   useUser,
 } from '@nofrixion/moneymoov'
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
@@ -48,18 +50,25 @@ export interface AccountsPayableDashboardProps {
   token?: string // Example: "eyJhbGciOiJIUz..."
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId: string
+  onPayrunClick?: (payrun: Payrun) => void
 }
 
 const AccountsPayableDashboard = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
+  onPayrunClick,
 }: AccountsPayableDashboardProps) => {
   const queryClient = useQueryClient()
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AccountsPayableDashboardMain token={token} merchantId={merchantId} apiUrl={apiUrl} />
+      <AccountsPayableDashboardMain
+        token={token}
+        merchantId={merchantId}
+        apiUrl={apiUrl}
+        onPayrunClick={onPayrunClick}
+      />
     </QueryClientProvider>
   )
 }
@@ -70,7 +79,17 @@ const AccountsPayableDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
+  onPayrunClick,
 }: AccountsPayableDashboardProps) => {
+  /*
+  *
+  *
+  * 
+    PAYOUTS
+  * 
+  * 
+  * 
+  */
   const [page, setPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState<number>(0)
   const [payouts, setPayouts] = useState<Payout[] | undefined>(undefined)
@@ -435,6 +454,31 @@ const AccountsPayableDashboardMain = ({
     setIsSystemErrorOpen(true)
   }
 
+  /* 
+  *
+  *
+  * 
+    PAYRUNS
+  *
+  *
+  * 
+  */
+  const [payruns, setPayruns] = useState<Payrun[] | undefined>(undefined)
+  const { data: payrunsResponse } = usePayruns(
+    { merchantId },
+    {
+      apiUrl,
+      authToken: token,
+    },
+  )
+  useEffect(() => {
+    if (payrunsResponse?.status === 'success') {
+      setPayruns(payrunsResponse.data.content)
+    } else if (payrunsResponse?.status === 'error') {
+      console.error(payrunsResponse.error)
+    }
+  }, [payrunsResponse])
+
   return (
     <>
       <UIAccountsPayableDashboard
@@ -485,6 +529,10 @@ const AccountsPayableDashboardMain = ({
         isSystemErrorOpen={isSystemErrorOpen}
         onCloseSystemError={onCloseSystemErrorModal}
         isImportInvoiceModalOpen={isImportInvoiceModalOpen}
+        payrunProps={{
+          payruns,
+          onPayrunClick,
+        }}
         setIsImportInvoiceModalOpen={setIsImportInvoiceModalOpen}
       />
       <PayoutDetailsModal
