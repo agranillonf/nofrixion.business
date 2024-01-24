@@ -17,7 +17,7 @@ const fetchPayruns = async (
 }
 
 export const usePayruns = ({ merchantId }: PayrunsProps, { apiUrl, authToken }: ApiProps) => {
-  const QUERY_KEY = ['Payruns', apiUrl, authToken]
+  const QUERY_KEY = ['Payruns', apiUrl, authToken, merchantId]
 
   return useQuery<ApiResponse<PayrunPageResponse>, Error>({
     queryKey: QUERY_KEY,

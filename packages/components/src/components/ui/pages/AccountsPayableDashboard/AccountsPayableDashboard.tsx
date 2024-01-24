@@ -140,7 +140,7 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
             <Button
               size="large"
               onClick={() =>
-                currentTab == tabs.payouts ? onCreatePayout : setIsImportInvoiceModalOpen(true)
+                currentTab == tabs.payouts ? onCreatePayout() : setIsImportInvoiceModalOpen(true)
               }
               className="w-10 h-10 md:w-full md:h-full"
             >

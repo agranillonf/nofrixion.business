@@ -226,6 +226,7 @@ export interface PayoutProps {
 
 export interface PayrunProps {
   payrunId?: string
+  merchantId?: string
 }
 
 export interface PayrunsProps {
