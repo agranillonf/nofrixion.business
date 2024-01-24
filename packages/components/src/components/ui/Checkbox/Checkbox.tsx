@@ -38,7 +38,12 @@ const Checkbox = ({ label, description, value, infoText, onChange, disabled }: C
       </RadixCheckbox.Root>
 
       {label && (
-        <label className="cursor-pointer pl-3 pr-2 mb-0 -mt-0.5 md:mt-0" htmlFor={id}>
+        <label
+          className={cn('cursor-pointer pl-3 pr-2 mb-0 -mt-0.5 md:mt-0', {
+            'whitespace-nowrap': !description,
+          })}
+          htmlFor={id}
+        >
           {label}
 
           {description && (

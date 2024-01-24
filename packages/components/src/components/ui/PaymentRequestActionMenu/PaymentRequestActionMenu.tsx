@@ -32,12 +32,21 @@ const handleClick = (e: React.MouseEvent<HTMLDivElement>, handler?: () => void) 
   e.stopPropagation()
 }
 
+const handleMouseEnterEvent = (e: React.MouseEvent<HTMLDivElement>, handler?: () => void) => {
+  if (handler) {
+    handler()
+  }
+
+  e.stopPropagation()
+}
+
 export interface PaymentRequestActionMenuProps {
   onDuplicate?: () => void
   onCopyLink?: () => void
   onDelete?: () => void
   onBlur?: () => void
   onOpenPaymentPage?: () => void
+  onMouseEnter?: () => void
 }
 
 export interface PaymentRequestActionMenuItemContentProps {
@@ -65,6 +74,7 @@ const PaymentRequestActionMenu = ({
   onDelete,
   onBlur,
   onOpenPaymentPage,
+  onMouseEnter,
 }: PaymentRequestActionMenuProps) => {
   const onDuplicateClick = (e: React.MouseEvent<HTMLDivElement>) => handleClick(e, onDuplicate)
   const onCopyLinkClick = (e: React.MouseEvent<HTMLDivElement>) => handleClick(e, onCopyLink)
@@ -89,7 +99,13 @@ const PaymentRequestActionMenu = ({
         </button>
       </DropdownMenu.Trigger>
       <DropdownMenu.Portal>
-        <DropdownMenu.Content asChild forceMount sideOffset={5} onClick={emptyClick}>
+        <DropdownMenu.Content
+          asChild
+          forceMount
+          sideOffset={5}
+          onClick={emptyClick}
+          onMouseEnter={(e) => handleMouseEnterEvent(e, onMouseEnter)}
+        >
           <motion.div
             className="min-w-[150px] bg-white rounded-md shadow-[0px_0px_8px_rgba(4,_41,_49,_0.1)] space-y-2 p-4"
             initial={{ opacity: 0.5, y: -5, scaleX: 1, scaleY: 1 }}

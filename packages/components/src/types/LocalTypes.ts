@@ -50,6 +50,7 @@ export interface LocalPaymentRequest {
   createdByUser?: LocalUser
   merchantTokenDescription?: string
   remoteStatus: PaymentResult
+  orderID?: string
 }
 
 export interface LocalCounterparty {

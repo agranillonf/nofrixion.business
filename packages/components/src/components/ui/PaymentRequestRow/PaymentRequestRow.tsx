@@ -49,6 +49,7 @@ const Row = ({
   amountReceived,
   amountRefunded,
   columns,
+  orderID,
 }: PaymentRequestRowProps) => {
   const [isDeleting, setIsDeleting] = useState(false)
 
@@ -101,6 +102,8 @@ const Row = ({
       (x) => x.settledAmount > 0 || (x.cardAuthorisedAmount && x.cardAuthorisedAmount > 0),
     ).length > 0
 
+  const [isRowHovered, setIsRowHovered] = useState(false)
+
   return (
     <tr
       className={classNames(
@@ -110,6 +113,10 @@ const Row = ({
         },
       )}
       onClick={onClick}
+      onMouseEnter={() => {
+        setIsRowHovered(true)
+      }}
+      onMouseLeave={() => setIsRowHovered(false)}
     >
       {isColumnSelected(LocalPaymentRequestTableColumns.Created) && (
         <td className={classNames(commonTdClasses, `text-13px`)}>
@@ -219,20 +226,40 @@ const Row = ({
           />
         </td>
       )}
+      {isColumnSelected(LocalPaymentRequestTableColumns.OrderId) && (
+        <td className={classNames(commonTdClasses, `custom-backdrop-blur-${id} truncate`)}>
+          <span className="text-[13px]">{orderID}</span>
+        </td>
+      )}
 
-      <td className={classNames(commonTdClasses, `text-right pr-1.5 custom-backdrop-blur-${id}`)}>
-        <div className="flex flex-row justify-end">
-          {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
-            <TagList labels={tags.map((tag) => tag.name)} />
-          )}
-          <PaymentRequestActionMenu
-            onDuplicate={onDuplicate}
-            onCopyLink={onCopyLink}
-            onDelete={onDelete ? onDeletePaymentRequestClicked : undefined}
-            onBlur={onCancelDeletingPaymentRequestClicked}
-            onOpenPaymentPage={onOpenPaymentPage}
-          />
-        </div>
+      {isColumnSelected(LocalPaymentRequestTableColumns.PaymentRequestId) && (
+        <td className={classNames(commonTdClasses, `custom-backdrop-blur-${id} truncate`)}>
+          <span className="text-[13px]">{id}</span>
+        </td>
+      )}
+      {isColumnSelected(LocalPaymentRequestTableColumns.Tags) && (
+        <td className={classNames(commonTdClasses, `text-right pr-0 custom-backdrop-blur-${id}`)}>
+          <TagList labels={tags.map((tag) => tag.name)} />
+        </td>
+      )}
+
+      <td
+        className={classNames(
+          commonTdClasses,
+          `text-right pl-0 pr-1.5 sticky right-0 custom-backdrop-blur-${id} `,
+          isRowHovered
+            ? 'bg-gradient-to-l from-[#F6F8F9] via-[#F6F8F9] to-transparent'
+            : 'bg-gradient-to-l from-white via-white to-transparent',
+        )}
+      >
+        <PaymentRequestActionMenu
+          onDuplicate={onDuplicate}
+          onCopyLink={onCopyLink}
+          onDelete={onDelete ? onDeletePaymentRequestClicked : undefined}
+          onBlur={onCancelDeletingPaymentRequestClicked}
+          onOpenPaymentPage={onOpenPaymentPage}
+          onMouseEnter={() => setIsRowHovered(false)}
+        />
       </td>
     </tr>
   )

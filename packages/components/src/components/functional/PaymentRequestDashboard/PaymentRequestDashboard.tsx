@@ -121,6 +121,16 @@ const PaymentRequestDashboardMain = ({
       label: 'Tags',
       selected: true,
     },
+    {
+      id: LocalPaymentRequestTableColumns.OrderId,
+      label: 'Order ID',
+      selected: false,
+    },
+    {
+      id: LocalPaymentRequestTableColumns.PaymentRequestId,
+      label: 'Payment Request ID',
+      selected: false,
+    },
   ])
 
   const { paymentRequestColumns, setPaymentRequestColumns } = useStore(
@@ -296,7 +306,6 @@ const PaymentRequestDashboardMain = ({
   useEffect(() => {
     if (isLoadingMetrics) {
       setMetrics(undefined)
-      setFirstMetrics(undefined)
     }
   }, [isLoadingMetrics])
 
@@ -593,6 +602,22 @@ const PaymentRequestDashboardMain = ({
 
   const isInitialState = !isLoadingMetrics && firstMetrics !== undefined && firstMetrics?.all === 0
 
+  const getPaymentRequests = (
+    isLoadingMetrics: boolean,
+    metrics?: PaymentRequestMetrics,
+    paymentRequests?: PaymentRequest[],
+  ) => {
+    if (isLoadingMetrics && paymentRequests && paymentRequests.length === 0) {
+      return undefined
+    }
+
+    if (metrics?.all === 0) {
+      return []
+    }
+
+    return paymentRequests
+  }
+
   return (
     <div className="font-inter bg-main-grey text-default-text h-full">
       <div className="flex gap-8 justify-between items-center mb-8 md:mb-[68px] md:px-4">
@@ -687,8 +712,8 @@ const PaymentRequestDashboardMain = ({
 
       <div className="lg:bg-white lg:min-h-[18rem] lg:pt-10 lg:pb-6 lg:px-6 lg:rounded-lg">
         <PaymentRequestTable
-          paymentRequests={paymentRequests?.map((paymentRequest) =>
-            remotePaymentRequestToLocalPaymentRequest(paymentRequest),
+          paymentRequests={getPaymentRequests(isLoadingMetrics, metrics, paymentRequests)?.map(
+            (paymentRequest) => remotePaymentRequestToLocalPaymentRequest(paymentRequest),
           )}
           pageSize={pageSize}
           totalRecords={totalRecords}

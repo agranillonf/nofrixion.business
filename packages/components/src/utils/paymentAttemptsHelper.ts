@@ -234,6 +234,9 @@ export const getStatusIconName = (
   | 'bankRefunded/28'
   | 'bankFailed/28'
   | 'bankInProgress/28'
+  | 'bitcoinInProgress/28'
+  | 'bitcoinFailed/28'
+  | 'bitcoinPaid/28'
   | undefined => {
   if (paymentMethod === LocalPaymentMethodTypes.Card) {
     switch (status) {
@@ -270,6 +273,19 @@ export const getStatusIconName = (
         return 'bankInProgress/28'
       default:
         return 'bankInProgress/28'
+    }
+  }
+
+  if (paymentMethod === LocalPaymentMethodTypes.Lightning) {
+    switch (status) {
+      case LocalPaymentAttemptStatus.Received:
+        return 'bitcoinPaid/28'
+      case LocalPaymentAttemptStatus.Failed:
+        return 'bitcoinFailed/28'
+      case LocalPaymentAttemptStatus.InProgress:
+        return 'bitcoinInProgress/28'
+      default:
+        return 'bitcoinInProgress/28'
     }
   }
 }
