@@ -138,8 +138,8 @@ const PayoutsTable: React.FC<PayoutsTableProps> = ({
 
   return (
     <div className="flex justify-center w-full" {...props}>
-      <div className="flex flex-col gap-6">
-        {((payoutsExist && !payouts) || (payouts && payouts.length > 0)) && (
+      {((payoutsExist && !payouts) || (payouts && payouts.length > 0)) && (
+        <div className="flex flex-col gap-6 w-full">
           <>
             <Table {...props}>
               <TableHeader>
@@ -312,18 +312,15 @@ const PayoutsTable: React.FC<PayoutsTableProps> = ({
                   ))}
               </TableBody>
             </Table>
+            <Pager
+              onPageChange={onPageChange}
+              pageSize={pagination.pageSize}
+              totalRecords={pagination.totalSize}
+              onPageSizeChange={onPageSizeChange}
+            />
           </>
-        )}
-
-        {((payoutsExist && !payouts) || (payouts && payouts.length > 0)) && (
-          <Pager
-            onPageChange={onPageChange}
-            pageSize={pagination.pageSize}
-            totalRecords={pagination.totalSize}
-            onPageSizeChange={onPageSizeChange}
-          />
-        )}
-      </div>
+        </div>
+      )}
 
       {((isLoadingMetrics && !payouts) || (!payouts && !payoutsExist)) && (
         <div className=" justify-center items-center">

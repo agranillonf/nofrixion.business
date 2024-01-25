@@ -2,13 +2,7 @@ import classNames from 'classnames'
 import { useEffect, useState } from 'react'
 
 import { Icon } from '../atoms'
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuPortal,
-  DropdownMenuTrigger,
-} from '../atoms/DropDown/DropDown'
+import PageSizesDropdown from '../molecules/PageSizesDropdown/PageSizesDropdown'
 
 export interface PagerProps {
   pageSize: number
@@ -18,7 +12,6 @@ export interface PagerProps {
 }
 
 const Pager = ({ pageSize, totalRecords, onPageChange, onPageSizeChange }: PagerProps) => {
-  console.log('onpagesizechange', onPageSizeChange)
   const getToRecord = () => {
     if (pageSize > totalRecords) {
       return totalRecords
@@ -32,21 +25,29 @@ const Pager = ({ pageSize, totalRecords, onPageChange, onPageSizeChange }: Pager
   const [toRecord, setToRecord] = useState(getToRecord())
   const [totalPages, setTotalPages] = useState(Math.ceil(totalRecords / pageSize))
 
-  useEffect(() => {
+  const reset = (page: number) => {
     setTotalPages(Math.ceil(totalRecords / pageSize))
 
-    if (currentPage <= 1) {
+    if (page <= 1) {
       setFromRecord(1)
       setToRecord(getToRecord())
-    } else if (currentPage < totalPages) {
-      setFromRecord(pageSize * currentPage - pageSize + 1)
-      setToRecord(pageSize * currentPage)
+    } else if (page < totalPages) {
+      setFromRecord(pageSize * page - pageSize + 1)
+      setToRecord(pageSize * page)
     } else {
-      setFromRecord(pageSize * currentPage - pageSize + 1)
+      setFromRecord(pageSize * page - pageSize + 1)
       setToRecord(totalRecords)
     }
 
-    onPageChange(currentPage)
+    onPageChange(page)
+  }
+  useEffect(() => {
+    if (pageSize > totalRecords) {
+      setCurrentPage(1)
+      reset(1)
+    } else {
+      reset(currentPage)
+    }
   }, [currentPage, pageSize, totalRecords, totalPages, toRecord, fromRecord])
 
   useEffect(() => {
@@ -81,55 +82,15 @@ const Pager = ({ pageSize, totalRecords, onPageChange, onPageSizeChange }: Pager
   }
 
   const svgClassNames = (show: boolean) => {
-    console.log('show', show)
     return classNames('border-grey-highlighted', {
       'cursor-pointer hover:stroke-control-grey-hover': show,
     })
   }
 
-  const pageSizes = [20, 50, 100]
-
   return (
     <div className="flex flex-row items-center justify-between">
       <div>
-        {/* <SelectPageSize
-          value={pageSize.toString()}
-          defaultValue="20"
-          onValueChange={(newPageSize) => onPageSizeChange(parseInt(newPageSize))}
-        /> */}
-        <DropdownMenu>
-          <DropdownMenuTrigger asChild>
-            <div className="cursor-pointer flex flex-row items-center gap-5 p-2 rounded border-solid border-[1px] border-[#D5DBDD]">
-              <span className="text-sm">{pageSize}</span>
-              <Icon name="arrow-down/12" />
-            </div>
-          </DropdownMenuTrigger>
-          <DropdownMenuPortal>
-            <DropdownMenuContent
-              sideOffset={5}
-              align="center"
-              className="bg-white px-0 py-2 rounded shadow-[0_0_8px_0_rgba(4,41,49,0.10)]"
-            >
-              {/* <motion.div
-            className="mx-4 bg-white rounded-lg shadow-[0px_0px_8px_rgba(4,_41,_49,_0.1)] py-3 pl-4 pr-4"
-            initial={{ opacity: 0.5, y: -5, scaleX: 1, scaleY: 1 }}
-            animate={{ opacity: 1, y: 0, scaleX: 1, scaleY: 1 }}
-          > */}
-              {pageSizes.map((pageSizeOption, index) => (
-                <DropdownMenuItem
-                  key={index}
-                  onSelect={() => {
-                    onPageSizeChange(pageSizeOption)
-                  }}
-                  className="py-2 px-5 hover:bg-gray-100"
-                >
-                  {pageSizeOption}
-                </DropdownMenuItem>
-              ))}
-              {/* </motion.div> */}
-            </DropdownMenuContent>
-          </DropdownMenuPortal>
-        </DropdownMenu>
+        <PageSizesDropdown pageSize={pageSize} onPageSizeChange={onPageSizeChange} />
       </div>
 
       <div className="flex items-center space-x-1 text-[#73808C] text-sm justify-end whitespace-nowrap select-none">
