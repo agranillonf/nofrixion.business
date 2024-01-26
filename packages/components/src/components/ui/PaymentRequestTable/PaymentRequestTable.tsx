@@ -376,9 +376,7 @@ const PaymentRequestTable = ({
                   pageSize={pageSize}
                   totalRecords={totalRecords}
                   onPageChange={(newPage) => onPageChanged && onPageChanged(newPage)}
-                  onPageSizeChange={(newPageSize) => {
-                    onPageSizeChange(newPageSize)
-                  }}
+                  onPageSizeChange={onPageSizeChange}
                 />
               </div>
             </div>

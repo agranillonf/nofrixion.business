@@ -14,10 +14,14 @@ import {
 import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { add, endOfDay, startOfDay } from 'date-fns'
 import { useEffect, useState } from 'react'
+import { useStore } from 'zustand'
 
+import usePageSizesStore from '../../../lib/stores/usePageSizesStore'
+import { LocalTableIds } from '../../../types/LocalEnums'
 import { LocalPayout, LocalTransaction } from '../../../types/LocalTypes'
 import { DoubleSortByTransactions } from '../../../types/Sort'
 import { remotePayoutsToLocal, remoteTransactionsToLocal } from '../../../utils/parsers'
+import { setPageSizeForTable } from '../../../utils/utils'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
 import { AccountDashboard as UIAccountDashboard } from '../../ui/pages/AccountDashboard/AccountDashboard'
 import { makeToast } from '../../ui/Toast/Toast'
@@ -78,7 +82,30 @@ const AccountDashboardMain = ({
     },
     { apiUrl: apiUrl, authToken: token },
   )
-  const [pageSize, setPageSize] = useState(10)
+
+  const [pageSize, setPageSize] = useState(20)
+
+  const { pageSizes, setPageSizes } = useStore(usePageSizesStore, (state) => state) ?? {
+    pageSizes: undefined,
+  }
+
+  useEffect(() => {
+    if (pageSizes) {
+      const foundPageSize = pageSizes.find((c) => c.tableId === LocalTableIds.TransactionsTable)
+      if (foundPageSize) {
+        setPageSize(foundPageSize.pageSize)
+      }
+    }
+  }, [pageSizes])
+
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize)
+    const newPageSizes = setPageSizeForTable(
+      { tableId: LocalTableIds.TransactionsTable, pageSize: pageSize },
+      pageSizes,
+    )
+    setPageSizes(newPageSizes)
+  }
 
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [isConnectingToBank, setIsConnectingToBank] = useState(false)
@@ -234,7 +261,7 @@ const AccountDashboardMain = ({
       isConnectingToBank={isConnectingToBank}
       isLoadingTransactions={isLoadingTransactions}
       isLoadingAccount={isLoadingAccount}
-      onPageSizeChange={setPageSize}
+      onPageSizeChange={onPageSizeChange}
     />
   )
 }

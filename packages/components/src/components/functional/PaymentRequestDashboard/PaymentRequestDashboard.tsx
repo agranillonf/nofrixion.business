@@ -20,11 +20,13 @@ import { useEffect, useState } from 'react'
 import { useStore } from 'zustand'
 
 import { Button, Icon } from '../../../components/ui/atoms'
+import usePageSizesStore from '../../../lib/stores/usePageSizesStore'
 import usePaymentRequestColumnsStore from '../../../lib/stores/usePaymentRequestColumnsStore'
 import {
   LocalPartialPaymentMethods,
   LocalPaymentMethodTypes,
   LocalPaymentRequestTableColumns,
+  LocalTableIds,
 } from '../../../types/LocalEnums'
 import {
   Column,
@@ -43,6 +45,7 @@ import {
   remoteAccountsToLocalAccounts,
   remotePaymentRequestToLocalPaymentRequest,
 } from '../../../utils/parsers'
+import { setPageSizeForTable } from '../../../utils/utils'
 import CreatePaymentRequestPage from '../../functional/CreatePaymentRequestPage/CreatePaymentRequestPage'
 import { SortDirection } from '../../ui/ColumnHeader/ColumnHeader'
 import DashboardTab from '../../ui/DashboardTab/DashboardTab'
@@ -154,6 +157,28 @@ const PaymentRequestDashboardMain = ({
       setColumns(newColumns)
     }
   }, [paymentRequestColumns])
+
+  const { pageSizes, setPageSizes } = useStore(usePageSizesStore, (state) => state) ?? {
+    pageSizes: undefined,
+  }
+
+  useEffect(() => {
+    if (pageSizes) {
+      const foundPageSize = pageSizes.find((c) => c.tableId === LocalTableIds.PaymentRequestsTable)
+      if (foundPageSize) {
+        setPageSize(foundPageSize.pageSize)
+      }
+    }
+  }, [pageSizes])
+
+  const onPageSizeChange = (pageSize: number) => {
+    setPageSize(pageSize)
+    const newPageSizes = setPageSizeForTable(
+      { tableId: LocalTableIds.PaymentRequestsTable, pageSize: pageSize },
+      pageSizes,
+    )
+    setPageSizes(newPageSizes)
+  }
 
   const [firstMetrics, setFirstMetrics] = useState<PaymentRequestMetrics | undefined>(undefined)
 
@@ -717,9 +742,7 @@ const PaymentRequestDashboardMain = ({
           )}
           pageSize={pageSize}
           totalRecords={totalRecords}
-          onPageChanged={(page) => {
-            setPage(page)
-          }}
+          onPageChanged={setPage}
           sortBy={sortBy}
           onSort={onSort}
           onPaymentRequestDuplicateClicked={onDuplicatePaymentRequest}
@@ -738,9 +761,7 @@ const PaymentRequestDashboardMain = ({
           onCloseSystemError={onCloseSystemErrorModal}
           columns={columns}
           setColumns={handleChangeInColumns}
-          onPageSizeChange={(newPageSize) => {
-            setPageSize(newPageSize)
-          }}
+          onPageSizeChange={onPageSizeChange}
         />
       </div>
 
