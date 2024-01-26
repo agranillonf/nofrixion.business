@@ -82,35 +82,40 @@ const Pager = ({ pageSize, totalRecords, onPageChange, onPageSizeChange }: Pager
   }
 
   const svgClassNames = (show: boolean) => {
-    return classNames('border-grey-highlighted', {
-      'cursor-pointer hover:stroke-control-grey-hover': show,
+    return classNames('text-[#E3E5E8] disabled cursor-default', {
+      'cursor-pointer text-[#ABB2BA] hover:text-[#454D54]': show,
     })
   }
 
   return (
     <div className="flex flex-row items-center justify-between">
-      <div>
+      <div className="flex flex-row items-center gap-2">
         <PageSizesDropdown pageSize={pageSize} onPageSizeChange={onPageSizeChange} />
+        <span className="text-grey-text">per page</span>
       </div>
 
-      <div className="flex items-center space-x-1 text-[#73808C] text-sm justify-end whitespace-nowrap select-none">
-        <div className="text-default-text">
-          {fromRecord}-{toRecord}
+      <div className="flex items-center text-[#73808C] text-sm justify-end whitespace-nowrap select-none">
+        <div className="mr-4 flex flex-row gap-1">
+          <div className="text-default-text text-[0.813rem] ">
+            {fromRecord}-{toRecord}
+          </div>
+          <div>of</div>
+          <div>{totalRecords}</div>
         </div>
-        <div>of</div>
-        <div>{totalRecords}</div>
-        <button onClick={() => goToBeginning()}>
-          <Icon name="begin-arrow/12" className={svgClassNames(currentPage > 1)} />
-        </button>
-        <button onClick={() => decrementPageNumber()}>
-          <Icon name="left-arrow/12" className={svgClassNames(currentPage > 1)} />
-        </button>
-        <button onClick={() => incrementPageNumber()}>
-          <Icon name="right-arrow/12" className={svgClassNames(currentPage < totalPages)} />
-        </button>
-        <button onClick={() => goToEnd()}>
-          <Icon name="end-arrow/12" className={svgClassNames(currentPage < totalPages)} />
-        </button>
+        <div className="flex flex-row gap-1">
+          <button onClick={() => goToBeginning()} className="ml-0">
+            <Icon name="begin-arrow/12" className={svgClassNames(currentPage > 1)} />
+          </button>
+          <button onClick={() => decrementPageNumber()}>
+            <Icon name="left-arrow/12" className={svgClassNames(currentPage > 1)} />
+          </button>
+          <button onClick={() => incrementPageNumber()}>
+            <Icon name="right-arrow/12" className={svgClassNames(currentPage < totalPages)} />
+          </button>
+          <button onClick={() => goToEnd()}>
+            <Icon name="end-arrow/12" className={svgClassNames(currentPage < totalPages)} />
+          </button>
+        </div>
       </div>
     </div>
   )

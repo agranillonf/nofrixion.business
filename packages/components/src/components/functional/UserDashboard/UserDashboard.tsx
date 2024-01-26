@@ -9,13 +9,11 @@ import {
 } from '@nofrixion/moneymoov'
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
-import { useStore } from 'zustand'
 
-import usePageSizesStore from '../../../lib/stores/usePageSizesStore'
+import { usePageSize } from '../../../lib/hooks/usePageSize'
 import { LocalTableIds } from '../../../types/LocalEnums'
 import { SystemError } from '../../../types/LocalTypes'
 import { DoubleSortByUsersAndInvites } from '../../../types/Sort'
-import { setPageSizeForTable } from '../../../utils/utils'
 import { UserDashboard as UIUserDashboard } from '../../ui/pages/UserDashboard/UserDashboard'
 import { makeToast } from '../../ui/Toast/Toast'
 import InviteUserModal from '../InviteUserModal/InviteUserModal'
@@ -74,27 +72,10 @@ const UserDashboardMain = ({
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
   const [pageSize, setPageSize] = useState(20)
 
-  const { pageSizes, setPageSizes } = useStore(usePageSizesStore, (state) => state) ?? {
-    pageSizes: undefined,
-  }
-
-  useEffect(() => {
-    if (pageSizes) {
-      const foundPageSize = pageSizes.find((c) => c.tableId === LocalTableIds.UsersTable)
-      if (foundPageSize) {
-        setPageSize(foundPageSize.pageSize)
-      }
-    }
-  }, [pageSizes])
-
-  const onPageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize)
-    const newPageSizes = setPageSizeForTable(
-      { tableId: LocalTableIds.UsersTable, pageSize: pageSize },
-      pageSizes,
-    )
-    setPageSizes(newPageSizes)
-  }
+  const { onPageSizeChange } = usePageSize({
+    tableId: LocalTableIds.UsersTable,
+    setPageSize: setPageSize,
+  })
 
   const { data: usersResponse, isLoading: isLoadingUsers } = useUsersAndInvites(
     {

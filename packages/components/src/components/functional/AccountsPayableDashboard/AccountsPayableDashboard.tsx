@@ -18,9 +18,8 @@ import {
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { add, endOfDay, startOfDay } from 'date-fns'
 import { useEffect, useMemo, useRef, useState } from 'react'
-import { useStore } from 'zustand'
 
-import usePageSizesStore from '../../../lib/stores/usePageSizesStore'
+import { usePageSize } from '../../../lib/hooks/usePageSize'
 import { LocalTableIds } from '../../../types/LocalEnums'
 import {
   ApproveType,
@@ -39,7 +38,6 @@ import {
   remoteBeneficiariesToLocalBeneficiaries,
   remotePayoutsToLocal,
 } from '../../../utils/parsers'
-import { setPageSizeForTable } from '../../../utils/utils'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
 import { AccountsPayableDashboard as UIAccountsPayableDashboard } from '../../ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
@@ -114,27 +112,10 @@ const AccountsPayableDashboardMain = ({
   const [pageSize, setPageSize] = useState(20)
   const { createPayrun } = useCreatePayrun({ apiUrl: apiUrl, authToken: token })
 
-  const { pageSizes, setPageSizes } = useStore(usePageSizesStore, (state) => state) ?? {
-    pageSizes: undefined,
-  }
-
-  useEffect(() => {
-    if (pageSizes) {
-      const foundPageSize = pageSizes.find((c) => c.tableId === LocalTableIds.PayoutsTable)
-      if (foundPageSize) {
-        setPageSize(foundPageSize.pageSize)
-      }
-    }
-  }, [pageSizes])
-
-  const onPageSizeChange = (pageSize: number) => {
-    setPageSize(pageSize)
-    const newPageSizes = setPageSizeForTable(
-      { tableId: LocalTableIds.PayoutsTable, pageSize: pageSize },
-      pageSizes,
-    )
-    setPageSizes(newPageSizes)
-  }
+  const { onPageSizeChange } = usePageSize({
+    tableId: LocalTableIds.PayoutsTable,
+    setPageSize: setPageSize,
+  })
 
   const { data: metricsResponse, isLoading: isLoadingMetrics } = usePayoutMetrics(
     {

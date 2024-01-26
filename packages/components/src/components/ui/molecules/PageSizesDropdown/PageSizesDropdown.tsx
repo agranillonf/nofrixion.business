@@ -38,7 +38,7 @@ const PageSizesDropdown = ({ pageSize, onPageSizeChange, pageSizes }: PageSizesD
               }}
               className="py-2 px-5 hover:bg-gray-100"
             >
-              {pageSizeOption}
+              <span className="ml-auto">{pageSizeOption}</span>
             </DropdownMenuItem>
           ))}
         </DropdownMenuContent>
