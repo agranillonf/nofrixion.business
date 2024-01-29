@@ -19,7 +19,7 @@ const PageSizesDropdown = ({ pageSize, onPageSizeChange, pageSizes }: PageSizesD
   return (
     <DropdownMenu>
       <DropdownMenuTrigger asChild>
-        <div className="cursor-pointer flex flex-row items-center gap-5 p-2 rounded border-solid border-[1px] border-[#D5DBDD]">
+        <div className="cursor-pointer flex flex-row items-center gap-5 p-2 rounded border-solid border-[0.063rem] border-border-grey">
           <span className="text-sm">{pageSize}</span>
           <Icon name="arrow-down/12" />
         </div>
