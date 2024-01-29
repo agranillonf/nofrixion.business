@@ -91,7 +91,7 @@ const Pager = ({ pageSize, totalRecords, onPageChange, onPageSizeChange }: Pager
     <div className="flex flex-row items-center justify-between">
       <div className="flex flex-row items-center gap-2">
         <PageSizesDropdown pageSize={pageSize} onPageSizeChange={onPageSizeChange} />
-        <span className="text-grey-text">per page</span>
+        <span className="text-grey-text text-[0.813rem]">per page</span>
       </div>
 
       <div className="flex items-center text-[#73808C] text-sm justify-end whitespace-nowrap select-none">

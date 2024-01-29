@@ -107,7 +107,7 @@ const Row = ({
   return (
     <tr
       className={classNames(
-        'relative border-b border-[#F1F2F3] cursor-pointer transition-all ease-in-out hover:bg-[#F6F8F9] hover:border-[#E1E5EA]',
+        'relative border-b border-[#F1F2F3] cursor-pointer transition-all ease-in-out hover:bg-[#F6F8F9] hover:border-[#E1E5EA] h-[3.781rem]',
         {
           'bg-[#F6F8F9] border-[#E1E5EA]': selected,
         },
