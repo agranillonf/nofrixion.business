@@ -38,6 +38,7 @@ export interface PayoutsTableProps extends React.HTMLAttributes<HTMLDivElement> 
   isLoadingMetrics: boolean
   payoutsExist: boolean
   isUserAuthoriser: boolean
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const PayoutsTable: React.FC<PayoutsTableProps> = ({
@@ -55,6 +56,7 @@ const PayoutsTable: React.FC<PayoutsTableProps> = ({
   isLoadingMetrics,
   payoutsExist,
   isUserAuthoriser,
+  onPageSizeChange,
   ...props
 }) => {
   const [allPayoutsSelected, setAllPayoutsSelected] = useState(false)
@@ -137,183 +139,187 @@ const PayoutsTable: React.FC<PayoutsTableProps> = ({
   return (
     <div className="flex justify-center w-full" {...props}>
       {((payoutsExist && !payouts) || (payouts && payouts.length > 0)) && (
-        <>
-          <Table {...props}>
-            <TableHeader>
-              <TableRow className="hover:bg-transparent cursor-auto">
-                {isUserAuthoriser && status && status === PayoutStatus.PENDING_APPROVAL && (
-                  <TableHead
-                    className="w-0"
-                    onClick={() => toggleAllPayoutAuthoriseStatuses(!allPayoutsSelected)}
-                  >
-                    <Checkbox
-                      value={allPayoutsSelected}
-                      onChange={(value) => {
-                        toggleAllPayoutAuthoriseStatuses(value)
-                      }}
+        <div className="flex flex-col gap-6 w-full">
+          <>
+            <Table {...props}>
+              <TableHeader>
+                <TableRow className="hover:bg-transparent cursor-auto">
+                  {isUserAuthoriser && status && status === PayoutStatus.PENDING_APPROVAL && (
+                    <TableHead
+                      className="w-0"
+                      onClick={() => toggleAllPayoutAuthoriseStatuses(!allPayoutsSelected)}
+                    >
+                      <Checkbox
+                        value={allPayoutsSelected}
+                        onChange={(value) => {
+                          toggleAllPayoutAuthoriseStatuses(value)
+                        }}
+                      />
+                    </TableHead>
+                  )}
+                  <TableHead className="w-[150px]">
+                    <ColumnHeader
+                      label="Status"
+                      sortDirection={
+                        sortBy.primary.name === 'status' ? sortBy.primary.direction : undefined
+                      }
+                      onSort={(direction) => handleOnSort({ name: 'status', direction })}
                     />
                   </TableHead>
-                )}
-                <TableHead className="w-[150px]">
-                  <ColumnHeader
-                    label="Status"
-                    sortDirection={
-                      sortBy.primary.name === 'status' ? sortBy.primary.direction : undefined
-                    }
-                    onSort={(direction) => handleOnSort({ name: 'status', direction })}
-                  />
-                </TableHead>
-                <TableHead>
-                  <ColumnHeader
-                    label={'Created'}
-                    sortDirection={
-                      sortBy.primary.name === 'created' ? sortBy.primary.direction : undefined
-                    }
-                    onSort={(direction) => handleOnSort({ name: 'created', direction })}
-                  />
-                </TableHead>
-                <TableHead>
-                  <ColumnHeader
-                    label={'Scheduled'}
-                    sortDirection={
-                      sortBy.primary.name === 'scheduleDate' ? sortBy.primary.direction : undefined
-                    }
-                    onSort={(direction) => handleOnSort({ name: 'scheduleDate', direction })}
-                  />
-                </TableHead>
-                <TableHead>
-                  <ColumnHeader
-                    label={'Payee'}
-                    sortDirection={
-                      sortBy.primary.name === 'counterPartyName'
-                        ? sortBy.primary.direction
-                        : undefined
-                    }
-                    onSort={(direction) => handleOnSort({ name: 'counterPartyName', direction })}
-                  />
-                </TableHead>
-                <TableHead className="text-right px-0">
-                  <ColumnHeader
-                    label={'Amount'}
-                    sortDirection={
-                      sortBy.primary.name === 'amount' ? sortBy.primary.direction : undefined
-                    }
-                    onSort={(direction) => handleOnSort({ name: 'amount', direction })}
-                  />
-                </TableHead>
-                <TableHead>{/* Currency */}</TableHead>
-                <TableHead>
-                  <Pager
-                    onPageChange={onPageChange}
-                    pageSize={pagination.pageSize}
-                    totalRecords={pagination.totalSize}
-                  />
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {((isLoading && payoutsExist) || (payoutsExist && !payouts)) &&
-                Array.from(Array(12)).map((_, index) => (
-                  <TableRow
-                    key={`pr-placeholder-${index}`}
-                    className="animate-pulse border-b border-[#F1F2F3]"
-                  >
-                    <TableCell className="w-48 py-6">
-                      <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
-                    </TableCell>
-
-                    <TableCell className="w-48">
-                      <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
-                    </TableCell>
-
-                    <TableCell className="w-48">
-                      <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
-                    </TableCell>
-
-                    <TableCell className="w-48">
-                      <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
-                    </TableCell>
-
-                    <TableCell className="w-48">
-                      <div className="w-1/4 ml-auto h-2 bg-[#E0E9EB] rounded-lg" />
-                    </TableCell>
-
-                    <TableCell className="p-0"></TableCell>
-
-                    <TableCell className="w-0">
-                      <div className="w-1/2 ml-auto h-2 bg-[#E0E9EB] rounded-lg" />
-                    </TableCell>
-                  </TableRow>
-                ))}
-
-              {!isLoading &&
-                payouts &&
-                payouts.length > 0 &&
-                payouts?.map((payout, index) => (
-                  <TableRow
-                    className={cn(
-                      'cursor-pointer transition-all ease-in-out hover:bg-[#F6F8F9] hover:border-[#E1E5EA]',
-                      {
-                        'bg-[#F6F8F9] border-[#E1E5EA]':
-                          selectedPayoutId === payout.id ||
-                          (selectedPayouts.includes(payout.id) &&
-                            status === PayoutStatus.PENDING_APPROVAL),
-                      },
-                    )}
-                    key={`${payout}-${index}`}
-                    onClick={(event) => onPayoutClickedHandler(event, payout)}
-                  >
-                    {isUserAuthoriser && status && status === PayoutStatus.PENDING_APPROVAL && (
-                      <TableCell
-                        onClick={(event) => {
-                          event.stopPropagation()
-                          togglePayoutAuthoriseStatus(
-                            payout.id,
-                            !selectedPayouts.includes(payout.id),
-                          )
-                        }}
-                      >
-                        <Checkbox
-                          value={selectedPayouts.includes(payout.id)}
-                          onChange={(value) => {
-                            togglePayoutAuthoriseStatus(payout.id, value)
-                          }}
-                        />
+                  <TableHead>
+                    <ColumnHeader
+                      label={'Created'}
+                      sortDirection={
+                        sortBy.primary.name === 'created' ? sortBy.primary.direction : undefined
+                      }
+                      onSort={(direction) => handleOnSort({ name: 'created', direction })}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <ColumnHeader
+                      label={'Scheduled'}
+                      sortDirection={
+                        sortBy.primary.name === 'scheduleDate'
+                          ? sortBy.primary.direction
+                          : undefined
+                      }
+                      onSort={(direction) => handleOnSort({ name: 'scheduleDate', direction })}
+                    />
+                  </TableHead>
+                  <TableHead>
+                    <ColumnHeader
+                      label={'Payee'}
+                      sortDirection={
+                        sortBy.primary.name === 'counterPartyName'
+                          ? sortBy.primary.direction
+                          : undefined
+                      }
+                      onSort={(direction) => handleOnSort({ name: 'counterPartyName', direction })}
+                    />
+                  </TableHead>
+                  <TableHead className="text-right px-0">
+                    <ColumnHeader
+                      label={'Amount'}
+                      sortDirection={
+                        sortBy.primary.name === 'amount' ? sortBy.primary.direction : undefined
+                      }
+                      onSort={(direction) => handleOnSort({ name: 'amount', direction })}
+                    />
+                  </TableHead>
+                  <TableHead>{/* Currency */}</TableHead>
+                  <TableHead></TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {((isLoading && payoutsExist) || (payoutsExist && !payouts)) &&
+                  Array.from(Array(12)).map((_, index) => (
+                    <TableRow
+                      key={`pr-placeholder-${index}`}
+                      className="animate-pulse border-b border-[#F1F2F3]"
+                    >
+                      <TableCell className="w-48 py-6">
+                        <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
                       </TableCell>
-                    )}
-                    <TableCell className="w-48">
-                      <Status size="small" variant={payoutStatusToStatus(payout.status)} />
-                    </TableCell>
-                    <TableCell className="w-48">
-                      {payout.inserted && formatDateWithYear(new Date(payout.inserted))}
-                    </TableCell>
-                    <TableCell className="w-48">
-                      {payout.scheduled && payout.scheduled === true
-                        ? payout.scheduleDate && formatDateWithYear(new Date(payout.scheduleDate))
-                        : 'Immediately'}
-                    </TableCell>
-                    <TableCell className="w-48">
-                      <div className="truncate">{payout.destination?.name}</div>
-                    </TableCell>
-                    <TableCell className="text-right truncate tabular-nums font-medium text-base/5 py-4 px-6 w-48">
-                      {formatAmount(payout.amount)}
-                    </TableCell>
-                    <TableCell className="pl-0 text-grey-text font-normal text-sm">
-                      {payout.currency}
-                    </TableCell>
-                    <TableCell>
-                      <div className="flex ml-auto justify-items-end items-center w-fit">
-                        <TagList labels={payout.tags.map((tag) => tag.name)} />
-                        {payout.status === PayoutStatus.PENDING_APPROVAL && isUserAuthoriser && (
-                          <PayoutAuthoriseForm id={payout.id} size="x-small" className="pl-4" />
-                        )}
-                      </div>
-                    </TableCell>
-                  </TableRow>
-                ))}
-            </TableBody>
-          </Table>
-        </>
+
+                      <TableCell className="w-48">
+                        <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
+                      </TableCell>
+
+                      <TableCell className="w-48">
+                        <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
+                      </TableCell>
+
+                      <TableCell className="w-48">
+                        <div className="w-full h-2 bg-[#E0E9EB] rounded-lg" />
+                      </TableCell>
+
+                      <TableCell className="w-48">
+                        <div className="w-1/4 ml-auto h-2 bg-[#E0E9EB] rounded-lg" />
+                      </TableCell>
+
+                      <TableCell className="p-0"></TableCell>
+
+                      <TableCell className="w-0">
+                        <div className="w-1/2 ml-auto h-2 bg-[#E0E9EB] rounded-lg" />
+                      </TableCell>
+                    </TableRow>
+                  ))}
+
+                {!isLoading &&
+                  payouts &&
+                  payouts.length > 0 &&
+                  payouts?.map((payout, index) => (
+                    <TableRow
+                      className={cn(
+                        'cursor-pointer transition-all ease-in-out hover:bg-[#F6F8F9] hover:border-[#E1E5EA]',
+                        {
+                          'bg-[#F6F8F9] border-[#E1E5EA]':
+                            selectedPayoutId === payout.id ||
+                            (selectedPayouts.includes(payout.id) &&
+                              status === PayoutStatus.PENDING_APPROVAL),
+                        },
+                      )}
+                      key={`${payout}-${index}`}
+                      onClick={(event) => onPayoutClickedHandler(event, payout)}
+                    >
+                      {isUserAuthoriser && status && status === PayoutStatus.PENDING_APPROVAL && (
+                        <TableCell
+                          onClick={(event) => {
+                            event.stopPropagation()
+                            togglePayoutAuthoriseStatus(
+                              payout.id,
+                              !selectedPayouts.includes(payout.id),
+                            )
+                          }}
+                        >
+                          <Checkbox
+                            value={selectedPayouts.includes(payout.id)}
+                            onChange={(value) => {
+                              togglePayoutAuthoriseStatus(payout.id, value)
+                            }}
+                          />
+                        </TableCell>
+                      )}
+                      <TableCell className="w-48">
+                        <Status size="small" variant={payoutStatusToStatus(payout.status)} />
+                      </TableCell>
+                      <TableCell className="w-48">
+                        {payout.inserted && formatDateWithYear(new Date(payout.inserted))}
+                      </TableCell>
+                      <TableCell className="w-48">
+                        {payout.scheduled && payout.scheduled === true
+                          ? payout.scheduleDate && formatDateWithYear(new Date(payout.scheduleDate))
+                          : 'Immediately'}
+                      </TableCell>
+                      <TableCell className="w-48">
+                        <div className="truncate">{payout.destination?.name}</div>
+                      </TableCell>
+                      <TableCell className="text-right truncate tabular-nums font-medium text-base/5 py-4 px-6 w-48">
+                        {formatAmount(payout.amount)}
+                      </TableCell>
+                      <TableCell className="pl-0 text-grey-text font-normal text-sm">
+                        {payout.currency}
+                      </TableCell>
+                      <TableCell>
+                        <div className="flex ml-auto justify-items-end items-center w-fit">
+                          <TagList labels={payout.tags.map((tag) => tag.name)} />
+                          {payout.status === PayoutStatus.PENDING_APPROVAL && isUserAuthoriser && (
+                            <PayoutAuthoriseForm id={payout.id} size="x-small" className="pl-4" />
+                          )}
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))}
+              </TableBody>
+            </Table>
+            <Pager
+              onPageChange={onPageChange}
+              pageSize={pagination.pageSize}
+              totalRecords={pagination.totalSize}
+              onPageSizeChange={onPageSizeChange}
+            />
+          </>
+        </div>
       )}
 
       {((isLoadingMetrics && !payouts) || (!payouts && !payoutsExist)) && (

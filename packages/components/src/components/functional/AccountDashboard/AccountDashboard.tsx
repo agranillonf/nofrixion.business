@@ -15,6 +15,8 @@ import { QueryClient, QueryClientProvider, useQueryClient } from '@tanstack/reac
 import { add, endOfDay, startOfDay } from 'date-fns'
 import { useEffect, useState } from 'react'
 
+import { usePageSize } from '../../../lib/hooks/usePageSize'
+import { LocalTableIds } from '../../../types/LocalEnums'
 import { LocalPayout, LocalTransaction } from '../../../types/LocalTypes'
 import { DoubleSortByTransactions } from '../../../types/Sort'
 import { remotePayoutsToLocal, remoteTransactionsToLocal } from '../../../utils/parsers'
@@ -56,8 +58,6 @@ const AccountDashboard = ({
   )
 }
 
-const pageSize = 10
-
 const AccountDashboardMain = ({
   token,
   accountId,
@@ -80,6 +80,13 @@ const AccountDashboardMain = ({
     },
     { apiUrl: apiUrl, authToken: token },
   )
+
+  const [pageSize, setPageSize] = useState(20)
+
+  const { onPageSizeChange } = usePageSize({
+    tableId: LocalTableIds.TransactionsTable,
+    setPageSize: setPageSize,
+  })
 
   const [searchFilter, setSearchFilter] = useState<string>('')
   const [isConnectingToBank, setIsConnectingToBank] = useState(false)
@@ -235,6 +242,7 @@ const AccountDashboardMain = ({
       isConnectingToBank={isConnectingToBank}
       isLoadingTransactions={isLoadingTransactions}
       isLoadingAccount={isLoadingAccount}
+      onPageSizeChange={onPageSizeChange}
     />
   )
 }
