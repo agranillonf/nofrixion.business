@@ -552,6 +552,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                               spanClassName="w-full"
                               label="Amount to pay"
                             />
+                            <div className="w-8 ml-4" />
                           </div>
 
                           {invoices.map((invoice, index) => {
@@ -572,7 +573,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                                   {formatDateWithYear(new Date(invoice.dueDate), 'cardinal', true)}
                                 </span>
                                 <span className="w-24 mr-auto">{invoice.reference}</span>
-                                <span className="w-40 mr-12 text-right">
+                                <span className="w-40 mr-12 text-right tabular-nums">
                                   {formatCurrency(invoice.currency)}{' '}
                                   {formatAmount(invoice.totalAmount ?? 0)}
                                 </span>
@@ -597,7 +598,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                                 </span>
                                 <Switch
                                   size="small"
-                                  className="w-auto ml-4"
+                                  className="w-8 ml-4"
                                   value={isEnabled}
                                   onChange={(value) => onInvoiceSwitchChange(value, invoice.id)}
                                 />
