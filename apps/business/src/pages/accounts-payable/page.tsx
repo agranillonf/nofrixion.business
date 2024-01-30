@@ -1,4 +1,5 @@
 import { AccountsPayableDashboard } from '@nofrixion/components'
+import { TabValues } from '@nofrixion/components/src/components/ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
 import { makeToast } from '@nofrixion/components/src/components/ui/Toast/Toast'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router-dom'
 import { useStore } from 'zustand'
@@ -13,6 +14,14 @@ const AccountPayablePage = () => {
   const { errors, removeError } = useErrorsStore()
   const location = useLocation()
   const navigate = useNavigate()
+
+  // Need to store the initial tab value in the URL
+  // so that the correct tab is selected when navigating
+  // back to the page
+  const params = new URLSearchParams(location.search)
+  const tabParam = params.get('tab')
+
+  const initialTab = tabParam ? (tabParam as TabValues) : TabValues.PAYOUTS
 
   if (result) {
     if (result === 'success') {
@@ -33,6 +42,7 @@ const AccountPayablePage = () => {
 
     return <Navigate to={location.pathname.replace(`/${payoutId}`, '').replace(`/${result}`, '')} />
   }
+
   return (
     // Div is needed to prevent the dashboard from being
     // rendered as two separate components
@@ -43,6 +53,14 @@ const AccountPayablePage = () => {
           apiUrl={NOFRIXION_API_URL}
           onPayrunClick={(payrun) => {
             navigate('payruns/' + payrun.id)
+          }}
+          initialTab={initialTab}
+          onTabChange={(tab) => {
+            // Change the URL to reflect the current tab
+            // without navigating to a new page
+            const currentParams = new URLSearchParams(location.search)
+            currentParams.set('tab', tab)
+            navigate(location.pathname + '?' + currentParams.toString())
           }}
         />
       )}

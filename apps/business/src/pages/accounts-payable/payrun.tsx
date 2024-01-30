@@ -1,4 +1,5 @@
 import { PayrunDetails } from '@nofrixion/components'
+import { TabValues } from '@nofrixion/components/src/components/ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
 import { useNavigate, useParams } from 'react-router-dom'
 import { useStore } from 'zustand'
 
@@ -11,7 +12,7 @@ const PayrunPage = () => {
   const navigate = useNavigate()
 
   const onAllPayrunsClick = () => {
-    navigate('/accounts-payable')
+    navigate(`../accounts-payable?tab=${TabValues.PAYRUNS}`)
   }
 
   return (

@@ -39,7 +39,10 @@ import {
   remotePayoutsToLocal,
 } from '../../../utils/parsers'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
-import { AccountsPayableDashboard as UIAccountsPayableDashboard } from '../../ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
+import {
+  AccountsPayableDashboard as UIAccountsPayableDashboard,
+  TabValues,
+} from '../../ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
 import { makeToast } from '../../ui/Toast/Toast'
 import { PayoutAuthoriseForm } from '../../ui/utils/PayoutAuthoriseForm'
@@ -51,6 +54,8 @@ export interface AccountsPayableDashboardProps {
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId: string
   onPayrunClick?: (payrun: Payrun) => void
+  initialTab?: TabValues
+  onTabChange?: (tab: TabValues) => void
 }
 
 const AccountsPayableDashboard = ({
@@ -58,6 +63,8 @@ const AccountsPayableDashboard = ({
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
   onPayrunClick,
+  initialTab,
+  onTabChange,
 }: AccountsPayableDashboardProps) => {
   const queryClient = useQueryClient()
 
@@ -68,6 +75,8 @@ const AccountsPayableDashboard = ({
         merchantId={merchantId}
         apiUrl={apiUrl}
         onPayrunClick={onPayrunClick}
+        initialTab={initialTab}
+        onTabChange={onTabChange}
       />
     </QueryClientProvider>
   )
@@ -80,6 +89,8 @@ const AccountsPayableDashboardMain = ({
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
   onPayrunClick,
+  initialTab = TabValues.PAYOUTS,
+  onTabChange,
 }: AccountsPayableDashboardProps) => {
   /*
   *
@@ -534,6 +545,8 @@ const AccountsPayableDashboardMain = ({
           onPayrunClick,
         }}
         setIsImportInvoiceModalOpen={setIsImportInvoiceModalOpen}
+        initialTab={initialTab}
+        onTabChange={onTabChange}
       />
       <PayoutDetailsModal
         open={!!selectedPayoutId}
