@@ -642,12 +642,9 @@ const RequestAuthSideModal: React.FC<RequestAuthSideModalProps> = ({
 
   const onValidateDate = (date: Date | undefined): string | undefined => {
     if (date) {
-      const maxDate = addDays(new Date(), 61)
+      const maxDate = addDays(new Date(), 60)
 
-      if (
-        startOfDay(date) < startOfDay(addDays(new Date(), 1)) ||
-        startOfDay(date) > startOfDay(addDays(new Date(), 61))
-      ) {
+      if (startOfDay(date) < startOfDay(addDays(new Date(), 1)) || startOfDay(date) > maxDate) {
         return `The payment date should be between tomorrow and ${format(maxDate, 'MMM do, yyyy')}`
       }
     }
@@ -664,13 +661,10 @@ const RequestAuthSideModal: React.FC<RequestAuthSideModalProps> = ({
               Payment date
             </label>
             <SingleDatePicker
-              key="paymentDate"
+              key={`paymentDate-${isOpen}`}
               value={paymentDate}
               onDateChange={setPaymentDate}
               className="mt-3"
-              validationErrorMessage={
-                'The payment date should be between tomorrow and 61 days from now'
-              }
               warningValidation={onValidateDate}
             />
           </div>
