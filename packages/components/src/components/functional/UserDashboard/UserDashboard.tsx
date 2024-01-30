@@ -10,6 +10,8 @@ import {
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
+import { usePageSize } from '../../../lib/hooks/usePageSize'
+import { LocalTableIds } from '../../../types/LocalEnums'
 import { SystemError } from '../../../types/LocalTypes'
 import { DoubleSortByUsersAndInvites } from '../../../types/Sort'
 import { UserDashboard as UIUserDashboard } from '../../ui/pages/UserDashboard/UserDashboard'
@@ -44,8 +46,6 @@ const UserDashboard = ({
   )
 }
 
-const pageSize = 20
-
 const UserDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
@@ -70,6 +70,12 @@ const UserDashboardMain = ({
 
   const [systemError, setSystemError] = useState<SystemError | undefined>(undefined)
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
+  const [pageSize, setPageSize] = useState(20)
+
+  const { onPageSizeChange } = usePageSize({
+    tableId: LocalTableIds.UsersTable,
+    setPageSize: setPageSize,
+  })
 
   const { data: usersResponse, isLoading: isLoadingUsers } = useUsersAndInvites(
     {
@@ -191,6 +197,7 @@ const UserDashboardMain = ({
         systemError={systemError}
         isSystemErrorOpen={isSystemErrorOpen}
         onCloseSystemError={onCloseSystemErrorModal}
+        onPageSizeChange={onPageSizeChange}
       />
 
       {merchantId && (

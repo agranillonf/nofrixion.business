@@ -20,11 +20,13 @@ import { useEffect, useState } from 'react'
 import { useStore } from 'zustand'
 
 import { Button, Icon } from '../../../components/ui/atoms'
+import { usePageSize } from '../../../lib/hooks/usePageSize'
 import usePaymentRequestColumnsStore from '../../../lib/stores/usePaymentRequestColumnsStore'
 import {
   LocalPartialPaymentMethods,
   LocalPaymentMethodTypes,
   LocalPaymentRequestTableColumns,
+  LocalTableIds,
 } from '../../../types/LocalEnums'
 import {
   Column,
@@ -186,7 +188,12 @@ const PaymentRequestDashboardMain = ({
   const [systemError, setSystemError] = useState<SystemError | undefined>(undefined)
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
 
-  const pageSize = 20
+  const [pageSize, setPageSize] = useState(20)
+
+  const { onPageSizeChange } = usePageSize({
+    tableId: LocalTableIds.PaymentRequestsTable,
+    setPageSize: setPageSize,
+  })
 
   const onPaymentRequestRowClicked = (paymentRequest: LocalPaymentRequest) => {
     setSelectedPaymentRequestID(paymentRequest.id)
@@ -736,6 +743,7 @@ const PaymentRequestDashboardMain = ({
           onCloseSystemError={onCloseSystemErrorModal}
           columns={columns}
           setColumns={handleChangeInColumns}
+          onPageSizeChange={onPageSizeChange}
         />
       </div>
 

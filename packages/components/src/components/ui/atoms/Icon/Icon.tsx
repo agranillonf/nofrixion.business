@@ -1371,6 +1371,28 @@ export const Icons = {
       />
     </SVG>
   ),
+  'begin-arrow/12': (className: string) => (
+    <SVG className={className} size="12">
+      <path d="M10 1L5 6L10 11" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M3 1V11" strokeLinecap="round" />
+    </SVG>
+  ),
+  'end-arrow/12': (className: string) => (
+    <SVG className={className} size="12">
+      <path d="M2 11L7 6L2 1" strokeLinecap="round" strokeLinejoin="round" />
+      <path d="M9 1V11" strokeLinecap="round" />
+    </SVG>
+  ),
+  'left-arrow/12': (className: string) => (
+    <SVG className={className} size="12">
+      <path d="M8 1L3 6L8 11" strokeLinecap="round" strokeLinejoin="round" />
+    </SVG>
+  ),
+  'right-arrow/12': (className: string) => (
+    <SVG className={className} size="12">
+      <path d="M4 11L9 6L4 1" strokeLinecap="round" strokeLinejoin="round" />
+    </SVG>
+  ),
 } as const
 
 export type IconNames = keyof typeof Icons

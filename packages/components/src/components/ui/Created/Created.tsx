@@ -5,7 +5,7 @@ import { LocalUser } from '../../../types/LocalTypes'
 import { formatDateWithYear } from '../../../utils/formatters'
 import InfoTooltip from '../InfoTooltip/InfoTooltip'
 
-const createdAtVariants = cva('', {
+const createdAtVariants = cva('truncate', {
   variants: {
     size: {
       small: ['text-13px'],

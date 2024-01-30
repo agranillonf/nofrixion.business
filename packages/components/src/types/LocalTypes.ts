@@ -9,6 +9,7 @@ import {
   LocalPaymentAttemptEventType,
   LocalPaymentAttemptStatus,
   LocalPaymentMethodTypes,
+  LocalTableIds,
   LocalTimeFrequencyEnum,
   LocalWallets,
   SubTransactionType,
@@ -287,6 +288,11 @@ export interface Column {
   id: string
   label: string
   selected: boolean
+}
+
+export interface TablePageSize {
+  tableId: LocalTableIds
+  pageSize: number
 }
 
 export interface AutoSuggestions {

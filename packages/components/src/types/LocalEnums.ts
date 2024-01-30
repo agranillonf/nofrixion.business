@@ -101,3 +101,10 @@ export enum LocalPaymentRequestTableColumns {
   OrderId = 'OrderId',
   Tags = 'Tags',
 }
+
+export enum LocalTableIds {
+  PaymentRequestsTable = 'PaymentRequestTable',
+  PayoutsTable = 'PayoutsTable',
+  UsersTable = 'UsersTable',
+  TransactionsTable = 'TransactionsTable',
+}

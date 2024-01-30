@@ -31,6 +31,7 @@ export interface UserTableProps extends React.HTMLAttributes<HTMLDivElement> {
   onResendInvitation?: (inviteID?: string) => void
   isLoading?: boolean
   selectedUserId: string | undefined
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const UserTable: React.FC<UserTableProps> = ({
@@ -43,6 +44,7 @@ const UserTable: React.FC<UserTableProps> = ({
   isLoading,
   selectedUserId,
   onResendInvitation,
+  onPageSizeChange,
   ...props
 }: UserTableProps) => {
   const onUserClickedHandler = (
@@ -91,7 +93,7 @@ const UserTable: React.FC<UserTableProps> = ({
   return (
     <div className="flex justify-center w-full" {...props}>
       {users && users.length > 0 && (
-        <>
+        <div className="flex flex-col gap-6 w-full">
           <Table {...props}>
             <TableHeader>
               <TableRow className="hover:bg-transparent cursor-auto">
@@ -132,13 +134,7 @@ const UserTable: React.FC<UserTableProps> = ({
                   />
                 </TableHead>
                 <TableHead>{/* Action buttons */}</TableHead>
-                <TableHead>
-                  <Pager
-                    onPageChange={onPageChange}
-                    pageSize={pagination.pageSize}
-                    totalRecords={pagination.totalSize}
-                  />
-                </TableHead>
+                <TableHead></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -233,7 +229,13 @@ const UserTable: React.FC<UserTableProps> = ({
                 ))}
             </TableBody>
           </Table>
-        </>
+          <Pager
+            onPageChange={onPageChange}
+            pageSize={pagination.pageSize}
+            totalRecords={pagination.totalSize}
+            onPageSizeChange={onPageSizeChange}
+          />
+        </div>
       )}
 
       {isLoading && !users && (
