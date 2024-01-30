@@ -1,4 +1,4 @@
-import { Currency, Payrun } from '@nofrixion/moneymoov'
+import { Currency, Invoice, Payrun } from '@nofrixion/moneymoov'
 import { addDays, format, startOfDay } from 'date-fns'
 import { useEffect, useState } from 'react'
 
@@ -25,7 +25,7 @@ import { Toaster } from '../../Toast/Toast'
 
 export interface PayrunDetailsProps {
   onAllPayrunsClick?: () => void
-  onRequestAuth: () => void
+  onRequestAuth: (invoices: Invoice[], paymentDate: Date, notes?: string) => void
   onPayrunNameChange?: (newPayrunName: string) => void
   payrun: Payrun
   accounts: LocalAccount[]
@@ -34,6 +34,47 @@ export interface PayrunDetailsProps {
 type AuthFormData = {
   paymentDate: Date
   notes?: string
+}
+interface InvoiceWithState extends Invoice {
+  enabled: boolean
+  amountToPay: number
+}
+
+// Example of payrunState:
+// {
+//   "EUR": {
+//     "Zeta Services": {
+//       "enabled": false,
+//       "invoices": [
+//         {
+//           "id": 1,
+//           "amount": 100,
+//           "enabled": true
+//         },
+//         {
+//           "id": 2,
+//           "amount": 200,
+//           "enabled": false
+//         }
+//       ]
+//     },
+//     "Zeta Products": {
+//       "enabled": true,
+//       "invoices": []
+//     }
+//   },
+//   "GBP": {
+//     // ...
+//   }
+// }
+
+type PayrunState = {
+  [currency in Currency]: {
+    [contact: string]: {
+      enabled: boolean
+      invoices: InvoiceWithState[]
+    }
+  }
 }
 
 const PayrunDetails: React.FC<PayrunDetailsProps> = ({
@@ -49,16 +90,30 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   const [currentContactAccordionsOpen, setCurrentContactAccordionsOpen] = useState<string[]>([])
   const [localPayrunName, setLocalPayrunName] = useState(payrun?.name ?? '')
 
-  const [amountsToPay, setAmountsToPay] = useState<Record<string, number>>(
-    payrun.invoices.reduce((acc, invoice) => {
-      acc[invoice.id] = invoice.totalAmount ?? 0
-      return acc
-    }, {} as Record<string, number>),
-  )
-
   const [isSideModalOpen, setIsSideModalOpen] = useState(false)
 
-  const [invoicesExcludedFromPayout, setInvoicesExcludedFromPayout] = useState<string[]>([])
+  const [payrunState, setPayrunState] = useState<PayrunState>(
+    payrun.invoices.reduce((acc, invoice) => {
+      if (!acc[invoice.currency]) {
+        acc[invoice.currency] = {}
+      }
+
+      if (!acc[invoice.currency][invoice.contact]) {
+        acc[invoice.currency][invoice.contact] = {
+          enabled: true,
+          invoices: [],
+        }
+      }
+
+      acc[invoice.currency][invoice.contact].invoices.push({
+        ...invoice,
+        enabled: true,
+        amountToPay: invoice.totalAmount ?? 0,
+      })
+
+      return acc
+    }, {} as PayrunState),
+  )
 
   const handleOnPayrunNameChange = (newPayrunName: string) => {
     setLocalPayrunName(newPayrunName)
@@ -66,7 +121,23 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   }
 
   const handleAmountChange = (invoiceId: string, newAmount: number) => {
-    setAmountsToPay((prev) => ({ ...prev, [invoiceId]: newAmount }))
+    setPayrunState((prev) => {
+      const updatedPayrunState = { ...prev }
+
+      Object.keys(updatedPayrunState).forEach((currency) => {
+        Object.keys(updatedPayrunState[currency as Currency]).forEach((contact) => {
+          const invoice = updatedPayrunState[currency as Currency][contact].invoices.find(
+            (invoice) => invoice.id === invoiceId,
+          )
+
+          if (invoice) {
+            invoice.amountToPay = newAmount
+          }
+        })
+      })
+
+      return updatedPayrunState
+    })
   }
 
   const currenciesFromInvoices: Currency[] = payrun.invoices
@@ -107,33 +178,39 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     }
   }, [accounts.length])
 
+  const atLeastOneInvoiceEnabled = Object.values(payrunState).some((currency) =>
+    Object.values(currency).some(
+      (contact) => contact.enabled && contact.invoices.some((i) => i.enabled),
+    ),
+  )
+
+  const isBalanceAfterPaymentPositive = Object.entries(payrunState).every(
+    ([currency, invoicesGroupedByCurrency]) => {
+      const selectedAccount = accounts.find(
+        (account) => account.id === selectedAccountsId?.[currency as Currency],
+      )
+
+      // Balance after payment is the balance of the selected account minus the total amount to pay
+      // of every invoice in the payrun that has the same currency as the selected account
+      // and that are not disabled
+      const includedInvoicesInCurrency = Object.values(invoicesGroupedByCurrency).flatMap(
+        (contact) => (contact.enabled ? contact.invoices.filter((invoice) => invoice.enabled) : []),
+      )
+
+      const totalAmountToPay = includedInvoicesInCurrency.reduce((prevInvoice, currentInvoice) => {
+        return prevInvoice + (currentInvoice?.amountToPay ?? 0)
+      }, 0)
+
+      const balanceAfterPayment = (selectedAccount?.availableBalance ?? 0) - totalAmountToPay
+
+      return balanceAfterPayment >= 0
+    },
+  )
+
+  const isRequestAuthEnabled = atLeastOneInvoiceEnabled && isBalanceAfterPaymentPositive
+
   const handleAccountChange = (currency: Currency, accountId: string) => {
     setSelectedAccountsId((prev) => ({ ...prev, [currency]: accountId }))
-  }
-
-  // Function to add an invoice to the list
-  const excludeInvoiceFromPayout = (invoiceId: string) => {
-    setInvoicesExcludedFromPayout((prevInvoices) => {
-      const newExcludeList = [...prevInvoices, invoiceId]
-
-      // If no invoice for this contact is included in the payout, close the accordion
-      const invoicesForContact = payrun.invoices.filter(
-        (invoice) =>
-          invoice.contact === payrun.invoices.find((invoice) => invoice.id === invoiceId)?.contact,
-      )
-      if (invoicesForContact.every((invoice) => newExcludeList.includes(invoice.id))) {
-        setCurrentContactAccordionsOpen((prev) =>
-          prev.filter((openContact) => openContact !== invoicesForContact[0].contact),
-        )
-      }
-
-      return newExcludeList
-    })
-  }
-
-  // Function to remove an invoice from the list
-  const includeInvoiceInPayout = (invoiceId: string) => {
-    setInvoicesExcludedFromPayout((prevInvoices) => prevInvoices.filter((id) => id !== invoiceId))
   }
 
   const onRequestAuthClick = () => {
@@ -141,43 +218,35 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     setIsSideModalOpen(true)
   }
 
-  const invoicesGroupedByCurrencyAndContact = payrun.invoices.reduce(
-    (prevInvoice, currentInvoice) => {
-      const currency = currentInvoice.currency
-      const contact = currentInvoice.contact
-
-      prevInvoice[currency] = prevInvoice[currency] || {}
-      prevInvoice[currency][contact] = prevInvoice[currency][contact] || []
-
-      prevInvoice[currency][contact].push(currentInvoice)
-
-      return prevInvoice
-    },
-    {} as Record<Currency, Record<string, Payrun['invoices']>>,
-  )
-
-  // Check if selected accounts to pay using each currency have balance after the payment
-  const isBalanceAfterPaymentValid = Object.keys(selectedAccountsId).every((currency) => {
-    // If currency is not in the currencies list, just return true
-    if (!currenciesFromInvoices.includes(currency as Currency)) {
-      return true
-    }
-
-    const selectedAccount = accounts.find(
-      (account) => account.id === selectedAccountsId[currency as Currency],
+  const handleOnRequestAuth = ({ paymentDate, notes }: AuthFormData) => {
+    onRequestAuth(
+      Object.values(payrunState)
+        .flatMap((currency) => Object.values(currency))
+        .filter((contact) => contact.enabled)
+        .flatMap((contact) => contact.invoices)
+        .filter((invoice) => invoice.enabled),
+      paymentDate,
+      notes,
     )
+  }
 
-    if (payrun.invoices.length === 0) {
-      return false
+  // If only one invoice is included, show: "1 invoice included"
+  // If X invoices are included out of Y, show: "X of Y invoices included"
+  // If X all invoices are included, show: "All X invoices included"
+  const formatInvoiceIncludedText = (invoices: InvoiceWithState[]) => {
+    const totalInvoices = invoices.length
+    const includedInvoices = invoices.filter((invoice) => invoice.enabled).length
+
+    if (includedInvoices === 1 && includedInvoices === totalInvoices) {
+      return '1 invoice included'
     }
 
-    const amountToPay = Object.values(invoicesGroupedByCurrencyAndContact[currency as Currency])
-      .flat()
-      .filter((invoice) => !invoicesExcludedFromPayout.includes(invoice.id))
-      .reduce((total, invoice) => total + (amountsToPay[invoice.id] ?? 0), 0)
+    if (includedInvoices === totalInvoices) {
+      return `All ${includedInvoices} invoices included`
+    }
 
-    return selectedAccount?.availableBalance && selectedAccount.availableBalance >= amountToPay
-  })
+    return `${includedInvoices} of ${totalInvoices} invoices included`
+  }
 
   return (
     <div className="font-inter bg-main-grey text-default-text h-full">
@@ -201,7 +270,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
             size="large"
             onClick={onRequestAuthClick}
             className="space-x-2 w-fit h-10 md:w-full md:h-full transition-all ease-in-out duration-200"
-            disabled={!isBalanceAfterPaymentValid}
+            disabled={!isRequestAuthEnabled}
           >
             Request authorisation
           </Button>
@@ -217,35 +286,67 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
         className="flex flex-col gap-y-6"
       >
         {/* Group payrun invoices on currency */}
-        {Object.keys(invoicesGroupedByCurrencyAndContact).map((currency) => {
+        {Object.entries(payrunState).map(([currency, invoicesGroupedByCurrency]) => {
           const selectedAccount = accounts.find(
             (account) => account.id === selectedAccountsId?.[currency as Currency],
           )
 
-          const invoicesToPay = Object.values(
-            invoicesGroupedByCurrencyAndContact[currency as Currency],
+          // Balance after payment is the balance of the selected account minus the total amount to pay
+          // of every invoice in the payrun that has the same currency as the selected account
+          // and that are not disabled
+          const includedInvoicesInCurrency = Object.values(invoicesGroupedByCurrency).flatMap(
+            (contact) =>
+              contact.enabled ? contact.invoices.filter((invoice) => invoice.enabled) : [],
           )
-            .flat()
-            .filter((invoice) => !invoicesExcludedFromPayout.includes(invoice.id))
 
-          // Total amount to pay is total set by user mannualy of the invoices that are enabled
-          const totalAmountToPay = Object.entries(amountsToPay).reduce(
-            (prev, [invoiceId, amount]) => {
-              if (invoicesToPay.find((invoice) => invoice.id === invoiceId)) {
-                return prev + amount
-              }
-              return prev
+          const totalAmountToPay = includedInvoicesInCurrency.reduce(
+            (prevInvoice, currentInvoice) => {
+              return prevInvoice + (currentInvoice?.amountToPay ?? 0)
             },
             0,
           )
 
-          const payoutsLength = Object.values(
-            invoicesGroupedByCurrencyAndContact[currency as Currency],
-          ).filter((invoices) =>
-            invoices.some((invoice) => !invoicesExcludedFromPayout.includes(invoice.id)),
-          ).length
-
           const balanceAfterPayment = (selectedAccount?.availableBalance ?? 0) - totalAmountToPay
+
+          const payoutsLength = Object.values(invoicesGroupedByCurrency)
+            .flatMap(
+              (contact) =>
+                contact.enabled && contact.invoices.filter((invoice) => invoice.enabled).length,
+            )
+            .filter((invoice) => invoice).length
+
+          const onCurrencySwitchChange = (value: boolean, contact: string) => {
+            setPayrunState((prev) => ({
+              ...prev,
+              [currency]: {
+                ...prev[currency as Currency],
+                [contact]: {
+                  ...prev[currency as Currency][contact],
+                  enabled: value,
+                },
+              },
+            }))
+
+            // If enabling this and all invoices are disabled, enable all invoices
+            if (
+              value &&
+              invoicesGroupedByCurrency[contact].invoices.every((invoice) => !invoice.enabled)
+            ) {
+              setPayrunState((prev) => ({
+                ...prev,
+                [currency]: {
+                  ...prev[currency as Currency],
+                  [contact]: {
+                    ...prev[currency as Currency][contact],
+                    invoices: prev[currency as Currency][contact].invoices.map((invoice) => ({
+                      ...invoice,
+                      enabled: true,
+                    })),
+                  },
+                },
+              }))
+            }
+          }
 
           return (
             <AccordionItem
@@ -284,6 +385,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                     </h4>
                     <div className="flex items-center">
                       <span className="text-[0.8125rem]/4 mr-2">
+                        {/* Should be payouts lenght */}
                         Total for {payoutsLength} payouts
                       </span>
                       <Icon
@@ -305,194 +407,207 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                   value={currentContactAccordionsOpen}
                   onValueChange={setCurrentContactAccordionsOpen}
                 >
-                  {Object.keys(invoicesGroupedByCurrencyAndContact[currency as Currency]).map(
-                    (contact) => {
-                      const destinationInvoice =
-                        invoicesGroupedByCurrencyAndContact[currency as Currency][contact][0]
-                      let destinationDetails = ''
-                      switch (currency) {
-                        case Currency.EUR:
-                          destinationDetails = destinationInvoice.destinationIban ?? ''
-                          break
-                        case Currency.GBP:
-                          destinationDetails = `${destinationInvoice.destinationSortCode} - ${destinationInvoice.destinationAccountNumber}`
-                          break
-                        default:
-                          break
-                      }
+                  {Object.keys(invoicesGroupedByCurrency).map((contact) => {
+                    const destinationInvoice = invoicesGroupedByCurrency[contact].invoices[0]
+                    let destinationDetails = ''
+                    switch (currency) {
+                      case Currency.EUR:
+                        destinationDetails = destinationInvoice.destinationIban ?? ''
+                        break
+                      case Currency.GBP:
+                        destinationDetails = `${destinationInvoice.destinationSortCode} - ${destinationInvoice.destinationAccountNumber}`
+                        break
+                      default:
+                        break
+                    }
 
-                      const invoices =
-                        invoicesGroupedByCurrencyAndContact[currency as Currency][contact]
+                    const invoiceGroupedByCurrencyAndContact = invoicesGroupedByCurrency[contact]
 
-                      const isEnabled = !invoices.every((invoice) =>
-                        invoicesExcludedFromPayout.includes(invoice.id),
-                      )
+                    const invoices = invoiceGroupedByCurrencyAndContact.invoices
 
-                      const invoicesIncludedInPayout = invoices.filter(
-                        (invoice) => !invoicesExcludedFromPayout.includes(invoice.id),
-                      )
+                    const isEnabled = invoiceGroupedByCurrencyAndContact.enabled
 
-                      const totalAmountIncludedInPayout = invoicesIncludedInPayout.reduce(
-                        (prevInvoice, currentInvoice) => {
-                          return prevInvoice + (currentInvoice?.totalAmount ?? 0)
-                        },
-                        0,
-                      )
+                    const totalAmountIncludedInPayout = invoices.reduce(
+                      (prevInvoice, currentInvoice) => {
+                        return (
+                          prevInvoice +
+                          (currentInvoice?.enabled ? currentInvoice?.amountToPay ?? 0 : 0)
+                        )
+                      },
+                      0,
+                    )
 
-                      return (
-                        <AccordionItem
-                          value={contact}
-                          key={contact}
-                          className={cn('py-4 border-y border-main-grey', {
-                            'text-disabled-text': !isEnabled,
+                    const onInvoiceSwitchChange = (value: boolean, invoiceId: string) => {
+                      // If disabling this and all invoices are disabled, disable the contact
+                      setPayrunState((prev) => {
+                        const isParentCurrencyEnabled = prev[currency as Currency][
+                          contact
+                        ].invoices.some((invoice) => invoice.id !== invoiceId && invoice.enabled)
+
+                        if (!isParentCurrencyEnabled) {
+                          setCurrentContactAccordionsOpen((prev) =>
+                            prev.filter((openContact) => openContact !== contact),
+                          )
+                        }
+
+                        return {
+                          ...prev,
+                          [currency]: {
+                            ...prev[currency as Currency],
+                            [contact]: {
+                              ...prev[currency as Currency][contact],
+                              enabled: isParentCurrencyEnabled,
+                              invoices: prev[currency as Currency][contact].invoices.map(
+                                (prevInvoice) => {
+                                  if (prevInvoice.id === invoiceId) {
+                                    return {
+                                      ...prevInvoice,
+                                      enabled: value,
+                                    }
+                                  }
+                                  return prevInvoice
+                                },
+                              ),
+                            },
+                          },
+                        }
+                      })
+                    }
+
+                    return (
+                      <AccordionItem
+                        value={contact}
+                        key={contact}
+                        className={cn('border-y border-main-grey last:border-b-0', {
+                          'text-disabled-text': !isEnabled,
+                        })}
+                      >
+                        <AccordionTrigger
+                          onClick={(e) => {
+                            if (!isEnabled) {
+                              e.preventDefault()
+                              e.stopPropagation()
+                            }
+
+                            // If the accordion is open, close it
+                            if (currentContactAccordionsOpen.includes(contact)) {
+                              setCurrentContactAccordionsOpen((prev) =>
+                                prev.filter((openContact) => openContact !== contact),
+                              )
+                              return
+                            }
+                          }}
+                          className={cn('flex justify-start py-4', {
+                            'cursor-default': !isEnabled,
                           })}
                         >
-                          <AccordionTrigger
-                            onClick={(e) => {
-                              if (!isEnabled) {
-                                e.preventDefault()
-                                e.stopPropagation()
-                              }
-
-                              // If the accordion is open, close it
-                              if (currentContactAccordionsOpen.includes(contact)) {
-                                setCurrentContactAccordionsOpen((prev) =>
-                                  prev.filter((openContact) => openContact !== contact),
-                                )
-                                return
-                              }
-                            }}
-                            className={cn('flex justify-start', {
-                              'cursor-default': !isEnabled,
-                            })}
-                          >
-                            <div className="flex w-full">
-                              <div className="text-left">
-                                <h6 className="font-semibold text-base mb-1">{contact}</h6>
-                                <span
-                                  className={cn('text-grey-text text-xs', {
-                                    'text-disabled-text': !isEnabled,
-                                  })}
-                                >
-                                  {destinationDetails}
+                          <div className="flex w-full">
+                            <div className="text-left">
+                              <h6 className="font-semibold text-base mb-1">{contact}</h6>
+                              <span
+                                className={cn('text-grey-text text-xs', {
+                                  'text-disabled-text': !isEnabled,
+                                })}
+                              >
+                                {destinationDetails}
+                              </span>
+                            </div>
+                            <div className="flex flex-col items-end ml-auto">
+                              <h5 className="font-semibold text-lg/6 mb-1">
+                                {formatCurrency(currency as Currency)}{' '}
+                                {formatAmount(totalAmountIncludedInPayout)}
+                              </h5>
+                              <div className="flex items-center">
+                                <span className="text-[0.8125rem]/4 mr-2">
+                                  {/* Show invoices included */}
+                                  {formatInvoiceIncludedText(invoices)}
                                 </span>
-                              </div>
-                              <div className="flex flex-col items-end ml-auto">
-                                <h5 className="font-semibold text-lg/6 mb-1">
-                                  {formatCurrency(currency as Currency)}{' '}
-                                  {formatAmount(totalAmountIncludedInPayout)}
-                                </h5>
-                                <div className="flex items-center">
-                                  <span className="text-[0.8125rem]/4 mr-2">
-                                    {/* Show invoices included */}
-                                    {invoicesIncludedInPayout.length}
-                                    {' invoice'}
-                                    {invoicesIncludedInPayout.length > 1 && 's'} included
-                                  </span>
-                                  <Icon
-                                    name="arrow-down/8"
-                                    className={cn('transition-transform', {
-                                      'rotate-180': currentContactAccordionsOpen.includes(contact),
-                                    })}
-                                  />
-                                </div>
+                                <Icon
+                                  name="arrow-down/8"
+                                  className={cn('transition-transform', {
+                                    'rotate-180': currentContactAccordionsOpen.includes(contact),
+                                  })}
+                                />
                               </div>
                             </div>
-                            <Switch
-                              className="w-auto ml-4"
-                              value={isEnabled}
-                              onChange={(value) => {
-                                // If the switch is on, include all invoices under this contact in the payout
-                                if (value) {
-                                  invoices.forEach((invoice) => includeInvoiceInPayout(invoice.id))
-                                } else {
-                                  // If the switch is off, exclude all invoices under this contact from the payout
-                                  invoices.forEach((invoice) =>
-                                    excludeInvoiceFromPayout(invoice.id),
-                                  )
-                                }
-                              }}
+                          </div>
+                          <Switch
+                            className="w-auto ml-4"
+                            value={isEnabled}
+                            onChange={(value) => onCurrencySwitchChange(value, contact)}
+                          />
+                        </AccordionTrigger>
+                        <AccordionContent className="pt-2 pb-4">
+                          <div className="flex justify-end">
+                            <ColumnHeader className="w-40 mr-4" label="Invoice" />
+                            <ColumnHeader className="w-40 mr-4" label="Due date" />
+                            <ColumnHeader className="w-24 mr-auto" label="Reference" />
+                            <ColumnHeader
+                              className="w-40 mr-12 text-right"
+                              spanClassName="w-full"
+                              label="Amount requested"
                             />
-                          </AccordionTrigger>
-                          <AccordionContent>
-                            <div className="flex justify-end">
-                              <ColumnHeader className="w-40 mr-4" label="Invoice" />
-                              <ColumnHeader className="w-40 mr-4" label="Due date" />
-                              <ColumnHeader className="w-24 mr-auto" label="Reference" />
-                              <ColumnHeader
-                                className="w-40 mr-12 text-right"
-                                spanClassName="w-full"
-                                label="Amount requested"
-                              />
-                              <ColumnHeader
-                                className="w-[8.25rem] text-right"
-                                spanClassName="w-full"
-                                label="Amount to pay"
-                              />
-                            </div>
+                            <ColumnHeader
+                              className="w-[8.25rem] text-right"
+                              spanClassName="w-full"
+                              label="Amount to pay"
+                            />
+                          </div>
 
-                            {invoices.map((invoice, index) => {
-                              const isEnabled = !invoicesExcludedFromPayout.includes(invoice.id)
-                              return (
-                                <div
-                                  key={`invoice-${contact}${index}`}
-                                  className={cn(
-                                    'flex justify-end text-sm/8 py-1 border-b border-[#F1F2F3] transition last:border-0',
-                                    {
+                          {invoices.map((invoice, index) => {
+                            const isEnabled = invoice.enabled
+
+                            return (
+                              <div
+                                key={`invoice-${contact}${index}`}
+                                className={cn(
+                                  'flex justify-end text-sm/8 py-1 border-b border-[#F1F2F3] transition last:border-0',
+                                  {
+                                    'text-disabled-text': !isEnabled,
+                                  },
+                                )}
+                              >
+                                <span className="w-40 mr-4">{invoice.invoiceNumber}</span>
+                                <span className="w-40 mr-4">
+                                  {formatDateWithYear(new Date(invoice.dueDate), 'cardinal', true)}
+                                </span>
+                                <span className="w-24 mr-auto">{invoice.reference}</span>
+                                <span className="w-40 mr-12 text-right">
+                                  {formatCurrency(invoice.currency)}{' '}
+                                  {formatAmount(invoice.totalAmount ?? 0)}
+                                </span>
+                                <span className="w-[8.25rem] text-right">
+                                  <InputAmountField
+                                    className="text-sm/8 transition disabled:text-disabled-text disabled:bg-transparent"
+                                    currencyClassName={cn('transition', {
                                       'text-disabled-text': !isEnabled,
-                                    },
-                                  )}
-                                >
-                                  <span className="w-40 mr-4">{invoice.invoiceNumber}</span>
-                                  <span className="w-40 mr-4">
-                                    {formatDateWithYear(
-                                      new Date(invoice.dueDate),
-                                      'cardinal',
-                                      true,
-                                    )}
-                                  </span>
-                                  <span className="w-24 mr-auto">{invoice.reference}</span>
-                                  <span className="w-40 mr-12 text-right">
-                                    {formatCurrency(invoice.currency)}{' '}
-                                    {formatAmount(invoice.totalAmount ?? 0)}
-                                  </span>
-                                  <span className="w-[8.25rem] text-right">
-                                    <InputAmountField
-                                      className="text-sm/8 transition disabled:text-disabled-text disabled:bg-transparent"
-                                      currencyClassName={cn('transition', {
-                                        'text-disabled-text': !isEnabled,
-                                      })}
-                                      containerClassName="h-8"
-                                      value={amountsToPay[invoice.id].toString()}
-                                      allowCurrencyChange={false}
-                                      onChange={(value) =>
-                                        handleAmountChange(invoice.id, Number(value))
-                                      }
-                                      currency={invoice.currency}
-                                      // TODO: Validate if we want to limit the amount to pay to the total amount
-                                      // or if we want to allow the user to pay more than the total amount
-                                      max={invoice.totalAmount}
-                                      disabled={!isEnabled}
-                                    />
-                                  </span>
-                                  <Switch
-                                    size="small"
-                                    className="w-auto ml-4"
-                                    value={isEnabled}
-                                    onChange={
-                                      isEnabled
-                                        ? () => excludeInvoiceFromPayout(invoice.id)
-                                        : () => includeInvoiceInPayout(invoice.id)
+                                    })}
+                                    containerClassName="h-8"
+                                    value={invoice.amountToPay.toString()}
+                                    allowCurrencyChange={false}
+                                    onChange={(value) =>
+                                      handleAmountChange(invoice.id, Number(value))
                                     }
+                                    currency={invoice.currency}
+                                    // TODO: Validate if we want to limit the amount to pay to the total amount
+                                    // or if we want to allow the user to pay more than the total amount
+                                    max={invoice.totalAmount}
+                                    disabled={!isEnabled}
                                   />
-                                </div>
-                              )
-                            })}
-                          </AccordionContent>
-                        </AccordionItem>
-                      )
-                    },
-                  )}
+                                </span>
+                                <Switch
+                                  size="small"
+                                  className="w-auto ml-4"
+                                  value={isEnabled}
+                                  onChange={(value) => onInvoiceSwitchChange(value, invoice.id)}
+                                />
+                              </div>
+                            )
+                          })}
+                        </AccordionContent>
+                      </AccordionItem>
+                    )
+                  })}
                 </Accordion>
               </AccordionContent>
             </AccordionItem>
@@ -503,7 +618,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
       <RequestAuthSideModal
         isOpen={isSideModalOpen}
         onOpenChange={() => setIsSideModalOpen(false)}
-        onRequestAuth={onRequestAuth}
+        onRequestAuth={handleOnRequestAuth}
       />
 
       <Toaster positionY="top" positionX="right" duration={3000} />

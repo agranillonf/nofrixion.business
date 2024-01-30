@@ -50,9 +50,7 @@ const SelectAccount: React.FC<SelectAccountPros> = ({
                   </span>
                   <span className="text-[#73888C] whitespace-nowrap">
                     {account && formatCurrency(account.currency)}{' '}
-                    <span className="tabular-nums">
-                      {account && formatAmount(account.availableBalance)}
-                    </span>
+                    <span>{account && formatAmount(account.availableBalance)}</span>
                   </span>
                 </>
               )}

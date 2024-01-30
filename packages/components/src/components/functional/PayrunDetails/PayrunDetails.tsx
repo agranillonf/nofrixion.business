@@ -1,4 +1,4 @@
-import { Account, Payrun, useAccounts, usePayrun } from '@nofrixion/moneymoov'
+import { Account, Invoice, Payrun, useAccounts, usePayrun } from '@nofrixion/moneymoov'
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { useEffect, useState } from 'react'
 
@@ -65,9 +65,9 @@ const PayrunDetailsMain = ({
     }
   }, [accountsResponse])
 
-  const onRequestAuth = () => {
+  const onRequestAuth = (invoices: Invoice[], paymentDate: Date, notes?: string) => {
     // TODO: Implement
-    console.log('onRequestAuth')
+    console.log('onRequestAuth. Invoices:', invoices, 'Payment date:', paymentDate, 'Notes:', notes)
   }
 
   if (!payrun) {

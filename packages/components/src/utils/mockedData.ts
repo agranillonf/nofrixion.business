@@ -2023,6 +2023,7 @@ const accountsWithTransactionMetrics: LocalAccountWithTransactionMetrics[] = [
 
 export const localInvoices: LocalInvoice[] = [
   {
+    Id: '1',
     InvoiceNumber: 'INV-2000',
     PaymentTerms: 'NET 15',
     InvoiceDate: new Date('2024-11-01'),
@@ -2040,6 +2041,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'billing@gammacorp.com',
   },
   {
+    Id: '2',
     InvoiceNumber: 'INV-2001',
     PaymentTerms: 'NET 45',
     InvoiceDate: new Date('2024-11-03'),
@@ -2058,6 +2060,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'finance@deltaent.com',
   },
   {
+    Id: '3',
     InvoiceNumber: 'INV-2002',
     PaymentTerms: 'NET 30',
     InvoiceDate: new Date('2024-11-05'),
@@ -2075,6 +2078,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'accounts@betaind.com',
   },
   {
+    Id: '4',
     InvoiceNumber: 'INV-2003',
     PaymentTerms: 'NET 60',
     InvoiceDate: new Date('2024-11-10'),
@@ -2092,6 +2096,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'finance@alphasol.com',
   },
   {
+    Id: '5',
     InvoiceNumber: 'INV-2004',
     PaymentTerms: 'NET 30',
     InvoiceDate: new Date('2024-11-15'),
@@ -2110,6 +2115,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'accounts@omegaprod.com',
   },
   {
+    Id: '5',
     InvoiceNumber: 'INV-2005',
     PaymentTerms: 'NET 45',
     InvoiceDate: new Date('2024-11-20'),
@@ -2127,6 +2133,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'billing@zetaserv.com',
   },
   {
+    Id: '6',
     InvoiceNumber: 'INV-2006',
     PaymentTerms: 'NET 15',
     InvoiceDate: new Date('2024-11-25'),
@@ -2145,6 +2152,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'finance@lambdatech.com',
   },
   {
+    Id: '7',
     InvoiceNumber: 'INV-2007',
     PaymentTerms: 'NET 30',
     InvoiceDate: new Date('2024-11-30'),
@@ -2162,6 +2170,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'accounts@kappaconsult.com',
   },
   {
+    Id: '8',
     InvoiceNumber: 'INV-2008',
     PaymentTerms: 'NET 30',
     InvoiceDate: new Date('2024-12-01'),
@@ -2179,6 +2188,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'billing@iotainc.com',
   },
   {
+    Id: '9',
     InvoiceNumber: 'INV-2009',
     PaymentTerms: 'NET 45',
     InvoiceDate: new Date('2024-12-05'),
@@ -2197,6 +2207,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'accounts@thetallc.com',
   },
   {
+    Id: '0',
     InvoiceNumber: 'INV-2010',
     PaymentTerms: 'NET 60',
     InvoiceDate: new Date('2024-12-10'),
@@ -2214,6 +2225,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'finance@epsiloneng.com',
   },
   {
+    Id: '1',
     InvoiceNumber: 'INV-2011',
     PaymentTerms: 'NET 15',
     InvoiceDate: new Date('2024-12-15'),
@@ -2232,6 +2244,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'accounts@phipharma.com',
   },
   {
+    Id: '2',
     InvoiceNumber: 'INV-2012',
     PaymentTerms: 'NET 30',
     InvoiceDate: new Date('2024-12-20'),
@@ -2249,6 +2262,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'billing@xielectronics.com',
   },
   {
+    Id: '3',
     InvoiceNumber: 'INV-2013',
     PaymentTerms: 'NET 15',
     InvoiceDate: new Date('2024-12-25'),
@@ -2266,6 +2280,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'finance@numedia.com',
   },
   {
+    Id: '4',
     InvoiceNumber: 'INV-2014',
     PaymentTerms: 'NET 30',
     InvoiceDate: new Date('2025-01-01'),
@@ -2284,6 +2299,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'accounts@omicronsoft.com',
   },
   {
+    Id: '5',
     InvoiceNumber: 'INV-2015',
     PaymentTerms: 'NET 45',
     InvoiceDate: new Date('2025-01-05'),
@@ -2301,6 +2317,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'billing@piretail.com',
   },
   {
+    Id: '6',
     InvoiceNumber: 'INV-2016',
     PaymentTerms: 'NET 60',
     InvoiceDate: new Date('2025-01-10'),
@@ -2319,6 +2336,7 @@ export const localInvoices: LocalInvoice[] = [
     RemittanceEmail: 'finance@rhoconsult.com',
   },
   {
+    Id: '7',
     InvoiceNumber: 'INV-2017',
     PaymentTerms: 'NET 30',
     InvoiceDate: new Date('2025-01-15'),
