@@ -2,8 +2,8 @@ import { BankSettings } from '@nofrixion/moneymoov/src/types/ApiResponses'
 import { PaymentProcessor } from '@nofrixion/moneymoov/src/types/Enums'
 
 import { ChartPoint } from '../components/ui/molecules/Chart/ChartSkeleton/ChartSkeleton'
-import { FieldID } from '../types/LocalEnums'
-import { AutoSuggestionAdd, AutoSuggestions } from '../types/LocalTypes'
+import { FieldID, LocalTableIds } from '../types/LocalEnums'
+import { AutoSuggestionAdd, AutoSuggestions, TablePageSize } from '../types/LocalTypes'
 
 export const getRoute = (route: string) => {
   const pullRequestId = import.meta.env.VITE_NOFRIXION_PULL_REQUEST_ID
@@ -11,6 +11,32 @@ export const getRoute = (route: string) => {
   return pullRequestId ? `/${pullRequestId}${route}` : route
 }
 
+export const setPageSizeForTable = (
+  newPageSize: TablePageSize,
+  existingPageSizes?: TablePageSize[],
+): TablePageSize[] => {
+  const updatedPageSizes = existingPageSizes ?? getDefaultPageSizes()
+  const pageSizeIndex = updatedPageSizes.findIndex(
+    (pageSize) => pageSize.tableId === newPageSize.tableId,
+  )
+
+  if (pageSizeIndex !== -1) {
+    updatedPageSizes[pageSizeIndex] = newPageSize
+  } else {
+    updatedPageSizes.push(newPageSize)
+  }
+
+  return updatedPageSizes
+}
+
+export const getDefaultPageSizes = (): TablePageSize[] => {
+  return [
+    { tableId: LocalTableIds.PaymentRequestsTable, pageSize: 20 },
+    { tableId: LocalTableIds.PayoutsTable, pageSize: 20 },
+    { tableId: LocalTableIds.TransactionsTable, pageSize: 20 },
+    { tableId: LocalTableIds.UsersTable, pageSize: 20 },
+  ]
+}
 export const addAutoSuggestion = (
   fieldValue: string,
   existingSuggestions: AutoSuggestions[] | undefined,

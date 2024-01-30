@@ -47,6 +47,7 @@ export interface PayoutDashboardProps extends React.HTMLAttributes<HTMLDivElemen
   systemError?: SystemError
   isSystemErrorOpen?: boolean
   onCloseSystemError?: () => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
@@ -83,6 +84,7 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
   systemError,
   isSystemErrorOpen = false,
   onCloseSystemError,
+  onPageSizeChange,
 }) => {
   /// Only show the total amount if there are payouts
   /// with the specified timeframe and currency, no matter the status,
@@ -207,6 +209,7 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
             payoutsExist={payoutsExist}
             isLoadingMetrics={isLoadingMetrics}
             isUserAuthoriser={isUserAuthoriser}
+            onPageSizeChange={onPageSizeChange}
           />
         </div>
 

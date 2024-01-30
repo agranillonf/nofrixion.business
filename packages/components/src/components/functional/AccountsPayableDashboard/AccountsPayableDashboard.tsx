@@ -19,6 +19,8 @@ import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
 import { add, endOfDay, startOfDay } from 'date-fns'
 import { useEffect, useMemo, useRef, useState } from 'react'
 
+import { usePageSize } from '../../../lib/hooks/usePageSize'
+import { LocalTableIds } from '../../../types/LocalEnums'
 import {
   ApproveType,
   LocalInvoice,
@@ -64,8 +66,6 @@ const AccountsPayableDashboard = ({
   )
 }
 
-const pageSize = 20
-
 const AccountsPayableDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
@@ -109,7 +109,13 @@ const AccountsPayableDashboardMain = ({
   const [isSystemErrorOpen, setIsSystemErrorOpen] = useState<boolean>(false)
 
   const [isImportInvoiceModalOpen, setIsImportInvoiceModalOpen] = useState(false)
+  const [pageSize, setPageSize] = useState(20)
   const { createPayrun } = useCreatePayrun({ apiUrl: apiUrl, authToken: token })
+
+  const { onPageSizeChange } = usePageSize({
+    tableId: LocalTableIds.PayoutsTable,
+    setPageSize: setPageSize,
+  })
 
   const { data: metricsResponse, isLoading: isLoadingMetrics } = usePayoutMetrics(
     {
@@ -445,6 +451,7 @@ const AccountsPayableDashboardMain = ({
             pageSize: pageSize,
             totalSize: totalRecords,
           },
+
           onPageChange: onPageChange,
           dateRange: dateRange,
           onDateChange: onDateChange,
@@ -477,6 +484,7 @@ const AccountsPayableDashboardMain = ({
           systemError: systemError,
           isSystemErrorOpen: isSystemErrorOpen,
           onCloseSystemError: onCloseSystemErrorModal,
+          onPageSizeChange: onPageSizeChange,
         }}
         onCreatePayout={onCreatePayout}
         onApproveBatchPayouts={onApproveBatchPayouts}

@@ -26,6 +26,7 @@ export interface TransactionsTableProps extends React.HTMLAttributes<HTMLDivElem
   onSort: (sortInfo: DoubleSortByTransactions) => void
   isShowingConnectedAccount?: boolean
   isLoading?: boolean
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const TransactionsTable: React.FC<TransactionsTableProps> = ({
@@ -35,6 +36,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   onSort,
   isLoading,
   isShowingConnectedAccount = false,
+  onPageSizeChange,
   ...props
 }) => {
   const [sortBy, setSortBy] = useState<DoubleSortByTransactions>({
@@ -83,7 +85,7 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
   return (
     <div {...props}>
       {(isLoading || (!isLoading && transactions && transactions.length > 0)) && (
-        <>
+        <div className="flex flex-col gap-6">
           <Table {...props}>
             <TableHeader>
               <TableRow className="hover:bg-transparent cursor-auto">
@@ -218,15 +220,13 @@ const TransactionsTable: React.FC<TransactionsTableProps> = ({
                 ))}
             </TableBody>
           </Table>
-
-          <div className="flex items-center justify-end mt-8">
-            <Pager
-              onPageChange={onPageChange}
-              pageSize={pagination.pageSize}
-              totalRecords={pagination.totalSize}
-            />
-          </div>
-        </>
+          <Pager
+            onPageChange={onPageChange}
+            pageSize={pagination.pageSize}
+            totalRecords={pagination.totalSize}
+            onPageSizeChange={onPageSizeChange}
+          />
+        </div>
       )}
       {!isLoading && transactions && transactions.length === 0 && (
         <EmptyState state="nothingFound" description="No transactions were found" />
