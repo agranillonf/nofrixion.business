@@ -7,8 +7,8 @@ import { Column, LocalPaymentRequest } from '../../../types/LocalTypes'
 import { cn } from '../../../utils'
 import { formatAmount } from '../../../utils/formatters'
 import { formatCurrency } from '../../../utils/uiFormaters'
-import Contact from '../Contact/Contact'
 import Created from '../Created/Created'
+import For from '../For/For'
 import { Status } from '../molecules'
 import PaymentRequestActionMenu from '../PaymentRequestActionMenu/PaymentRequestActionMenu'
 import PaymentRequestAttemptsCell from '../PaymentRequestAttemptsCell/PaymentRequestAttemptsCell'
@@ -158,7 +158,7 @@ const Row = ({
 
       {isColumnSelected(LocalPaymentRequestTableColumns.For) && (
         <td className={classNames(commonTdClasses, `text-13px custom-backdrop-blur-${id}`)}>
-          <Contact name={title} email={customerName} size="small" />
+          <For title={title} customerName={customerName} />
         </td>
       )}
 
