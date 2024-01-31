@@ -169,12 +169,15 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
           {
             icon: 'payrun/16',
             title: TabValues.PAYRUNS,
-            content:
-              payrunProps.payruns && payrunProps.payruns.length > 0 ? (
+            content: payrunProps.payruns ? (
+              payrunProps.payruns.length > 0 ? (
                 <PayrunDashboard {...payrunProps} />
               ) : (
                 <PayrunsEmptyState onImportPaymentsFileClick={onImportPaymentsFileClick} />
-              ),
+              )
+            ) : (
+              <p>Loading</p>
+            ),
           },
         ]}
       />
