@@ -269,11 +269,25 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     setSavedPayrunState(payrunState)
   }
 
+  const handleOnAllPayrunsClick = () => {
+    if (hasDataChanged) {
+      const shouldLeavePage = window.confirm(
+        'You have unsaved changes. Are you sure you want to leave this page?',
+      )
+
+      if (shouldLeavePage) {
+        onAllPayrunsClick && onAllPayrunsClick()
+      }
+    } else {
+      onAllPayrunsClick && onAllPayrunsClick()
+    }
+  }
+
   return (
     <div className="font-inter bg-main-grey text-default-text h-full">
       {/* All payruns */}
       <div className="flex justify-between mb-6">
-        <button onClick={onAllPayrunsClick} className="flex items-center space-x-3">
+        <button onClick={handleOnAllPayrunsClick} className="flex items-center space-x-3">
           <Icon name="back/12" />
           <span className="hover:underline text-sm">All payruns</span>
         </button>
