@@ -49,9 +49,7 @@ const SelectAccount: React.FC<SelectAccountPros> = ({
                   </span>
                   <span className="text-[#73888C] whitespace-nowrap">
                     {account && formatCurrency(account.currency)}{' '}
-                    <span className="tabular-nums">
-                      {account && formatAmount(account.availableBalance)}
-                    </span>
+                    <span>{account && formatAmount(account.availableBalance)}</span>
                   </span>
                 </>
               )}
@@ -67,7 +65,7 @@ const SelectAccount: React.FC<SelectAccountPros> = ({
           <SelectItem key={account.id} value={account.id} isText={false}>
             <div className="w-full flex justify-between">
               <span className="break-keep truncate pr-2">{account.accountName}</span>
-              <span className="text-[#73888C] font-normal whitespace-nowrap">
+              <span className="text-[#73888C] font-normal whitespace-nowrap tabular-nums">
                 {formatCurrency(account.currency)} {formatAmount(account.availableBalance)}
               </span>
             </div>
