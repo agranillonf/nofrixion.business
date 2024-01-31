@@ -1,5 +1,7 @@
 import { Currency, Invoice, Payrun } from '@nofrixion/moneymoov'
 import { addDays, format, startOfDay } from 'date-fns'
+import { AnimatePresence } from 'framer-motion'
+import _ from 'lodash'
 import { useEffect, useState } from 'react'
 
 import { LocalAccount } from '../../../../types/LocalTypes'
@@ -21,6 +23,7 @@ import { SelectAccount } from '../../molecules/Select/SelectAccount/SelectAccoun
 import { SingleDatePicker } from '../../organisms/SingleDatePicker/SingleDatePicker'
 import Switch from '../../Switch/Switch'
 import { Toaster } from '../../Toast/Toast'
+import LayoutWrapper from '../../utils/LayoutWrapper'
 
 export interface PayrunDetailsProps {
   onAllPayrunsClick?: () => void
@@ -73,6 +76,28 @@ type PayrunState = {
   }
 }
 
+const getPayrunStateFromPayrun = (payrun: Payrun): PayrunState => {
+  return payrun.invoices.reduce((acc, invoice) => {
+    if (!acc[invoice.currency]) {
+      acc[invoice.currency] = {}
+    }
+
+    if (!acc[invoice.currency][invoice.contact]) {
+      acc[invoice.currency][invoice.contact] = {
+        enabled: true,
+        invoices: [],
+      }
+    }
+
+    acc[invoice.currency][invoice.contact].invoices.push({
+      ...invoice,
+      enabled: true,
+    })
+
+    return acc
+  }, {} as PayrunState)
+}
+
 const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   payrun,
   accounts,
@@ -88,27 +113,11 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
 
   const [isSideModalOpen, setIsSideModalOpen] = useState(false)
 
-  const [payrunState, setPayrunState] = useState<PayrunState>(
-    payrun.invoices.reduce((acc, invoice) => {
-      if (!acc[invoice.currency]) {
-        acc[invoice.currency] = {}
-      }
-
-      if (!acc[invoice.currency][invoice.contact]) {
-        acc[invoice.currency][invoice.contact] = {
-          enabled: true,
-          invoices: [],
-        }
-      }
-
-      acc[invoice.currency][invoice.contact].invoices.push({
-        ...invoice,
-        enabled: true,
-      })
-
-      return acc
-    }, {} as PayrunState),
+  const [savedPayrunState, setSavedPayrunState] = useState<PayrunState>(
+    getPayrunStateFromPayrun(payrun),
   )
+
+  const [payrunState, setPayrunState] = useState<PayrunState>(getPayrunStateFromPayrun(payrun))
 
   const handleOnPayrunNameChange = (newPayrunName: string) => {
     setLocalPayrunName(newPayrunName)
@@ -223,6 +232,43 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     return `${includedInvoices} of ${totalInvoices} invoices included`
   }
 
+  const hasDataChanged = !_.isEqual(savedPayrunState, payrunState)
+
+  // Get the difference between the current payrun state and the saved payrun state
+  // to get the changes made so we can send them to the backend
+  const getDifferenceBetweenPayrunStates = (
+    currentState: PayrunState,
+    newState: PayrunState,
+  ): PayrunState => {
+    return Object.entries(currentState).reduce((acc, [currency, contacts]) => {
+      Object.entries(contacts).forEach(([contact, contactData]) => {
+        const savedContactData = newState[currency as Currency][contact]
+
+        if (!_.isEqual(contactData, savedContactData)) {
+          acc[currency as Currency] = {
+            ...acc[currency as Currency],
+            [contact]: {
+              ...contactData,
+              invoices: contactData.invoices.filter(
+                (invoice) =>
+                  invoice.enabled !==
+                  savedContactData.invoices.find((i) => i.id === invoice.id)?.enabled,
+              ),
+            },
+          }
+        }
+      })
+
+      return acc
+    }, {} as PayrunState)
+  }
+
+  const handleOnSave = () => {
+    console.log('Changes made', getDifferenceBetweenPayrunStates(payrunState, savedPayrunState))
+
+    setSavedPayrunState(payrunState)
+  }
+
   return (
     <div className="font-inter bg-main-grey text-default-text h-full">
       {/* All payruns */}
@@ -235,20 +281,54 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
 
       <div className="flex justify-between items-center mb-12">
         {/* Payrun name */}
-        <span className="text-[28px]/8 font-semibold">
+        <span className="text-[28px]/[3rem] font-semibold">
           <EditableContent initialValue={localPayrunName} onChange={handleOnPayrunNameChange} />
         </span>
 
-        <div className="flex">
-          <Button
-            variant="primary"
-            size="large"
-            onClick={onRequestAuthClick}
-            className="space-x-2 w-fit h-10 md:w-full md:h-full transition-all ease-in-out duration-200"
-            disabled={!isRequestAuthEnabled}
-          >
-            Request authorisation
-          </Button>
+        <div className="flex space-x-2 relative">
+          <AnimatePresence>
+            {!hasDataChanged && (
+              <LayoutWrapper
+                key="request-auth-button"
+                className="absolute right-0 transform translate-y-[-50%]"
+              >
+                <Button
+                  variant="primary"
+                  size="large"
+                  onClick={onRequestAuthClick}
+                  className="w-fit h-10 md:w-full md:h-full transition-all ease-in-out duration-200"
+                  disabled={!isRequestAuthEnabled}
+                >
+                  Request authorisation
+                </Button>
+              </LayoutWrapper>
+            )}
+            {hasDataChanged && (
+              <LayoutWrapper
+                key="save-discard-buttons"
+                className="absolute right-0 transform translate-y-[-50%] flex space-x-2"
+              >
+                <Button
+                  variant="secondary"
+                  size="large"
+                  onClick={() => {
+                    setPayrunState(savedPayrunState)
+                  }}
+                  className="w-fit h-10 md:w-32 md:h-full transition-all ease-in-out duration-200"
+                >
+                  Discard
+                </Button>
+                <Button
+                  variant="primary"
+                  size="large"
+                  onClick={handleOnSave}
+                  className="w-fit h-10 md:w-52 md:h-full transition-all ease-in-out duration-200"
+                >
+                  Save
+                </Button>
+              </LayoutWrapper>
+            )}
+          </AnimatePresence>
         </div>
       </div>
 
