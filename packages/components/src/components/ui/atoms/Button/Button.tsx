@@ -9,12 +9,7 @@ export const buttonVariants = cva(
     variants: {
       variant: {
         primary: [
-          'bg-primary-green',
-          'text-white',
-          'hover:bg-primary-green-hover',
-          'stroke:white',
-          'font-semibold',
-          'leading-6',
+          'bg-primary-green text-white hover:bg-primary-green-hover stroke:white font-semibold leading-6 disabled:!bg-[#E3E5E8] disabled:text-grey-text disabled:cursor-not-allowed disabled:opacity-100',
         ],
         primaryDark: [
           'bg-[#006A80]',

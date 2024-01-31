@@ -1,3 +1,5 @@
+import { useState } from 'react'
+
 import { LocalPaymentAttempt, LocalPaymentRequest } from '../../../types/LocalTypes'
 import AnimatedTabs from '../molecules/AnimatedTabs/AnimatedTabs'
 import PaymentAttemptsList from '../PaymentAttemptsList/PaymentAttemptsList'
@@ -11,14 +13,20 @@ export interface DetailsTabsProps {
   onCapture: (paymentAttempt: LocalPaymentAttempt) => void
 }
 
+type Tab = 'Payment attempts' | 'Payment info'
+
 const DetailsTabs: React.FC<DetailsTabsProps> = ({
   paymentRequest,
   onRefund,
   onVoid,
   onCapture,
 }) => {
+  const [selectedTab, setSelectedTab] = useState<Tab>('Payment attempts')
+
   return (
     <AnimatedTabs
+      selectedTab={selectedTab}
+      onTabChange={(tab) => setSelectedTab(tab as Tab)}
       tabs={[
         {
           title: 'Payment attempts',

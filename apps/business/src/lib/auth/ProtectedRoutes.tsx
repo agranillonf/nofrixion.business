@@ -32,11 +32,11 @@ export const ProtectedRoutes = () => {
     }
   }, [location])
 
-  if (authContext && authContext.authState?.isLoading) {
+  if (authContext.authState == undefined || authContext.authState?.isLoading) {
     return <Loader className="flex items-center justify-center p-24 min-h-screen" />
   }
 
-  if (!authContext || !authContext.authState?.isLoggedIn || authContext.authState?.isError) {
+  if (!authContext.authState?.isLoggedIn || authContext.authState?.isError) {
     // user is not authenticated, redirect to login page with the return url
     return <Navigate to={getRoute('/')} replace state={{ from: location }} />
   } else {

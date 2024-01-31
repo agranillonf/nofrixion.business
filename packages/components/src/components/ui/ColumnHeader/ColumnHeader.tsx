@@ -12,9 +12,16 @@ export interface ColumnHeaderProps {
   sortDirection?: SortDirection
   onSort?: (event: SortDirection) => void
   className?: string
+  spanClassName?: string
 }
 
-const ColumnHeader = ({ label, sortDirection, onSort, className }: ColumnHeaderProps) => {
+const ColumnHeader = ({
+  label,
+  sortDirection,
+  onSort,
+  className,
+  spanClassName,
+}: ColumnHeaderProps) => {
   const doSort = () => {
     if (sortDirection === SortDirection.NONE) {
       onSort && onSort(SortDirection.DESC)
@@ -36,8 +43,9 @@ const ColumnHeader = ({ label, sortDirection, onSort, className }: ColumnHeaderP
         className,
       )}
       onClick={doSort}
+      disabled={!onSort}
     >
-      <span className="select-none uppercase">{label}</span>
+      <span className={cn('select-none uppercase', spanClassName)}>{label}</span>
 
       {onSort && (
         <div

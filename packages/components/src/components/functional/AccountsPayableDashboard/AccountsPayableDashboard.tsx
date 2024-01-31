@@ -5,6 +5,7 @@ import {
   PayoutClient,
   PayoutMetrics,
   PayoutStatus,
+  Payrun,
   SortDirection,
   useAccounts,
   useBeneficiaries,
@@ -13,6 +14,7 @@ import {
   useMerchantTags,
   usePayoutMetrics,
   usePayouts,
+  usePayruns,
   useUser,
 } from '@nofrixion/moneymoov'
 import { QueryClientProvider, useQueryClient } from '@tanstack/react-query'
@@ -39,7 +41,10 @@ import {
   remotePayoutsToLocal,
 } from '../../../utils/parsers'
 import { DateRange } from '../../ui/DateRangePicker/DateRangePicker'
-import { AccountsPayableDashboard as UIAccountsPayableDashboard } from '../../ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
+import {
+  AccountsPayableDashboard as UIAccountsPayableDashboard,
+  TabValues,
+} from '../../ui/pages/AccountsPayableDashboard/AccountsPayableDashboard'
 import { FilterableTag } from '../../ui/TagFilter/TagFilter'
 import { makeToast } from '../../ui/Toast/Toast'
 import { PayoutAuthoriseForm } from '../../ui/utils/PayoutAuthoriseForm'
@@ -50,18 +55,31 @@ export interface AccountsPayableDashboardProps {
   token?: string // Example: "eyJhbGciOiJIUz..."
   apiUrl?: string // Example: "https://api.nofrixion.com/api/v1"
   merchantId: string
+  onPayrunClick?: (payrun: Payrun) => void
+  initialTab?: TabValues
+  onTabChange?: (tab: TabValues) => void
 }
 
 const AccountsPayableDashboard = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
+  onPayrunClick,
+  initialTab,
+  onTabChange,
 }: AccountsPayableDashboardProps) => {
   const queryClient = useQueryClient()
 
   return (
     <QueryClientProvider client={queryClient}>
-      <AccountsPayableDashboardMain token={token} merchantId={merchantId} apiUrl={apiUrl} />
+      <AccountsPayableDashboardMain
+        token={token}
+        merchantId={merchantId}
+        apiUrl={apiUrl}
+        onPayrunClick={onPayrunClick}
+        initialTab={initialTab}
+        onTabChange={onTabChange}
+      />
     </QueryClientProvider>
   )
 }
@@ -70,7 +88,19 @@ const AccountsPayableDashboardMain = ({
   token,
   apiUrl = 'https://api.nofrixion.com/api/v1',
   merchantId,
+  onPayrunClick,
+  initialTab = TabValues.PAYOUTS,
+  onTabChange,
 }: AccountsPayableDashboardProps) => {
+  /*
+  *
+  *
+  * 
+    PAYOUTS
+  * 
+  * 
+  * 
+  */
   const [page, setPage] = useState(1)
   const [totalRecords, setTotalRecords] = useState<number>(0)
   const [payouts, setPayouts] = useState<Payout[] | undefined>(undefined)
@@ -409,7 +439,7 @@ const AccountsPayableDashboardMain = ({
   const onImportInvoices = async (invoices: LocalInvoice[]) => {
     const response = await createPayrun({
       merchantID: merchantId,
-      name: `${formatDateWithYear(new Date())} payments`,
+      name: `New Payrun ${formatDateWithYear(new Date(), 'cardinal')}`,
       invoices: localInvoicesToRemoteInvoices(invoices),
       totalAmount: 0,
     })
@@ -440,6 +470,31 @@ const AccountsPayableDashboardMain = ({
     setSystemError(systemError)
     setIsSystemErrorOpen(true)
   }
+
+  /* 
+  *
+  *
+  * 
+    PAYRUNS
+  *
+  *
+  * 
+  */
+  const [payruns, setPayruns] = useState<Payrun[] | undefined>(undefined)
+  const { data: payrunsResponse } = usePayruns(
+    { merchantId },
+    {
+      apiUrl,
+      authToken: token,
+    },
+  )
+  useEffect(() => {
+    if (payrunsResponse?.status === 'success') {
+      setPayruns(payrunsResponse.data.content)
+    } else if (payrunsResponse?.status === 'error') {
+      console.error(payrunsResponse.error)
+    }
+  }, [payrunsResponse])
 
   return (
     <>
@@ -493,7 +548,13 @@ const AccountsPayableDashboardMain = ({
         isSystemErrorOpen={isSystemErrorOpen}
         onCloseSystemError={onCloseSystemErrorModal}
         isImportInvoiceModalOpen={isImportInvoiceModalOpen}
+        payrunProps={{
+          payruns,
+          onPayrunClick,
+        }}
         setIsImportInvoiceModalOpen={setIsImportInvoiceModalOpen}
+        initialTab={initialTab}
+        onTabChange={onTabChange}
       />
       <PayoutDetailsModal
         open={!!selectedPayoutId}

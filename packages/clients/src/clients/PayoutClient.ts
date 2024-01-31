@@ -165,7 +165,7 @@ export class PayoutClient extends BaseApiClient {
 
   /**
    * Get a single Payout
-   * @param paymentRequestId The Payout Id
+   * @param payoutId The Payout Id
    * @returns A Payout if successful. An ApiError if not successful.
    */
   async get({ payoutId }: PayoutProps): Promise<ApiResponse<Payout>> {

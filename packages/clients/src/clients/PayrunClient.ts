@@ -1,7 +1,7 @@
 import { PayrunCreate } from '../types/ApiRequests'
-import { ApiResponse, Payrun } from '../types/ApiResponses'
+import { ApiResponse, Payrun, PayrunPageResponse } from '../types/ApiResponses'
 import { HttpMethod } from '../types/Enums'
-import { ApiProps } from '../types/props'
+import { ApiProps, PayrunProps } from '../types/props'
 import { BaseApiClient } from './BaseApiClient'
 
 /**
@@ -20,6 +20,28 @@ export class PayrunClient extends BaseApiClient {
   constructor({ ...props }: ApiProps) {
     super(props.authToken, true)
     this.apiUrl = `${props.apiUrl}/payruns`
+  }
+
+  /**
+   * Get a single Payrun
+   * @param payrunId The Payrun Id
+   * @returns A Payrun if successful. An ApiError if not successful.
+   */
+  async get({ payrunId }: PayrunProps): Promise<ApiResponse<Payrun>> {
+    return await this.httpRequest<Payrun>(`${this.apiUrl}/${payrunId}`, HttpMethod.GET)
+  }
+
+  /**
+   * Get all Payruns
+   * @returns List of all Payruns if successful. An ApiError if not successful.
+   */
+  async getAll({ merchantId }: { merchantId: string }): Promise<ApiResponse<PayrunPageResponse>> {
+    return await this.getPagedResponse<PayrunPageResponse>(
+      {
+        merchantId,
+      },
+      this.apiUrl,
+    )
   }
 
   /**

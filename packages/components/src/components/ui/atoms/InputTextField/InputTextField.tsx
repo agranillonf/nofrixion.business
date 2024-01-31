@@ -168,12 +168,15 @@ const InputTextField = forwardRef<HTMLInputElement, InputTextFieldProps>(
               {...props}
             />
           )}
-          {maxLength && (
+          {(maxLength || subText) && (
             <div className="mt-2 text-grey-text font-normal text-[0.813rem] leading-5 flex justify-between">
               {subText && <span>{subText}</span>}
-              <div className="ml-auto">
-                {value?.toString().length}/{maxLength}
-              </div>
+
+              {maxLength && (
+                <div className="ml-auto">
+                  {value?.toString().length}/{maxLength}
+                </div>
+              )}
             </div>
           )}
         </div>

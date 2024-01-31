@@ -17,6 +17,7 @@
   "dependencies": {
     "@headlessui/react": "^1.7.17",
     "@nofrixion/moneymoov": "*",
+    "@radix-ui/react-accordion": "^1.1.2",
     "@radix-ui/react-checkbox": "^1.0.3",
     "@radix-ui/react-collapsible": "^1.0.3",
     "@radix-ui/react-dialog": "^1.0.4",

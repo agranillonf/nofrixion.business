@@ -394,6 +394,7 @@ export interface SystemError {
 }
 
 interface BaseInvoice {
+  Id: string
   InvoiceNumber: string
   PaymentTerms: string
   InvoiceDate: Date
@@ -404,7 +405,6 @@ interface BaseInvoice {
   Discounts: number
   Taxes: number
   TotalAmount: number
-  OutstandingAmount: number
   InvoiceStatus: string
   Reference: string
   RemittanceEmail: string

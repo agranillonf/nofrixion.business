@@ -25,6 +25,7 @@ const statusVariants = cva(
         active: ['bg-[#D8F2EA]', 'text-[#004D33]'],
         expired_link: ['bg-error-bg', 'text-negative-red'],
         scheduled: ['bg-information-bg', 'text-default-text'],
+        draft: ['bg-main-grey'],
       },
       size: {
         small: ['text-xs', 'font-normal', 'py-1', 'px-2', 'h-fit'],
@@ -57,6 +58,7 @@ const iconVariants = cva('w-auto mb-[0.063rem]', {
       active: ['text-[#29A37A]'],
       expired_link: ['text-negative-red fill-none'],
       scheduled: ['text-[#476685]'],
+      draft: ['text-grey-text'],
     },
   },
   defaultVariants: {
@@ -148,6 +150,11 @@ const iconName: Record<TVariant, Record<'small' | 'medium' | 'large', IconNames>
     small: 'scheduled/12',
     medium: 'scheduled/12',
     large: 'scheduled/16',
+  },
+  draft: {
+    small: 'not-started/12',
+    medium: 'not-started/12',
+    large: 'not-started/12',
   },
 }
 

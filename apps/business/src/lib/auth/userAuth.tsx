@@ -1,6 +1,6 @@
 import { useQuery } from '@tanstack/react-query'
 import axios from 'axios'
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback } from 'react'
 import { useLocation } from 'react-router-dom'
 
 import { NOFRIXION_BFF_URL } from '../constants'
@@ -41,13 +41,13 @@ const useClaims = () => {
     {
       retry: false,
       refetchInterval: 1000 * 60 * 5, // 5 minutes
+      refetchOnWindowFocus: false,
     },
   )
 }
 
 const useAuthUser = () => {
   const { data: claims, isLoading, isError, refetch } = useClaims()
-  const [isLoggedIn, setIsLoggedIn] = useState(false)
 
   const getClaimValue = (type: ClaimType) => {
     return claims?.find((claim) => claim.type === type)?.value
@@ -59,6 +59,8 @@ const useAuthUser = () => {
     ? Number(getClaimValue(ClaimType.BffSessionExpiresIn))
     : 0
 
+  const isLoggedIn = !!username && !isError
+
   const location = useLocation()
 
   const logOut = useCallback(
@@ -66,7 +68,6 @@ const useAuthUser = () => {
       const returnUrl = getRoute('/')
       const url = `${logoutUrl}&returnUrl=${returnUrl}?callbackUrl=${callback ?? '/'}`
 
-      setIsLoggedIn(false)
       window.location.href = url ?? '/'
     },
     [location.state?.from?.pathname, logoutUrl],
@@ -75,17 +76,6 @@ const useAuthUser = () => {
   const refresh = useCallback(() => {
     refetch()
   }, [refetch])
-
-  useEffect(() => {
-    if (isError) {
-      setIsLoggedIn(false)
-      return
-    }
-    if (username) {
-      setIsLoggedIn(true)
-      return
-    }
-  }, [isError, username])
 
   return {
     username,

@@ -7,6 +7,7 @@ import { ProtectedRoutes } from './lib/auth/ProtectedRoutes'
 import { RoleProtectedRoute } from './lib/auth/RoleProtectedRoute'
 import { getRoute } from './lib/utils/utils'
 import AccountPayablePage from './pages/accounts-payable/page'
+import PayrunDetailsPage from './pages/accounts-payable/payrun'
 import AccountReceivablePage from './pages/accounts-receivable/page'
 import AccountDashboardPage from './pages/current-accounts/account-dashboard'
 import CurrentAccountsPage from './pages/current-accounts/page'
@@ -32,6 +33,9 @@ export const App = () => {
               {/* Accounts payable */}
               <Route element={<RoleProtectedRoute />}>
                 <Route path="accounts-payable" element={<AccountPayablePage />} />
+              </Route>
+              <Route element={<RoleProtectedRoute />}>
+                <Route path="accounts-payable/payruns/:payrunId" element={<PayrunDetailsPage />} />
               </Route>
               <Route element={<RoleProtectedRoute />}>
                 <Route path="accounts-payable/:payoutId/:result" element={<AccountPayablePage />} />

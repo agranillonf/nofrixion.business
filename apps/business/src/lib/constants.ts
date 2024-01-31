@@ -1,9 +1,6 @@
+import { IconNames } from '@nofrixion/components/src/components/ui/atoms/Icon/Icon'
 import { LocalUserRoles } from '@nofrixion/components/src/types/LocalTypes'
 
-import IconAccountsPayable from '../assets/icons/accounts-payable.svg'
-import IconAccountsReceivable from '../assets/icons/accounts-receivable.svg'
-import IconCurrentAccounts from '../assets/icons/current-accounts.svg'
-import IconDashboard from '../assets/icons/dashboard.svg'
 import { getRoute } from './utils/utils'
 
 const NOFRIXION_API_URL = '/api'
@@ -12,7 +9,7 @@ const NOFRIXION_BFF_URL = '/bff'
 const NOFRIXION_BUSINESS_GITHUB_URL = 'https://github.com/nofrixion/nofrixion.business/pull/'
 
 interface INavItem {
-  leftIcon: any
+  leftIcon: IconNames
   label: string
   href: string
   isActive?: boolean
@@ -23,26 +20,26 @@ interface INavItem {
 
 const navItems: INavItem[] = [
   {
-    leftIcon: IconDashboard,
+    leftIcon: 'dashboard/16',
     label: 'Dashboard',
     href: getRoute('/home'),
     isHome: true,
     minimumRequiredRole: LocalUserRoles.User,
   },
   {
-    leftIcon: IconCurrentAccounts,
+    leftIcon: 'current-accounts/16',
     label: 'Current Accounts',
     href: 'current-accounts',
     minimumRequiredRole: LocalUserRoles.User,
   },
   {
-    leftIcon: IconAccountsReceivable,
+    leftIcon: 'incoming/16',
     label: 'Accounts Receivable',
     href: 'accounts-receivable',
     minimumRequiredRole: LocalUserRoles.PaymentRequestor,
   },
   {
-    leftIcon: IconAccountsPayable,
+    leftIcon: 'outgoing/16',
     label: 'Accounts Payable',
     href: 'accounts-payable',
     minimumRequiredRole: LocalUserRoles.User,

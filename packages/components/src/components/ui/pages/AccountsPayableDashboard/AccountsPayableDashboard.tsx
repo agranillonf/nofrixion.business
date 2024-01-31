@@ -11,6 +11,7 @@ import AnimatedTabs from '../../molecules/AnimatedTabs/AnimatedTabs'
 import { Toaster } from '../../Toast/Toast'
 import LayoutWrapper from '../../utils/LayoutWrapper'
 import { PayoutDashboard, PayoutDashboardProps } from '../PayoutDashboard/PayoutDashboard'
+import { PayrunDashboard, PayrunDashboardProps } from '../PayrunDashboard/PayrunDashboard'
 import payrunEmptyState from './assets/payrun-empty-state.svg'
 
 export interface AccountsPayableDashboardProps {
@@ -20,9 +21,12 @@ export interface AccountsPayableDashboardProps {
   onCreatePayout: () => void
   onApproveBatchPayouts: () => void
   payoutProps: PayoutDashboardProps
+  payrunProps: PayrunDashboardProps
   onImportInvoices: (invoices: LocalInvoice[]) => void
   isImportInvoiceModalOpen: boolean
   setIsImportInvoiceModalOpen: (isOpen: boolean) => void
+  initialTab: TabValues
+  onTabChange?: (tab: TabValues) => void
 }
 
 interface PayrunsEmptyStateProps {
@@ -54,14 +58,9 @@ const PayrunsEmptyState: React.FC<PayrunsEmptyStateProps> = ({ onImportPaymentsF
   )
 }
 
-enum TabValues {
-  PAYOUTS = 'payouts',
-  PAYRUNS = 'payruns',
-}
-
-const tabs = {
-  [TabValues.PAYOUTS]: 'Payouts',
-  [TabValues.PAYRUNS]: 'Payruns',
+export enum TabValues {
+  PAYOUTS = 'Payouts',
+  PAYRUNS = 'Payruns',
 }
 
 const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
@@ -71,12 +70,15 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
   onCreatePayout,
   onApproveBatchPayouts,
   payoutProps,
+  payrunProps,
   onImportInvoices,
   isImportInvoiceModalOpen,
   setIsImportInvoiceModalOpen,
+  initialTab,
+  onTabChange,
 }) => {
   const [isApproveButtonDisabled, setIsApproveButtonDisabled] = useState(false)
-  const [currentTab, setCurrentTab] = useState<TabValues>(TabValues.PAYOUTS)
+  const [currentTab, setCurrentTab] = useState<TabValues>(initialTab)
 
   const handlOnCloseSystemErrorModal = () => {
     if (onCloseSystemError) {
@@ -84,8 +86,10 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
     }
   }
 
-  const onTabChange = (tab: TabValues) => {
+  const handleOnTabChange = (tab: TabValues) => {
     setCurrentTab(tab)
+
+    onTabChange && onTabChange(tab)
   }
 
   const onImportPaymentsFileClick = () => {
@@ -106,7 +110,7 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
           {payoutProps.isUserAuthoriser && (
             <div className="mr-4">
               <AnimatePresence>
-                {currentTab == tabs.payouts &&
+                {currentTab == TabValues.PAYOUTS &&
                   payoutProps.selectedPayouts &&
                   payoutProps.selectedPayouts.length > 1 && (
                     <LayoutWrapper layout={'preserve-aspect'}>
@@ -133,36 +137,44 @@ const AccountsPayableDashboard: React.FC<AccountsPayableDashboardProps> = ({
               </AnimatePresence>
             </div>
           )}
-          <AnimatePresence>
-            {currentTab == tabs.payouts && (
-              <LayoutWrapper layout={'preserve-aspect'}>
-                <Button
-                  size="large"
-                  onClick={onCreatePayout}
-                  className="w-10 h-10 md:w-full md:h-full"
-                >
-                  <span className="hidden md:inline-block">Create payout</span>
-                  <Icon name="add/16" className="md:hidden" />
-                </Button>
-              </LayoutWrapper>
-            )}
-          </AnimatePresence>
+          {!(currentTab === TabValues.PAYRUNS && payrunProps.payruns?.length === 0) && (
+            <Button
+              size="large"
+              onClick={() =>
+                currentTab == TabValues.PAYOUTS
+                  ? onCreatePayout()
+                  : setIsImportInvoiceModalOpen(true)
+              }
+              className="w-10 h-10 md:w-full md:h-full"
+            >
+              <span className="hidden md:inline-block">
+                {currentTab == TabValues.PAYOUTS ? 'Create payout' : 'Create payrun'}
+              </span>
+              <Icon name="add/16" className="md:hidden" />
+            </Button>
+          )}
         </div>
       </div>
       <AnimatedTabs
-        onTabChange={(tab) => onTabChange(tab as TabValues)}
+        onTabChange={(tab) => handleOnTabChange(tab as TabValues)}
+        selectedTab={currentTab}
         fullWidthTabs={false}
         className="lg:mb-6"
         tabs={[
           {
             icon: 'outgoing/16',
-            title: tabs.payouts,
+            title: TabValues.PAYOUTS,
             content: <PayoutDashboard {...payoutProps} />,
           },
           {
             icon: 'payrun/16',
-            title: tabs.payruns,
-            content: <PayrunsEmptyState onImportPaymentsFileClick={onImportPaymentsFileClick} />,
+            title: TabValues.PAYRUNS,
+            content:
+              payrunProps.payruns && payrunProps.payruns.length > 0 ? (
+                <PayrunDashboard {...payrunProps} />
+              ) : (
+                <PayrunsEmptyState onImportPaymentsFileClick={onImportPaymentsFileClick} />
+              ),
           },
         ]}
       />

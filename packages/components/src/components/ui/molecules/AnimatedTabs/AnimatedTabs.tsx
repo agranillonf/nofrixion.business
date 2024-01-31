@@ -1,7 +1,6 @@
 import * as Tabs from '@radix-ui/react-tabs'
 import classNames from 'classnames'
 import { AnimatePresence, motion, MotionConfig } from 'framer-motion'
-import { useEffect, useState } from 'react'
 
 import { cn } from '../../../../utils'
 import { Icon, IconNames } from '../../atoms/Icon/Icon'
@@ -21,6 +20,7 @@ interface TabProps {
 export interface AnimatedTabsProps {
   tabs: TabType[]
   onTabChange?: (tab: string) => void
+  selectedTab: TabType['title']
   fullWidthTabs?: boolean
   className?: string
 }
@@ -47,18 +47,13 @@ const TabContent: React.FC<TabProps> = ({ value, selectedTab, children }) => {
 const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
   tabs,
   fullWidthTabs = true,
+  selectedTab = tabs[0].title,
   onTabChange,
   className,
 }) => {
-  const [selectedTab, setSelectedTab] = useState(tabs[0].title)
-
-  useEffect(() => {
-    onTabChange && onTabChange(selectedTab)
-  }, [selectedTab])
-
   return (
     <MotionConfig transition={{ ease: 'easeInOut' }}>
-      <Tabs.Root activationMode="manual" value={selectedTab} onValueChange={setSelectedTab}>
+      <Tabs.Root activationMode="manual" value={selectedTab} onValueChange={onTabChange}>
         <Tabs.List className={cn('flex mb-6 lg:mb-11', className)}>
           {tabs.map((tab) => {
             return (

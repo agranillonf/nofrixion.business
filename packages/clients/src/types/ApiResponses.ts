@@ -589,3 +589,5 @@ export interface Payrun {
   lastUpdated: Date
   scheduleDate?: Date
 }
+
+export type PayrunPageResponse = PageResponse<Payrun>
