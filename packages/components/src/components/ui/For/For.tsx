@@ -8,22 +8,19 @@ export interface ForProps {
 const For = ({ title, customerName }: ForProps) => {
   return (
     <>
-      {title || customerName ? (
-        <div className="flex flex-col">
-          {title && <p className="truncate text-13px">{title}</p>}
-          {customerName && (
-            <p
-              className={cn(' truncate break-all', title ? 'text-xs text-grey-text' : 'text-13px')}
-            >
-              {customerName}
-            </p>
+      <div className="flex flex-col">
+        <p className={cn('truncate text-13px', { 'text-disabled-text': !title })}>
+          {title ? title : 'Untitled'}
+        </p>
+        <p
+          className={cn(
+            'truncate break-all text-xs ',
+            customerName ? 'text-grey-text' : 'text-disabled-text',
           )}
-        </div>
-      ) : (
-        <div>
-          <p className="truncate text-13px">Anonymous</p>
-        </div>
-      )}
+        >
+          {customerName ? customerName : 'Anonymous'}
+        </p>
+      </div>
     </>
   )
 }
