@@ -405,7 +405,6 @@ interface BaseInvoice {
   Discounts: number
   Taxes: number
   TotalAmount: number
-  OutstandingAmount: number
   InvoiceStatus: string
   Reference: string
   RemittanceEmail: string

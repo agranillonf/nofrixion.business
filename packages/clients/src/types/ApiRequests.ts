@@ -140,7 +140,6 @@ export interface Invoice {
   discounts?: number
   taxes?: number
   totalAmount?: number
-  outstandingAmount?: number
   invoiceStatus?: string
   reference?: string
   remittanceEmail?: string

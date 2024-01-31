@@ -15,7 +15,6 @@ import {
 } from '../../atoms/Accordion/Accordion'
 import { Icon } from '../../atoms/Icon/Icon'
 import ColumnHeader from '../../ColumnHeader/ColumnHeader'
-import InputAmountField from '../../InputAmountField/InputAmountField'
 import InputTextAreaField from '../../InputTextAreaField/InputTextAreaField'
 import EditableContent from '../../molecules/EditableContent/EditableContent'
 import { SelectAccount } from '../../molecules/Select/SelectAccount/SelectAccount'
@@ -37,7 +36,6 @@ type AuthFormData = {
 }
 interface InvoiceWithState extends Invoice {
   enabled: boolean
-  amountToPay: number
 }
 
 // Example of payrunState:
@@ -49,11 +47,9 @@ interface InvoiceWithState extends Invoice {
 //         {
 //           "id": 1,
 //           "amount": 100,
-//           "enabled": true
 //         },
 //         {
 //           "id": 2,
-//           "amount": 200,
 //           "enabled": false
 //         }
 //       ]
@@ -108,7 +104,6 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
       acc[invoice.currency][invoice.contact].invoices.push({
         ...invoice,
         enabled: true,
-        amountToPay: invoice.totalAmount ?? 0,
       })
 
       return acc
@@ -118,26 +113,6 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   const handleOnPayrunNameChange = (newPayrunName: string) => {
     setLocalPayrunName(newPayrunName)
     onPayrunNameChange && onPayrunNameChange(newPayrunName)
-  }
-
-  const handleAmountChange = (invoiceId: string, newAmount: number) => {
-    setPayrunState((prev) => {
-      const updatedPayrunState = { ...prev }
-
-      Object.keys(updatedPayrunState).forEach((currency) => {
-        Object.keys(updatedPayrunState[currency as Currency]).forEach((contact) => {
-          const invoice = updatedPayrunState[currency as Currency][contact].invoices.find(
-            (invoice) => invoice.id === invoiceId,
-          )
-
-          if (invoice) {
-            invoice.amountToPay = newAmount
-          }
-        })
-      })
-
-      return updatedPayrunState
-    })
   }
 
   const currenciesFromInvoices: Currency[] = payrun.invoices
@@ -198,7 +173,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
       )
 
       const totalAmountToPay = includedInvoicesInCurrency.reduce((prevInvoice, currentInvoice) => {
-        return prevInvoice + (currentInvoice?.amountToPay ?? 0)
+        return prevInvoice + (currentInvoice?.totalAmount ?? 0)
       }, 0)
 
       const balanceAfterPayment = (selectedAccount?.availableBalance ?? 0) - totalAmountToPay
@@ -301,7 +276,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
 
           const totalAmountToPay = includedInvoicesInCurrency.reduce(
             (prevInvoice, currentInvoice) => {
-              return prevInvoice + (currentInvoice?.amountToPay ?? 0)
+              return prevInvoice + (currentInvoice?.totalAmount ?? 0)
             },
             0,
           )
@@ -431,7 +406,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                       (prevInvoice, currentInvoice) => {
                         return (
                           prevInvoice +
-                          (currentInvoice?.enabled ? currentInvoice?.amountToPay ?? 0 : 0)
+                          (currentInvoice?.enabled ? currentInvoice?.totalAmount ?? 0 : 0)
                         )
                       },
                       0,
@@ -545,12 +520,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                             <ColumnHeader
                               className="w-40 mr-12 text-right"
                               spanClassName="w-full"
-                              label="Amount requested"
-                            />
-                            <ColumnHeader
-                              className="w-[8.25rem] text-right"
-                              spanClassName="w-full"
-                              label="Amount to pay"
+                              label="Amount"
                             />
                             <div className="w-8 ml-4" />
                           </div>
@@ -576,25 +546,6 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                                 <span className="w-40 mr-12 text-right tabular-nums">
                                   {formatCurrency(invoice.currency)}{' '}
                                   {formatAmount(invoice.totalAmount ?? 0)}
-                                </span>
-                                <span className="w-[8.25rem] text-right">
-                                  <InputAmountField
-                                    className="text-sm/8 transition disabled:text-disabled-text disabled:bg-transparent"
-                                    currencyClassName={cn('transition', {
-                                      'text-disabled-text': !isEnabled,
-                                    })}
-                                    containerClassName="h-8"
-                                    value={invoice.amountToPay.toString()}
-                                    allowCurrencyChange={false}
-                                    onChange={(value) =>
-                                      handleAmountChange(invoice.id, Number(value))
-                                    }
-                                    currency={invoice.currency}
-                                    // TODO: Validate if we want to limit the amount to pay to the total amount
-                                    // or if we want to allow the user to pay more than the total amount
-                                    max={invoice.totalAmount}
-                                    disabled={!isEnabled}
-                                  />
                                 </span>
                                 <Switch
                                   size="small"

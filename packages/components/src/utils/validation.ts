@@ -89,16 +89,6 @@ const InvoiceSchema = object({
       })
       .min(1, 'Total amount must be greater than 0.'),
   ),
-  OutstandingAmount: string({
-    required_error: 'Outstanding amount missing.',
-  }).pipe(
-    coerce
-      .number({
-        required_error: 'Outstanding amount missing.',
-        invalid_type_error: 'Outstanding amount must be a number.',
-      })
-      .min(0, 'Outstanding amount must be greater than 0.'),
-  ),
 })
   .refine((data) => {
     if (data.Currency === 'EUR' && validateIBAN(data.DestinationIban as string) === false) {
