@@ -233,7 +233,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
         </button>
       </div>
 
-      <div className="flex justify-between items-center mb-[5.5rem]">
+      <div className="flex justify-between items-center mb-12">
         {/* Payrun name */}
         <span className="text-[28px]/8 font-semibold">
           <EditableContent initialValue={localPayrunName} onChange={handleOnPayrunNameChange} />
@@ -453,7 +453,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                       <AccordionItem
                         value={contact}
                         key={contact}
-                        className={cn('border-y border-main-grey last:border-b-0', {
+                        className={cn('border-t border-[#F1F2F3]', {
                           'text-disabled-text': !isEnabled,
                         })}
                       >

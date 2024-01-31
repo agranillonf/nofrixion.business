@@ -439,7 +439,7 @@ const AccountsPayableDashboardMain = ({
   const onImportInvoices = async (invoices: LocalInvoice[]) => {
     const response = await createPayrun({
       merchantID: merchantId,
-      name: `${formatDateWithYear(new Date())} payments`,
+      name: `New Payrun ${formatDateWithYear(new Date(), 'cardinal')}`,
       invoices: localInvoicesToRemoteInvoices(invoices),
       totalAmount: 0,
     })
