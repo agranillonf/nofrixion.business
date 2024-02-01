@@ -1,4 +1,5 @@
 import { Dialog, Transition } from '@headlessui/react'
+import { Currency } from '@nofrixion/moneymoov'
 import { AnimatePresence, motion } from 'framer-motion'
 import { parse, ParseResult } from 'papaparse'
 import { Fragment, useEffect, useState } from 'react'
@@ -30,8 +31,54 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
 
   const linesWithErrors = validationResults?.filter((result) => !result.valid)
 
-  const templateColumns =
-    'InvoiceNumber,PaymentTerms,InvoiceDate,DueDate,Contact,Currency,Subtotal,Discounts,Taxes,TotalAmount,InvoiceStatus,Reference,RemittanceEmail,DestinationIban,DestinationAccountNumber,DestinationSortCode\r\n'
+  const getTemplateColumns = () => {
+    const dummyIbanInvoice: LocalInvoice = {
+      Id: '',
+      InvoiceNumber: '',
+      PaymentTerms: '',
+      InvoiceDate: new Date(),
+      DueDate: new Date(),
+      Contact: '',
+      Currency: Currency.EUR,
+      Subtotal: 0,
+      Discounts: 0,
+      Taxes: 0,
+      TotalAmount: 0,
+      InvoiceStatus: '',
+      Reference: '',
+      RemittanceEmail: '',
+      DestinationIban: '',
+    }
+
+    const columns = Object.getOwnPropertyNames(dummyIbanInvoice)
+
+    const dummyAccountInvoice: LocalInvoice = {
+      Id: '',
+      InvoiceNumber: '',
+      PaymentTerms: '',
+      InvoiceDate: new Date(),
+      DueDate: new Date(),
+      Contact: '',
+      Currency: Currency.EUR,
+      Subtotal: 0,
+      Discounts: 0,
+      Taxes: 0,
+      TotalAmount: 0,
+      InvoiceStatus: '',
+      Reference: '',
+      RemittanceEmail: '',
+      DestinationAccountNumber: 0,
+      DestinationSortCode: 0,
+    }
+
+    columns.push(
+      ...Object.getOwnPropertyNames(dummyAccountInvoice).filter(
+        (column) => !columns.includes(column),
+      ),
+    )
+    return columns.filter((column) => column !== 'Id' && column !== 'InvoiceStatus').join(',')
+  }
+  const templateColumns = getTemplateColumns()
 
   // Show error warning if user uploaded a file but there are no invoices
   // or if there are invoices but there are lines with errors

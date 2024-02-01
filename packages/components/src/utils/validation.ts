@@ -7,6 +7,9 @@ enum Currency {
   EUR = 'EUR',
 }
 
+const invalidDateMessage =
+  ' is invalid. Make sure you use one of the following formats: DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD, or YYYY/MM/DD'
+
 const InvoiceSchema = object({
   InvoiceNumber: string().optional(),
   PaymentTerms: string().optional(),
@@ -14,7 +17,7 @@ const InvoiceSchema = object({
   InvoiceStatus: string().optional(),
   Reference: string().optional(),
   RemittanceEmail: string()
-    .email('Remittance email address has a wrong format.')
+    .email('Remittance email address is invalid. Make sure it is in the correct format.')
     .optional()
     .or(literal('')),
   DestinationAccountNumber: coerce
@@ -31,23 +34,26 @@ const InvoiceSchema = object({
     .number({
       invalid_type_error: 'Subtotal must be a number.',
     })
+    .min(0, 'Subtotal must be greater than or equal to 0.')
     .optional(),
   Discounts: coerce
     .number({
       invalid_type_error: 'Discounts must be a number.',
     })
+    .min(0, 'Discounts must be greater than or equal to 0.')
     .optional(),
   Taxes: coerce
     .number({
       invalid_type_error: 'Taxes must be a number.',
     })
+    .min(0, 'Taxes must be greater than or equal to 0.')
     .optional(),
   InvoiceDate: string({
     required_error: 'Invoice date missing.',
   }).pipe(
     coerce.date({
       errorMap: (issue, { defaultError }) => ({
-        message: issue.code === 'invalid_date' ? 'Invoice date has a wrong format.' : defaultError,
+        message: issue.code === 'invalid_date' ? 'Invoice date' + invalidDateMessage : defaultError,
       }),
     }),
   ),
@@ -56,7 +62,7 @@ const InvoiceSchema = object({
   }).pipe(
     coerce.date({
       errorMap: (issue, { defaultError }) => ({
-        message: issue.code === 'invalid_date' ? 'Due date has a wrong format.' : defaultError,
+        message: issue.code === 'invalid_date' ? 'Due date' + invalidDateMessage : defaultError,
       }),
     }),
   ),
@@ -95,19 +101,19 @@ const InvoiceSchema = object({
       return false
     }
     return true
-  }, 'Destination iban has a wrong format.')
+  }, 'Destination IBAN is missing or has a wrong format.')
   .refine((data) => {
     if (data.Currency === 'GBP' && !data.DestinationAccountNumber) {
       return false
     }
     return true
-  }, 'Destination account number has a wrong format.')
+  }, 'Destination account number is missing or has a wrong format.')
   .refine((data) => {
     if (data.Currency === 'GBP' && !data.DestinationSortCode) {
       return false
     }
     return true
-  }, 'Destination sort code has a wrong format.')
+  }, 'Destination sort code is missing or has a wrong format.')
 
 const validateEmail = (email: string) => {
   const re = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/
