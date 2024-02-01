@@ -30,6 +30,9 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
 
   const linesWithErrors = validationResults?.filter((result) => !result.valid)
 
+  const templateColumns =
+    'InvoiceNumber,PaymentTerms,InvoiceDate,DueDate,Contact,Currency,Subtotal,Discounts,Taxes,TotalAmount,InvoiceStatus,Reference,RemittanceEmail,DestinationIban,DestinationAccountNumber,DestinationSortCode\r\n'
+
   // Show error warning if user uploaded a file but there are no invoices
   // or if there are invoices but there are lines with errors
   const displayErrorWarning =
@@ -200,8 +203,11 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                                     'No valid invoices could be loaded. Please make sure you are using the right '
                                   }
                                   <a
-                                    // TODO: Replace with actual link
-                                    href="https://google.com"
+                                    href={
+                                      'data:text/csv;charset=utf-8,' +
+                                      encodeURIComponent(templateColumns)
+                                    }
+                                    download="invoice-template.csv"
                                     target="_blank"
                                     rel="noreferrer"
                                     className="underline"
@@ -242,6 +248,8 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                           setIsError={setHasUploadError}
                           isLoading={isLoading}
                           setIsLoading={setIsLoading}
+                          templateContent={templateColumns}
+                          templateName="invoice-template.csv"
                         >
                           {fileName && (
                             <div className="flex flex-col justify-center items-center">

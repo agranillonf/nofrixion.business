@@ -14,6 +14,8 @@ export interface FileInputProps {
   isError?: boolean
   setIsError?: (isError: boolean) => void
   setIsLoading?: (isLoading: boolean) => void
+  templateContent?: string
+  templateName?: string
   children?: React.ReactNode
 }
 
@@ -23,6 +25,8 @@ const FileInput = ({
   isError,
   setIsError,
   setIsLoading,
+  templateContent,
+  templateName,
   children,
 }: FileInputProps) => {
   const hiddenFileInput = useRef<HTMLInputElement>(null)
@@ -155,13 +159,15 @@ const FileInput = ({
         <div className="flex text-xs text-grey-text mt-4 w-fit mx-auto items-center">
           <div>Which format to use?</div>{' '}
           <div className="ml-2">
-            {/* TODO: Replace with href */}
-            <button
-              className="underline hover:no-underline"
-              onClick={() => setIsError && setIsError(false)}
+            <a
+              href={'data:text/csv;charset=utf-8,' + encodeURIComponent(templateContent ?? '')}
+              download={templateName ?? 'template.csv'}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
             >
               Download an invoice CSV template
-            </button>
+            </a>
           </div>
         </div>
       )}
