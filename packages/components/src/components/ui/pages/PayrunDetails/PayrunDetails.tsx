@@ -570,29 +570,33 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                           )
                         }
 
-                        return {
+                        const newState = {
                           ...prev,
                           [currency]: {
                             ...prev[currency as Currency],
                             contacts: {
+                              ...prev[currency as Currency].contacts,
                               [contact]: {
                                 ...prev[currency as Currency].contacts[contact],
                                 enabled: isParentCurrencyEnabled,
                                 invoices: prev[currency as Currency].contacts[contact].invoices.map(
-                                  (prevInvoice) => {
-                                    if (prevInvoice.id === invoiceId) {
+                                  (invoice) => {
+                                    if (invoice.id === invoiceId) {
                                       return {
-                                        ...prevInvoice,
+                                        ...invoice,
                                         enabled: value,
                                       }
                                     }
-                                    return prevInvoice
+
+                                    return invoice
                                   },
                                 ),
                               },
                             },
                           },
                         }
+
+                        return newState
                       })
                     }
 
