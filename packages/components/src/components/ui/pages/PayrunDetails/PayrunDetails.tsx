@@ -95,8 +95,8 @@ const getPayrunStateFromPayrun = (payrun: Payrun): PayrunState => {
       }
     }
 
-    if (payrun.accountsToPay) {
-      acc[invoice.currency].accountToPay = payrun.accountsToPay[invoice.currency]
+    if (payrun.sourceAccounts) {
+      acc[invoice.currency].accountToPay = payrun.sourceAccounts[invoice.currency]
     }
 
     acc[invoice.currency].contacts[invoice.contact].invoices.push({
