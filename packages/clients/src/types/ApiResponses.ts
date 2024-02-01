@@ -588,6 +588,7 @@ export interface Payrun {
   inserted: Date
   lastUpdated: Date
   scheduleDate?: Date
+  accountsToPay?: Record<Currency, string>
 }
 
 export type PayrunPageResponse = PageResponse<Payrun>

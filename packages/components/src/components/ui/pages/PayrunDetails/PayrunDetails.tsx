@@ -69,27 +69,37 @@ interface InvoiceWithState extends Invoice {
 
 type PayrunState = {
   [currency in Currency]: {
-    [contact: string]: {
-      enabled: boolean
-      invoices: InvoiceWithState[]
+    contacts: {
+      [contact: string]: {
+        enabled: boolean
+        invoices: InvoiceWithState[]
+      }
     }
+    accountToPay?: string
   }
 }
 
 const getPayrunStateFromPayrun = (payrun: Payrun): PayrunState => {
   return payrun.invoices.reduce((acc, invoice) => {
     if (!acc[invoice.currency]) {
-      acc[invoice.currency] = {}
+      acc[invoice.currency] = {
+        contacts: {},
+        accountToPay: undefined,
+      }
     }
 
-    if (!acc[invoice.currency][invoice.contact]) {
-      acc[invoice.currency][invoice.contact] = {
+    if (!acc[invoice.currency].contacts[invoice.contact]) {
+      acc[invoice.currency].contacts[invoice.contact] = {
         enabled: true,
         invoices: [],
       }
     }
 
-    acc[invoice.currency][invoice.contact].invoices.push({
+    if (payrun.accountsToPay) {
+      acc[invoice.currency].accountToPay = payrun.accountsToPay[invoice.currency]
+    }
+
+    acc[invoice.currency].contacts[invoice.contact].invoices.push({
       ...invoice,
       enabled: true,
     })
@@ -128,15 +138,6 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     .map((invoice) => invoice.currency)
     .filter((value, index, self) => self.indexOf(value) === index)
 
-  const [selectedAccountsId, setSelectedAccountsId] = useState<Record<Currency, string>>(
-    accounts.reduce((acc, account) => {
-      if (account.isDefault) {
-        acc[account.currency] = account.id
-      }
-      return acc
-    }, {} as Record<Currency, string>),
-  )
-
   useEffect(() => {
     const updatedSelectedAccountsId = accounts.reduce((acc, account) => {
       if (account.isDefault) {
@@ -154,7 +155,25 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
       }
     })
 
-    setSelectedAccountsId(updatedSelectedAccountsId)
+    setPayrunState((prev) => {
+      return Object.entries(prev).reduce((acc, [currency, contacts]) => {
+        if (prev[currency as Currency].accountToPay) {
+          return prev
+        }
+
+        const newPayrunState = {
+          ...acc,
+          [currency]: {
+            ...contacts,
+            accountToPay: updatedSelectedAccountsId[currency as Currency],
+          },
+        }
+
+        setSavedPayrunState(newPayrunState)
+
+        return newPayrunState
+      }, {} as PayrunState)
+    })
 
     // If there are accounts and only one currency, set the accordion open
     if (accounts.length > 0 && currenciesFromInvoices.length === 1) {
@@ -163,21 +182,25 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   }, [accounts.length])
 
   const atLeastOneInvoiceEnabled = Object.values(payrunState).some((currency) =>
-    Object.values(currency).some(
+    Object.values(currency.contacts).some(
       (contact) => contact.enabled && contact.invoices.some((i) => i.enabled),
     ),
   )
 
   const isBalanceAfterPaymentPositive = Object.entries(payrunState).every(
     ([currency, invoicesGroupedByCurrency]) => {
+      if (!payrunState[currency as Currency].accountToPay) {
+        return false
+      }
+
       const selectedAccount = accounts.find(
-        (account) => account.id === selectedAccountsId?.[currency as Currency],
+        (account) => account.id === payrunState[currency as Currency].accountToPay,
       )
 
       // Balance after payment is the balance of the selected account minus the total amount to pay
       // of every invoice in the payrun that has the same currency as the selected account
       // and that are not disabled
-      const includedInvoicesInCurrency = Object.values(invoicesGroupedByCurrency).flatMap(
+      const includedInvoicesInCurrency = Object.values(invoicesGroupedByCurrency.contacts).flatMap(
         (contact) => (contact.enabled ? contact.invoices.filter((invoice) => invoice.enabled) : []),
       )
 
@@ -194,7 +217,13 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   const isRequestAuthEnabled = atLeastOneInvoiceEnabled && isBalanceAfterPaymentPositive
 
   const handleAccountChange = (currency: Currency, accountId: string) => {
-    setSelectedAccountsId((prev) => ({ ...prev, [currency]: accountId }))
+    setPayrunState((prev) => ({
+      ...prev,
+      [currency]: {
+        ...prev[currency],
+        accountToPay: accountId,
+      },
+    }))
   }
 
   const onRequestAuthClick = () => {
@@ -205,7 +234,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   const handleOnRequestAuth = ({ paymentDate, notes }: AuthFormData) => {
     onRequestAuth(
       Object.values(payrunState)
-        .flatMap((currency) => Object.values(currency))
+        .flatMap((currency) => Object.values(currency.contacts))
         .filter((contact) => contact.enabled)
         .flatMap((contact) => contact.invoices)
         .filter((invoice) => invoice.enabled),
@@ -232,7 +261,11 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     return `${includedInvoices} of ${totalInvoices} invoices included`
   }
 
-  const hasDataChanged = !_.isEqual(savedPayrunState, payrunState)
+  // Check if the data has changed by comparing the current payrun state with the saved payrun state
+  // If the length of the accounts is 0, it means that the accounts are still loading
+  // and after they load, the payrun state will be updated with the default accounts
+  // so we don't want to the "Save" and "Discard" buttons to appear until the accounts are loaded
+  const hasDataChanged = accounts?.length > 0 && !_.isEqual(savedPayrunState, payrunState)
 
   // Get the difference between the current payrun state and the saved payrun state
   // to get the changes made so we can send them to the backend
@@ -240,11 +273,20 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     currentState: PayrunState,
     newState: PayrunState,
   ): PayrunState => {
-    return Object.entries(currentState).reduce((acc, [currency, contacts]) => {
-      Object.entries(contacts).forEach(([contact, contactData]) => {
-        const savedContactData = newState[currency as Currency][contact]
+    return Object.entries(currentState).reduce((acc, [currency, currencyContent]) => {
+      Object.entries(currencyContent.contacts).forEach(([contact, contactData]) => {
+        const newContactData = newState[currency as Currency].contacts[contact]
+        const newAccountToPay = newState[currency as Currency].accountToPay
 
-        if (!_.isEqual(contactData, savedContactData)) {
+        // If the account to pay has changed, add it to the changes
+        if (newAccountToPay !== currentState[currency as Currency].accountToPay) {
+          acc[currency as Currency] = {
+            ...acc[currency as Currency],
+            accountToPay: newAccountToPay,
+          }
+        }
+
+        if (!_.isEqual(contactData, newContactData)) {
           acc[currency as Currency] = {
             ...acc[currency as Currency],
             [contact]: {
@@ -252,7 +294,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
               invoices: contactData.invoices.filter(
                 (invoice) =>
                   invoice.enabled !==
-                  savedContactData.invoices.find((i) => i.id === invoice.id)?.enabled,
+                  newContactData.invoices.find((i) => i.id === invoice.id)?.enabled,
               ),
             },
           }
@@ -357,15 +399,16 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
         {/* Group payrun invoices on currency */}
         {Object.entries(payrunState).map(([currency, invoicesGroupedByCurrency]) => {
           const selectedAccount = accounts.find(
-            (account) => account.id === selectedAccountsId?.[currency as Currency],
+            (account) => account.id === payrunState?.[currency as Currency].accountToPay,
           )
 
           // Balance after payment is the balance of the selected account minus the total amount to pay
           // of every invoice in the payrun that has the same currency as the selected account
           // and that are not disabled
-          const includedInvoicesInCurrency = Object.values(invoicesGroupedByCurrency).flatMap(
-            (contact) =>
-              contact.enabled ? contact.invoices.filter((invoice) => invoice.enabled) : [],
+          const includedInvoicesInCurrency = Object.values(
+            invoicesGroupedByCurrency.contacts,
+          ).flatMap((contact) =>
+            contact.enabled ? contact.invoices.filter((invoice) => invoice.enabled) : [],
           )
 
           const totalAmountToPay = includedInvoicesInCurrency.reduce(
@@ -377,7 +420,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
 
           const balanceAfterPayment = (selectedAccount?.availableBalance ?? 0) - totalAmountToPay
 
-          const payoutsLength = Object.values(invoicesGroupedByCurrency)
+          const payoutsLength = Object.values(invoicesGroupedByCurrency.contacts)
             .flatMap(
               (contact) =>
                 contact.enabled && contact.invoices.filter((invoice) => invoice.enabled).length,
@@ -389,9 +432,11 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
               ...prev,
               [currency]: {
                 ...prev[currency as Currency],
-                [contact]: {
-                  ...prev[currency as Currency][contact],
-                  enabled: value,
+                contacts: {
+                  [contact]: {
+                    ...prev[currency as Currency].contacts[contact],
+                    enabled: value,
+                  },
                 },
               },
             }))
@@ -399,18 +444,22 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
             // If enabling this and all invoices are disabled, enable all invoices
             if (
               value &&
-              invoicesGroupedByCurrency[contact].invoices.every((invoice) => !invoice.enabled)
+              invoicesGroupedByCurrency.contacts[contact].invoices.every(
+                (invoice) => !invoice.enabled,
+              )
             ) {
               setPayrunState((prev) => ({
                 ...prev,
                 [currency]: {
                   ...prev[currency as Currency],
                   [contact]: {
-                    ...prev[currency as Currency][contact],
-                    invoices: prev[currency as Currency][contact].invoices.map((invoice) => ({
-                      ...invoice,
-                      enabled: true,
-                    })),
+                    ...prev[currency as Currency].contacts[contact],
+                    invoices: prev[currency as Currency].contacts[contact].invoices.map(
+                      (invoice) => ({
+                        ...invoice,
+                        enabled: true,
+                      }),
+                    ),
                   },
                 },
               }))
@@ -427,7 +476,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                 <div className="flex w-full items-start">
                   <SelectAccount
                     className="text-right border border-border-grey md:w-[19.5rem] mr-4"
-                    value={selectedAccountsId?.[currency as Currency]}
+                    value={payrunState?.[currency as Currency].accountToPay}
                     onValueChange={(newAccountId) =>
                       handleAccountChange(currency as Currency, newAccountId)
                     }
@@ -476,8 +525,9 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                   value={currentContactAccordionsOpen}
                   onValueChange={setCurrentContactAccordionsOpen}
                 >
-                  {Object.keys(invoicesGroupedByCurrency).map((contact) => {
-                    const destinationInvoice = invoicesGroupedByCurrency[contact].invoices[0]
+                  {Object.keys(invoicesGroupedByCurrency.contacts).map((contact) => {
+                    const destinationInvoice =
+                      invoicesGroupedByCurrency.contacts[contact].invoices[0]
                     let destinationDetails = ''
                     switch (currency) {
                       case Currency.EUR:
@@ -490,7 +540,8 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                         break
                     }
 
-                    const invoiceGroupedByCurrencyAndContact = invoicesGroupedByCurrency[contact]
+                    const invoiceGroupedByCurrencyAndContact =
+                      invoicesGroupedByCurrency.contacts[contact]
 
                     const invoices = invoiceGroupedByCurrencyAndContact.invoices
 
@@ -509,7 +560,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                     const onInvoiceSwitchChange = (value: boolean, invoiceId: string) => {
                       // If disabling this and all invoices are disabled, disable the contact
                       setPayrunState((prev) => {
-                        const isParentCurrencyEnabled = prev[currency as Currency][
+                        const isParentCurrencyEnabled = prev[currency as Currency].contacts[
                           contact
                         ].invoices.some((invoice) => invoice.id !== invoiceId && invoice.enabled)
 
@@ -523,20 +574,22 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                           ...prev,
                           [currency]: {
                             ...prev[currency as Currency],
-                            [contact]: {
-                              ...prev[currency as Currency][contact],
-                              enabled: isParentCurrencyEnabled,
-                              invoices: prev[currency as Currency][contact].invoices.map(
-                                (prevInvoice) => {
-                                  if (prevInvoice.id === invoiceId) {
-                                    return {
-                                      ...prevInvoice,
-                                      enabled: value,
+                            contacts: {
+                              [contact]: {
+                                ...prev[currency as Currency].contacts[contact],
+                                enabled: isParentCurrencyEnabled,
+                                invoices: prev[currency as Currency].contacts[contact].invoices.map(
+                                  (prevInvoice) => {
+                                    if (prevInvoice.id === invoiceId) {
+                                      return {
+                                        ...prevInvoice,
+                                        enabled: value,
+                                      }
                                     }
-                                  }
-                                  return prevInvoice
-                                },
-                              ),
+                                    return prevInvoice
+                                  },
+                                ),
+                              },
                             },
                           },
                         }
