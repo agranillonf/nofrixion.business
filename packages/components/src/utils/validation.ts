@@ -50,7 +50,8 @@ const InvoiceSchema = object({
   }).pipe(
     coerce.date({
       errorMap: (issue, { defaultError }) => ({
-        message: issue.code === 'invalid_date' ? 'Invoice date has the wrong format.' : defaultError,
+        message:
+          issue.code === 'invalid_date' ? 'Invoice date has the wrong format.' : defaultError,
       }),
     }),
   ),

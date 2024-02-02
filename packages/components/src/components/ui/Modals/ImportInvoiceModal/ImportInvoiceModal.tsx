@@ -342,50 +342,53 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                 scrollableContent
               >
                 <div className="flex flex-col gap-y-4">
-                  <span className="text-sm">Remember dates should be formatted DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD or YYYY/MM/DD</span>
+                  <span className="text-sm">
+                    Remember dates should be formatted DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD or
+                    YYYY/MM/DD
+                  </span>
                   {/* Show error per line */}
                   {validationResults
-                  ?.filter((result) => !result.valid)
-                  .map((result, i) => {
-                    return (
-                      <div
-                        key={`import-error-${i}`}
-                        className="py-3 border-b border-border-grey text-sm flex"
-                      >
-                        <span className="font-semibold w-20 min-w-[5rem]">
-                          Line {result.lineNumber}
-                        </span>
-                        <div className="flex gap-x-4 gap-y-2 flex-wrap">
-                          {result.errors?.map((err, i) => {
-                            return (
-                              <div
-                                key={`import-error-detail-${i}`}
-                                className="flex items-center gap-x-2"
-                              >
-                                <Icon
-                                  name={
-                                    err.code == 'invalid_type'
-                                      ? err.received === 'undefined'
-                                        ? 'missing/16'
+                    ?.filter((result) => !result.valid)
+                    .map((result, i) => {
+                      return (
+                        <div
+                          key={`import-error-${i}`}
+                          className="py-3 border-b border-border-grey text-sm flex"
+                        >
+                          <span className="font-semibold w-20 min-w-[5rem]">
+                            Line {result.lineNumber}
+                          </span>
+                          <div className="flex gap-x-4 gap-y-2 flex-wrap">
+                            {result.errors?.map((err, i) => {
+                              return (
+                                <div
+                                  key={`import-error-detail-${i}`}
+                                  className="flex items-center gap-x-2"
+                                >
+                                  <Icon
+                                    name={
+                                      err.code == 'invalid_type'
+                                        ? err.received === 'undefined'
+                                          ? 'missing/16'
+                                          : 'error/16'
                                         : 'error/16'
-                                      : 'error/16'
-                                  }
-                                  className={
-                                    err.code == 'invalid_type'
-                                      ? err.received === 'undefined'
-                                        ? 'text-control-grey-hover'
+                                    }
+                                    className={
+                                      err.code == 'invalid_type'
+                                        ? err.received === 'undefined'
+                                          ? 'text-control-grey-hover'
+                                          : 'text-negative-red'
                                         : 'text-negative-red'
-                                      : 'text-negative-red'
-                                  }
-                                />
-                                <span>{err.message}</span>
-                              </div>
-                            )
-                          })}
+                                    }
+                                  />
+                                  <span>{err.message}</span>
+                                </div>
+                              )
+                            })}
+                          </div>
                         </div>
-                      </div>
-                    )
-                  })}
+                      )
+                    })}
                 </div>
               </CustomModal>
             </Dialog.Panel>
