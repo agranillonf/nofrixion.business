@@ -156,24 +156,21 @@ const FileInput = ({
         {children}
       </div>
       {!children && (
-        <div className="flex flex-col gap-y-4 text-xs text-grey-text mt-4 w-fit mx-auto items-center">
+        <div className="flex flex-col gap-y-5 text-xs text-grey-text mt-4 w-fit mx-auto items-center">
           <p>
             Dates should be in one of the following formats: DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD or
             YYYY/MM/DD
           </p>
-          <div className="flex">
-            <div>Which format to use?</div>{' '}
-            <div className="ml-2">
-              <a
-                href={'data:text/csv;charset=utf-8,' + encodeURIComponent(templateContent ?? '')}
-                download={templateName ?? 'template.csv'}
-                target="_blank"
-                rel="noreferrer"
-                className="underline"
-              >
-                Download an invoice CSV template
-              </a>
-            </div>
+          <div>
+            <a
+              href={'data:text/csv;charset=utf-8,' + encodeURIComponent(templateContent ?? '')}
+              download={templateName ?? 'template.csv'}
+              target="_blank"
+              rel="noreferrer"
+              className="underline"
+            >
+              Download the CSV template
+            </a>
           </div>
         </div>
       )}

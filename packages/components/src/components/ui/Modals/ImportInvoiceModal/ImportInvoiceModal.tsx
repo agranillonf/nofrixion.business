@@ -341,8 +341,8 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                 contentClassName={'max-w-[50rem] h-[25rem]'}
                 scrollableContent
               >
-                <div className="flex flex-col gap-y-4">
-                  <span className="text-sm">
+                <div className="flex flex-col">
+                  <span className="text-sm pb-5">
                     Remember dates should be formatted DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD or
                     YYYY/MM/DD
                   </span>
@@ -381,7 +381,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                                         : 'text-negative-red'
                                     }
                                   />
-                                  <span>{err.message}</span>
+                                  <span className="text-13px">{err.message}</span>
                                 </div>
                               )
                             })}
