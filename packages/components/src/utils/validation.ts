@@ -7,9 +7,6 @@ enum Currency {
   EUR = 'EUR',
 }
 
-const invalidDateMessage =
-  ' is invalid. Make sure you use one of the following formats: DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD, or YYYY/MM/DD'
-
 const InvoiceSchema = object({
   InvoiceNumber: string().optional(),
   PaymentTerms: string().optional(),
@@ -53,7 +50,7 @@ const InvoiceSchema = object({
   }).pipe(
     coerce.date({
       errorMap: (issue, { defaultError }) => ({
-        message: issue.code === 'invalid_date' ? 'Invoice date' + invalidDateMessage : defaultError,
+        message: issue.code === 'invalid_date' ? 'Invoice date has the wrong format.' : defaultError,
       }),
     }),
   ),
@@ -62,7 +59,7 @@ const InvoiceSchema = object({
   }).pipe(
     coerce.date({
       errorMap: (issue, { defaultError }) => ({
-        message: issue.code === 'invalid_date' ? 'Due date' + invalidDateMessage : defaultError,
+        message: issue.code === 'invalid_date' ? 'Due date has the wrong format.' : defaultError,
       }),
     }),
   ),

@@ -341,8 +341,10 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                 contentClassName={'max-w-[50rem] h-[25rem]'}
                 scrollableContent
               >
-                {/* Show error per line */}
-                {validationResults
+                <div className="flex flex-col gap-y-4">
+                  <span className="text-sm">Remember dates should be formatted DD-MM-YYYY, DD/MM/YYYY, YYYY-MM-DD or YYYY/MM/DD</span>
+                  {/* Show error per line */}
+                  {validationResults
                   ?.filter((result) => !result.valid)
                   .map((result, i) => {
                     return (
@@ -384,6 +386,7 @@ const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalPro
                       </div>
                     )
                   })}
+                </div>
               </CustomModal>
             </Dialog.Panel>
           </Transition.Child>
