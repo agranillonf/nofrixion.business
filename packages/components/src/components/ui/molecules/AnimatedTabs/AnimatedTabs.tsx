@@ -71,16 +71,16 @@ const AnimatedTabs: React.FC<AnimatedTabsProps> = ({
                 {tab.icon && <Icon name={tab.icon} />}
                 {tab.title}
 
+                <div className={classNames(underlineClasses, 'bg-border-grey')} />
+
                 {selectedTab == tab.title ? (
                   <motion.div
                     layoutId="underline"
-                    className={classNames(underlineClasses, 'bg-primary-green z-10')}
+                    className={classNames(underlineClasses, 'bg-primary-green')}
                   />
                 ) : (
                   <div className={classNames(underlineClasses, 'bg-border-grey')} />
                 )}
-
-                <div className={classNames(underlineClasses, 'bg-border-grey')} />
               </Tabs.Trigger>
             )
           })}
