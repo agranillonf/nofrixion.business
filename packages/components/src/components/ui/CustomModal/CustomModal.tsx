@@ -17,6 +17,7 @@ export interface CustomModalProps extends BaseModalProps {
   contentClassName?: string
   onUseAsDefaultChanged?: (isDefaultChecked: boolean) => void
   scrollableContent?: boolean
+  onCancel?: () => void
 }
 
 export interface BaseModalProps {
@@ -41,12 +42,13 @@ const CustomModal = ({
   buttonRowClassName,
   showDefault = true,
   buttonText = 'Apply',
-  buttonClaseName = 'w-full md:w-[10.625rem] px-16 ml-auto',
+  buttonClaseName,
   showSupport = false,
   contentClassName = 'max-w-md',
   onUseAsDefaultChanged,
   showFooter = true,
   scrollableContent = false,
+  onCancel,
 }: CustomModalProps) => {
   const [isDefaultChecked, setIsDefaultChecked] = useState<boolean>(false)
   const [currentState, setCurrentState] = useState<CustomModalState>()
@@ -152,12 +154,27 @@ const CustomModal = ({
                       </div>
                     )}
 
+                    {onCancel && (
+                      <Button
+                        variant="secondary"
+                        size="large"
+                        onClick={onCancel}
+                        className="ml-auto mr-4 w-full md:w-[10.625rem]"
+                      >
+                        Cancel
+                      </Button>
+                    )}
+
                     <Button
                       variant="primaryDark"
                       size="large"
                       onClick={onApplyClicked}
                       disabled={!onApplyEnabled}
-                      className={buttonClaseName}
+                      className={cn(
+                        'w-full md:w-[10.625rem] px-16',
+                        { 'ml-auto': !onCancel },
+                        buttonClaseName,
+                      )}
                     >
                       {buttonText}
                     </Button>

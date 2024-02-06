@@ -18,6 +18,7 @@ import {
 import { Icon } from '../../atoms/Icon/Icon'
 import ColumnHeader from '../../ColumnHeader/ColumnHeader'
 import InputTextAreaField from '../../InputTextAreaField/InputTextAreaField'
+import SystemErrorModal from '../../Modals/SystemErrorModal/SystemErrorModal'
 import EditableContent from '../../molecules/EditableContent/EditableContent'
 import { SelectAccount } from '../../molecules/Select/SelectAccount/SelectAccount'
 import { SingleDatePicker } from '../../organisms/SingleDatePicker/SingleDatePicker'
@@ -128,6 +129,8 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   )
 
   const [payrunState, setPayrunState] = useState<PayrunState>(getPayrunStateFromPayrun(payrun))
+
+  const [isLeaveWithoutSavingModalOpen, setIsLeaveWithoutSavingModalOpen] = useState(false)
 
   const handleOnPayrunNameChange = (newPayrunName: string) => {
     setLocalPayrunName(newPayrunName)
@@ -313,13 +316,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
 
   const handleOnAllPayrunsClick = () => {
     if (hasDataChanged) {
-      const shouldLeavePage = window.confirm(
-        'You have unsaved changes. Are you sure you want to leave this page?',
-      )
-
-      if (shouldLeavePage) {
-        onAllPayrunsClick && onAllPayrunsClick()
-      }
+      setIsLeaveWithoutSavingModalOpen(true)
     } else {
       onAllPayrunsClick && onAllPayrunsClick()
     }
@@ -378,9 +375,9 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                   variant="primary"
                   size="large"
                   onClick={handleOnSave}
-                  className="w-fit h-10 md:w-52 md:h-full transition-all ease-in-out duration-200"
+                  className="w-fit h-10 md:h-full transition-all ease-in-out duration-200"
                 >
-                  Save
+                  Save changes
                 </Button>
               </LayoutWrapper>
             )}
@@ -427,12 +424,15 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
             )
             .filter((invoice) => invoice).length
 
-          const onCurrencySwitchChange = (value: boolean, contact: string) => {
+          const onContactSwitchChange = (value: boolean, contact: string) => {
+            console.log('previous state', payrunState)
+
             setPayrunState((prev) => ({
               ...prev,
               [currency]: {
                 ...prev[currency as Currency],
                 contacts: {
+                  ...prev[currency as Currency].contacts,
                   [contact]: {
                     ...prev[currency as Currency].contacts[contact],
                     enabled: value,
@@ -442,27 +442,33 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
             }))
 
             // If enabling this and all invoices are disabled, enable all invoices
-            if (
-              value &&
-              invoicesGroupedByCurrency.contacts[contact].invoices.every(
-                (invoice) => !invoice.enabled,
-              )
-            ) {
-              setPayrunState((prev) => ({
-                ...prev,
-                [currency]: {
-                  ...prev[currency as Currency],
-                  [contact]: {
-                    ...prev[currency as Currency].contacts[contact],
-                    invoices: prev[currency as Currency].contacts[contact].invoices.map(
-                      (invoice) => ({
-                        ...invoice,
-                        enabled: true,
-                      }),
-                    ),
+            if (value) {
+              const allInvoicesDisabled = Object.values(
+                payrunState[currency as Currency].contacts[contact].invoices,
+              ).every((invoice) => !invoice.enabled)
+
+              if (allInvoicesDisabled) {
+                setPayrunState((prev) => ({
+                  ...prev,
+                  [currency]: {
+                    ...prev[currency as Currency],
+                    contacts: {
+                      ...prev[currency as Currency].contacts,
+                      [contact]: {
+                        ...prev[currency as Currency].contacts[contact],
+                        invoices: prev[currency as Currency].contacts[contact].invoices.map(
+                          (invoice) => {
+                            return {
+                              ...invoice,
+                              enabled: true,
+                            }
+                          },
+                        ),
+                      },
+                    },
                   },
-                },
-              }))
+                }))
+              }
             }
           }
 
@@ -660,7 +666,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
                           <Switch
                             className="w-auto ml-4"
                             value={isEnabled}
-                            onChange={(value) => onCurrencySwitchChange(value, contact)}
+                            onChange={(value) => onContactSwitchChange(value, contact)}
                           />
                         </AccordionTrigger>
                         <AccordionContent className="pt-2 pb-4">
@@ -722,6 +728,23 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
         isOpen={isSideModalOpen}
         onOpenChange={() => setIsSideModalOpen(false)}
         onRequestAuth={handleOnRequestAuth}
+      />
+
+      <SystemErrorModal
+        title="Leave without saving"
+        message="If you leave without saving all changes made are going to be lost."
+        open={isLeaveWithoutSavingModalOpen}
+        showSupport={false}
+        primaryButtonText="Leave"
+        onDismiss={() => {
+          setIsLeaveWithoutSavingModalOpen(false)
+        }}
+        onCancel={() => {
+          setIsLeaveWithoutSavingModalOpen(false)
+        }}
+        onApply={() => {
+          onAllPayrunsClick && onAllPayrunsClick()
+        }}
       />
 
       <Toaster positionY="top" positionX="right" duration={3000} />

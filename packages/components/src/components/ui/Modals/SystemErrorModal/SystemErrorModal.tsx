@@ -3,11 +3,24 @@ import CustomModal, { BaseModalProps } from '../../CustomModal/CustomModal'
 
 export interface SystemErrorModalProps extends BaseModalProps {
   onDismiss: () => void
+  onCancel?: () => void
+  onApply?: () => void
   title?: string
   message?: string
+  primaryButtonText?: string
+  showSupport?: boolean
 }
 
-const SystemErrorModal = ({ title, message, onDismiss, open }: SystemErrorModalProps) => {
+const SystemErrorModal = ({
+  title,
+  message,
+  onDismiss,
+  onApply,
+  onCancel,
+  open,
+  showSupport = true,
+  primaryButtonText = 'Understood',
+}: SystemErrorModalProps) => {
   const handleOnDismiss = () => {
     onDismiss()
   }
@@ -15,12 +28,13 @@ const SystemErrorModal = ({ title, message, onDismiss, open }: SystemErrorModalP
   return (
     <CustomModal
       open={open}
-      onApply={handleOnDismiss}
+      onApply={onApply ?? handleOnDismiss}
       onDismiss={handleOnDismiss}
-      buttonText="Understood"
+      buttonText={primaryButtonText}
       showDefault={false}
-      showSupport={true}
+      showSupport={showSupport}
       contentClassName=" max-w-[33rem]"
+      onCancel={onCancel}
     >
       <div className="mt-6 md:mt-12 h-full">
         <div className="flex flex-col items-center">
