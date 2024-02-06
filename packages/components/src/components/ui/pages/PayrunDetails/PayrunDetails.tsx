@@ -18,7 +18,6 @@ import {
 import { Icon } from '../../atoms/Icon/Icon'
 import ColumnHeader from '../../ColumnHeader/ColumnHeader'
 import InputTextAreaField from '../../InputTextAreaField/InputTextAreaField'
-import SystemErrorModal from '../../Modals/SystemErrorModal/SystemErrorModal'
 import EditableContent from '../../molecules/EditableContent/EditableContent'
 import { SelectAccount } from '../../molecules/Select/SelectAccount/SelectAccount'
 import { SingleDatePicker } from '../../organisms/SingleDatePicker/SingleDatePicker'
@@ -32,6 +31,7 @@ export interface PayrunDetailsProps {
   onPayrunNameChange?: (newPayrunName: string) => void
   payrun: Payrun
   accounts: LocalAccount[]
+  onDataChange?: (hasUnsavedChanges: boolean) => void
 }
 
 type AuthFormData = {
@@ -115,6 +115,7 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   onAllPayrunsClick,
   onRequestAuth,
   onPayrunNameChange,
+  onDataChange,
 }) => {
   const [currentCurrencyAccordionOpen, setCurrentCurrencyOpenAccordionOpen] = useState<
     string | undefined
@@ -129,8 +130,6 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   )
 
   const [payrunState, setPayrunState] = useState<PayrunState>(getPayrunStateFromPayrun(payrun))
-
-  const [isLeaveWithoutSavingModalOpen, setIsLeaveWithoutSavingModalOpen] = useState(false)
 
   const handleOnPayrunNameChange = (newPayrunName: string) => {
     setLocalPayrunName(newPayrunName)
@@ -270,6 +269,10 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
   // so we don't want to the "Save" and "Discard" buttons to appear until the accounts are loaded
   const hasDataChanged = accounts?.length > 0 && !_.isEqual(savedPayrunState, payrunState)
 
+  useEffect(() => {
+    onDataChange && onDataChange(hasDataChanged)
+  }, [hasDataChanged])
+
   // Get the difference between the current payrun state and the saved payrun state
   // to get the changes made so we can send them to the backend
   const getDifferenceBetweenPayrunStates = (
@@ -314,19 +317,16 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
     setSavedPayrunState(payrunState)
   }
 
-  const handleOnAllPayrunsClick = () => {
-    if (hasDataChanged) {
-      setIsLeaveWithoutSavingModalOpen(true)
-    } else {
-      onAllPayrunsClick && onAllPayrunsClick()
-    }
-  }
+  // Need to add a mechanism to detect if the user is trying to leave the page without saving
+  // and show a modal to confirm if the user wants to leave without saving
+  // If the user clicks on "Leave" the user is redirected to the page they were trying to go
+  // If the user clicks on "Cancel" the modal is closed
 
   return (
     <div className="font-inter bg-main-grey text-default-text h-full">
       {/* All payruns */}
       <div className="flex justify-between mb-6">
-        <button onClick={handleOnAllPayrunsClick} className="flex items-center space-x-3">
+        <button onClick={onAllPayrunsClick} className="flex items-center space-x-3">
           <Icon name="back/12" />
           <span className="hover:underline text-sm">All payruns</span>
         </button>
@@ -728,23 +728,6 @@ const PayrunDetails: React.FC<PayrunDetailsProps> = ({
         isOpen={isSideModalOpen}
         onOpenChange={() => setIsSideModalOpen(false)}
         onRequestAuth={handleOnRequestAuth}
-      />
-
-      <SystemErrorModal
-        title="Leave without saving"
-        message="If you leave without saving all changes made are going to be lost."
-        open={isLeaveWithoutSavingModalOpen}
-        showSupport={false}
-        primaryButtonText="Leave"
-        onDismiss={() => {
-          setIsLeaveWithoutSavingModalOpen(false)
-        }}
-        onCancel={() => {
-          setIsLeaveWithoutSavingModalOpen(false)
-        }}
-        onApply={() => {
-          onAllPayrunsClick && onAllPayrunsClick()
-        }}
       />
 
       <Toaster positionY="top" positionX="right" duration={3000} />

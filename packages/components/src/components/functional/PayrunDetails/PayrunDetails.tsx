@@ -11,6 +11,7 @@ export interface PayrunDetailsProps {
   merchantId?: string // Example: "5f9f8a7f-..."
   payrunId: string
   onAllPayrunsClick: () => void
+  onDataChange?: (hasUnsavedChanges: boolean) => void
 }
 
 const PayrunDetails = ({
@@ -19,6 +20,7 @@ const PayrunDetails = ({
   merchantId,
   payrunId,
   onAllPayrunsClick,
+  onDataChange,
 }: PayrunDetailsProps) => {
   const queryClient = useQueryClient()
 
@@ -30,6 +32,7 @@ const PayrunDetails = ({
         payrunId={payrunId}
         apiUrl={apiUrl}
         onAllPayrunsClick={onAllPayrunsClick}
+        onDataChange={onDataChange}
       />
     </QueryClientProvider>
   )
@@ -41,6 +44,7 @@ const PayrunDetailsMain = ({
   merchantId,
   payrunId,
   onAllPayrunsClick,
+  onDataChange,
 }: PayrunDetailsProps) => {
   const [payrun, setPayrun] = useState<Payrun | undefined>()
   const [accounts, setAccounts] = useState<Account[]>([])
@@ -80,6 +84,7 @@ const PayrunDetailsMain = ({
       onRequestAuth={onRequestAuth}
       onAllPayrunsClick={onAllPayrunsClick}
       accounts={remoteAccountsToLocalAccounts(accounts)}
+      onDataChange={onDataChange}
     />
   )
 }

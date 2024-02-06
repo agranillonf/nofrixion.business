@@ -4,6 +4,7 @@ import { useOutlet } from 'react-router-dom'
 
 import GoogleTagManagerInjection from './components/GoogleTagManagerInjection'
 import HotjarInjection from './components/HotjarInjection'
+import { AuthProvider } from './lib/auth/AuthProvider'
 
 const Root = () => {
   const outlet = useOutlet()
@@ -12,7 +13,9 @@ const Root = () => {
     <>
       <GoogleTagManagerInjection script="noscript" />
 
-      <div className="font-inter h-full">{outlet}</div>
+      <AuthProvider>
+        <div className="font-inter h-full">{outlet}</div>
+      </AuthProvider>
 
       <HotjarInjection />
       <GoogleTagManagerInjection script="script" />
