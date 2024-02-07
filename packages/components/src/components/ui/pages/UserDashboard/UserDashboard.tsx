@@ -28,6 +28,7 @@ export interface UserDashboardProps extends React.HTMLAttributes<HTMLDivElement>
   systemError?: SystemError
   isSystemErrorOpen?: boolean
   onCloseSystemError?: () => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const UserDashboard: React.FC<UserDashboardProps> = ({
@@ -48,6 +49,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
   systemError,
   isSystemErrorOpen = false,
   onCloseSystemError,
+  onPageSizeChange,
 }) => {
   const handlOnCloseSystemErrorModal = () => {
     if (onCloseSystemError) {
@@ -115,6 +117,7 @@ const UserDashboard: React.FC<UserDashboardProps> = ({
             onUserClicked={onUserClicked}
             selectedUserId={selectedUserId}
             onResendInvitation={onResendInvitation}
+            onPageSizeChange={onPageSizeChange}
           />
         </div>
 

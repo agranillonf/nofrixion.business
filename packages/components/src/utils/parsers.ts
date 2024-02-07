@@ -100,6 +100,7 @@ const remotePaymentRequestToLocalPaymentRequest = (
     amountReceived,
     amountRefunded,
     amountPending,
+    orderID,
   } = remotePaymentRequest
 
   const parseApiStatusToLocalStatus = (status: PaymentResult): LocalPaymentStatus => {
@@ -351,7 +352,42 @@ const remotePaymentRequestToLocalPaymentRequest = (
           currency: paymentAttempt.currency,
         })
       }
+
+      if (paymentAttempt.pispAuthorisationFailedAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.AuthenticationFailure,
+          occurredAt: new Date(paymentAttempt.pispAuthorisationFailedAt),
+          currency: paymentAttempt.currency,
+        })
+      }
     }
+
+    if (paymentAttempt.paymentMethod === PaymentMethodTypes.Lightning) {
+      if (paymentAttempt.initiatedAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.InvoiceCreated,
+          occurredAt: new Date(paymentAttempt.initiatedAt),
+          currency: paymentAttempt.currency,
+        })
+      }
+
+      if (paymentAttempt.settledAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.InvoicePaid,
+          occurredAt: new Date(paymentAttempt.settledAt),
+          currency: paymentAttempt.currency,
+        })
+      }
+
+      if (paymentAttempt.settleFailedAt) {
+        events.push({
+          eventType: LocalPaymentAttemptEventType.InvoiceExpired,
+          occurredAt: new Date(paymentAttempt.settleFailedAt),
+          currency: paymentAttempt.currency,
+        })
+      }
+    }
+
     return events.sort((a, b) => {
       return new Date(b.occurredAt).getTime() - new Date(a.occurredAt).getTime()
     })
@@ -432,7 +468,8 @@ const remotePaymentRequestToLocalPaymentRequest = (
       remotePaymentAttempt.status === PaymentResult.None &&
       (remotePaymentAttempt.settleFailedAt ||
         remotePaymentAttempt.cardAuthoriseFailedAt ||
-        remotePaymentAttempt.cardPayerAuthenticationSetupFailedAt)
+        remotePaymentAttempt.cardPayerAuthenticationSetupFailedAt ||
+        remotePaymentAttempt.pispAuthorisationFailedAt)
     ) {
       return 'failed'
     }
@@ -499,6 +536,7 @@ const remotePaymentRequestToLocalPaymentRequest = (
             cardAuthoriseFailedAt,
             cardPayerAuthenticationSetupFailedAt,
             settleFailedAt,
+            pispAuthorisationFailedAt,
           } = remotePaymentAttempt
 
           const events = extractEventsFromPaymentAttempt(remotePaymentRequest, remotePaymentAttempt)
@@ -536,6 +574,9 @@ const remotePaymentRequestToLocalPaymentRequest = (
             displayStatus: getPaymentAttemptStatus(remotePaymentAttempt),
             events: events,
             latestEventOccurredAt: latestEventOccurredAt,
+            pispAuthorisationFailedAt: pispAuthorisationFailedAt
+              ? new Date(pispAuthorisationFailedAt)
+              : undefined,
           })
         })
       return localPaymentAttempts
@@ -583,6 +624,7 @@ const remotePaymentRequestToLocalPaymentRequest = (
       : undefined,
     merchantTokenDescription: remotePaymentRequest.merchantTokenDescription,
     remoteStatus: remotePaymentRequest.status,
+    orderID: orderID,
   }
 }
 
@@ -1057,6 +1099,7 @@ const localInvoicesToRemoteInvoices = (
 
 const localInvoiceToRemoteInvoice = (localInvoicePayment: LocalInvoice): Invoice => {
   const {
+    Id,
     InvoiceNumber,
     PaymentTerms,
     InvoiceDate,
@@ -1070,27 +1113,26 @@ const localInvoiceToRemoteInvoice = (localInvoicePayment: LocalInvoice): Invoice
     Discounts,
     Taxes,
     TotalAmount,
-    OutstandingAmount,
     InvoiceStatus,
     Reference,
     RemittanceEmail,
   } = localInvoicePayment
 
   return {
+    id: Id,
     invoiceNumber: InvoiceNumber,
     paymentTerms: PaymentTerms,
     invoiceDate: new Date(InvoiceDate),
     dueDate: new Date(DueDate),
     contact: Contact,
-    destinationIban: DestinationIban ? DestinationIban : undefined,
-    destinationAccountNumber: DestinationAccountNumber ? DestinationAccountNumber : undefined,
-    destinationSortCode: DestinationSortCode ? DestinationSortCode : undefined,
+    destinationIban: DestinationIban,
+    destinationAccountNumber: DestinationAccountNumber?.toString(),
+    destinationSortCode: DestinationSortCode?.toString(),
     currency: Currency,
-    subtotal: Subtotal ? parseFloat(Subtotal) : undefined,
-    discounts: Discounts ? parseFloat(Discounts) : undefined,
-    taxes: Taxes ? parseFloat(Taxes) : undefined,
-    totalAmount: TotalAmount ? parseFloat(TotalAmount) : undefined,
-    outstandingAmount: OutstandingAmount ? parseFloat(OutstandingAmount) : undefined,
+    subtotal: Subtotal,
+    discounts: Discounts,
+    taxes: Taxes,
+    totalAmount: TotalAmount,
     invoiceStatus: InvoiceStatus,
     reference: Reference,
     remittanceEmail: RemittanceEmail,

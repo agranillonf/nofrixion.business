@@ -20,7 +20,7 @@ export const PayoutAuthoriseForm = ({
   return (
     <form action="/approve/initiate" ref={formRef} className={className}>
       <input type="hidden" name="approveType" value={approveType} />
-      <input type="hidden" name="callerBaseUrl" value={getRoute('/home/payouts/')} />
+      <input type="hidden" name="callerBaseUrl" value={getRoute('/home/accounts-payable/')} />
       <input type="hidden" name="id" value={id} />
       <Button
         variant="primary"

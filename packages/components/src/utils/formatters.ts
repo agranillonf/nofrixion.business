@@ -31,11 +31,17 @@ const formatDate = (date: Date): string => {
   return formatDistanceToNowStrict(date, { addSuffix: true })
 }
 
-const formatDateWithYear = (date: Date): string => {
-  if (isSameYear(date, new Date())) {
-    return format(date, 'MMM do')
+const formatDateWithYear = (
+  date: Date,
+  type: 'ordinal' | 'cardinal' = 'ordinal',
+  alwaysIncludeYear: boolean = false,
+): string => {
+  const dayFormat = type == 'cardinal' ? 'd' : 'do'
+
+  if (isSameYear(date, new Date()) && !alwaysIncludeYear) {
+    return format(date, `MMM ${dayFormat}`)
   } else {
-    return format(date, 'MMM do, yyyy')
+    return format(date, `MMM ${dayFormat}, yyyy`)
   }
 }
 

@@ -76,6 +76,9 @@ export enum LocalPaymentAttemptEventType {
   Voided = 'Voided',
   RefundAwaitingAuthorisation = 'refund awaiting authorisation',
   BankPaymentInitiated = 'Bank payment initiated',
+  InvoicePaid = 'Invoice paid',
+  InvoiceCreated = 'Invoice created',
+  InvoiceExpired = '  Invoice expired',
 }
 
 export enum LocalPaymentAttemptStatus {
@@ -86,4 +89,22 @@ export enum LocalPaymentAttemptStatus {
   Failed = 'Failed',
   Refunded = 'Refunded',
   PartiallyRefunded = 'Partially refunded',
+}
+
+export enum LocalPaymentRequestTableColumns {
+  Created = 'Created',
+  For = 'For',
+  Requested = 'Requested',
+  Paid = 'Paid',
+  PaymentAttempts = 'PaymentAttempts',
+  PaymentRequestId = 'PaymentRequestId',
+  OrderId = 'OrderId',
+  Tags = 'Tags',
+}
+
+export enum LocalTableIds {
+  PaymentRequestsTable = 'PaymentRequestTable',
+  PayoutsTable = 'PayoutsTable',
+  UsersTable = 'UsersTable',
+  TransactionsTable = 'TransactionsTable',
 }

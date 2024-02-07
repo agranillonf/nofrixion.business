@@ -1,13 +1,17 @@
 import classNames from 'classnames'
 import { useEffect, useState } from 'react'
 
+import { Icon } from '../atoms'
+import PageSizesDropdown from '../molecules/PageSizesDropdown/PageSizesDropdown'
+
 export interface PagerProps {
   pageSize: number
   totalRecords: number
   onPageChange: (pageNumber: number) => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
-const Pager = ({ pageSize, totalRecords, onPageChange }: PagerProps) => {
+const Pager = ({ pageSize, totalRecords, onPageChange, onPageSizeChange }: PagerProps) => {
   const getToRecord = () => {
     if (pageSize > totalRecords) {
       return totalRecords
@@ -21,21 +25,29 @@ const Pager = ({ pageSize, totalRecords, onPageChange }: PagerProps) => {
   const [toRecord, setToRecord] = useState(getToRecord())
   const [totalPages, setTotalPages] = useState(Math.ceil(totalRecords / pageSize))
 
-  useEffect(() => {
+  const reset = (page: number) => {
     setTotalPages(Math.ceil(totalRecords / pageSize))
 
-    if (currentPage <= 1) {
+    if (page <= 1) {
       setFromRecord(1)
       setToRecord(getToRecord())
-    } else if (currentPage < totalPages) {
-      setFromRecord(pageSize * currentPage - pageSize + 1)
-      setToRecord(pageSize * currentPage)
+    } else if (page < totalPages) {
+      setFromRecord(pageSize * page - pageSize + 1)
+      setToRecord(pageSize * page)
     } else {
-      setFromRecord(pageSize * currentPage - pageSize + 1)
+      setFromRecord(pageSize * page - pageSize + 1)
       setToRecord(totalRecords)
     }
 
-    onPageChange(currentPage)
+    onPageChange(page)
+  }
+  useEffect(() => {
+    if (pageSize > totalRecords) {
+      setCurrentPage(1)
+      reset(1)
+    } else {
+      reset(currentPage)
+    }
   }, [currentPage, pageSize, totalRecords, totalPages, toRecord, fromRecord])
 
   useEffect(() => {
@@ -46,6 +58,14 @@ const Pager = ({ pageSize, totalRecords, onPageChange }: PagerProps) => {
       setCurrentPage(1)
     }
   }, [totalRecords])
+
+  const goToBeginning = async () => {
+    setCurrentPage(1)
+  }
+
+  const goToEnd = async () => {
+    setCurrentPage(totalPages)
+  }
 
   const decrementPageNumber = async () => {
     if (currentPage <= 1) {
@@ -62,43 +82,40 @@ const Pager = ({ pageSize, totalRecords, onPageChange }: PagerProps) => {
   }
 
   const svgClassNames = (show: boolean) => {
-    return classNames('h-3 w-3 mt-1 ml-1 stroke-control-grey', {
-      'cursor-pointer hover:stroke-control-grey-hover': show,
+    return classNames('text-[#E3E5E8] disabled cursor-default', {
+      'cursor-pointer text-[#ABB2BA] hover:text-[#454D54]': show,
     })
   }
 
   return (
-    <div className="flex space-x-1 text-[#73808C] text-sm justify-end whitespace-nowrap select-none">
-      <div>
-        {fromRecord}-{toRecord}
+    <div className="flex flex-row items-center justify-between">
+      <div className="flex flex-row items-center gap-2">
+        <PageSizesDropdown pageSize={pageSize} onPageSizeChange={onPageSizeChange} />
+        <span className="text-grey-text text-[0.813rem]">per page</span>
       </div>
-      <div>of</div>
-      <div>{totalRecords}</div>
-      <div>
-        <svg
-          className={svgClassNames(currentPage > 1)}
-          width="7"
-          height="13"
-          viewBox="0 0 7 13"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={() => decrementPageNumber()}
-        >
-          <path d="M6.5 0.5L0.5 6.5L6.5 12.5" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
-      </div>
-      <div>
-        <svg
-          className={svgClassNames(currentPage < totalPages)}
-          width="8"
-          height="13"
-          viewBox="0 0 8 13"
-          fill="none"
-          xmlns="http://www.w3.org/2000/svg"
-          onClick={() => incrementPageNumber()}
-        >
-          <path d="M1 12.5L7 6.5L0.999999 0.500001" strokeLinecap="round" strokeLinejoin="round" />
-        </svg>
+
+      <div className="flex items-center text-[#73808C] text-sm justify-end whitespace-nowrap select-none">
+        <div className="mr-4 flex flex-row gap-1">
+          <div className="text-default-text text-[0.813rem] ">
+            {fromRecord}-{toRecord}
+          </div>
+          <div>of</div>
+          <div>{totalRecords}</div>
+        </div>
+        <div className="flex flex-row gap-1">
+          <button onClick={() => goToBeginning()} className="ml-0">
+            <Icon name="begin-arrow/12" className={svgClassNames(currentPage > 1)} />
+          </button>
+          <button onClick={() => decrementPageNumber()}>
+            <Icon name="left-arrow/12" className={svgClassNames(currentPage > 1)} />
+          </button>
+          <button onClick={() => incrementPageNumber()}>
+            <Icon name="right-arrow/12" className={svgClassNames(currentPage < totalPages)} />
+          </button>
+          <button onClick={() => goToEnd()}>
+            <Icon name="end-arrow/12" className={svgClassNames(currentPage < totalPages)} />
+          </button>
+        </div>
       </div>
     </div>
   )

@@ -1,22 +1,16 @@
 import { Pagination, PayoutMetrics, PayoutStatus } from '@nofrixion/moneymoov'
 import * as Tabs from '@radix-ui/react-tabs'
 import { set } from 'date-fns'
-import { AnimatePresence } from 'framer-motion'
-import { useState } from 'react'
 
 import { LocalPayout, SystemError } from '../../../../types/LocalTypes'
 import { DoubleSortByPayouts } from '../../../../types/Sort'
-import { Button, Icon } from '../../atoms'
 import DashboardTab from '../../DashboardTab/DashboardTab'
 import { DateRange } from '../../DateRangePicker/DateRangePicker'
 import FilterControlsRow from '../../FilterControlsRow/FilterControlsRow'
-import { Loader } from '../../Loader/Loader'
 import SystemErrorModal from '../../Modals/SystemErrorModal/SystemErrorModal'
 import { PayoutsTable } from '../../organisms/PayoutsTable/PayoutsTable'
 import ScrollArea from '../../ScrollArea/ScrollArea'
 import { FilterableTag } from '../../TagFilter/TagFilter'
-import { Toaster } from '../../Toast/Toast'
-import LayoutWrapper from '../../utils/LayoutWrapper'
 
 export interface PayoutDashboardProps extends React.HTMLAttributes<HTMLDivElement> {
   payouts: LocalPayout[] | undefined
@@ -32,9 +26,9 @@ export interface PayoutDashboardProps extends React.HTMLAttributes<HTMLDivElemen
   onPageChange: (page: number) => void
   onSort: (sortInfo: DoubleSortByPayouts) => void
   sortBy: DoubleSortByPayouts
+  dateRange: DateRange
   onDateChange: (dateRange: DateRange) => void
   onSearch: (searchFilter: string) => void
-  onCreatePayout: () => void
   setStatus?: (status: PayoutStatus) => void
   setCurrency?: (currency?: string) => void
   setMinAmount?: (minAmount?: number) => void
@@ -48,12 +42,12 @@ export interface PayoutDashboardProps extends React.HTMLAttributes<HTMLDivElemen
   onAddPayoutForAuthorise: (payoutId: string) => void
   onRemovePayoutForAuthorise: (payoutId: string) => void
   selectedPayouts: string[]
-  onApproveBatchPayouts: () => void
   payoutsExist: boolean
   isUserAuthoriser: boolean
   systemError?: SystemError
   isSystemErrorOpen?: boolean
   onCloseSystemError?: () => void
+  onPageSizeChange: (pageSize: number) => void
 }
 
 const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
@@ -62,11 +56,11 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
   pagination,
   searchFilter,
   merchantCreatedAt,
+  dateRange,
   onDateChange,
   onSearch,
   onPageChange,
   onSort,
-  onCreatePayout,
   setStatus,
   currency,
   setCurrency,
@@ -85,15 +79,13 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
   onAddPayoutForAuthorise,
   onRemovePayoutForAuthorise,
   selectedPayouts,
-  onApproveBatchPayouts,
   payoutsExist,
   isUserAuthoriser,
   systemError,
   isSystemErrorOpen = false,
   onCloseSystemError,
+  onPageSizeChange,
 }) => {
-  const [isApproveButtonDisabled, setIsApproveButtonDisabled] = useState(false)
-
   /// Only show the total amount if there are payouts
   /// with the specified timeframe and currency, no matter the status,
   /// unless there are no payouts at all for the specified status.
@@ -112,11 +104,6 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
     }
   }
 
-  const handleApproveBatchPayouts = async () => {
-    setIsApproveButtonDisabled(true)
-    onApproveBatchPayouts()
-  }
-
   const handlOnCloseSystemErrorModal = () => {
     if (onCloseSystemError) {
       onCloseSystemError()
@@ -126,46 +113,9 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
   return (
     <>
       <div className="font-inter bg-main-grey text-default-text h-full">
-        <div className="flex gap-8 justify-between items-center mb-8 md:mb-[68px] md:px-4">
-          <span className="leading-8 font-medium text-2xl md:text-[1.75rem]">Payouts</span>
-          <div className="flex">
-            {isUserAuthoriser && (
-              <div className="mr-4">
-                <AnimatePresence>
-                  {selectedPayouts && selectedPayouts.length > 1 && (
-                    <LayoutWrapper layout={'preserve-aspect'}>
-                      <Button
-                        variant={'secondary'}
-                        size="large"
-                        onClick={handleApproveBatchPayouts}
-                        className="space-x-2 w-fit h-10 md:w-full md:h-full transition-all ease-in-out duration-200 disabled:!bg-grey-text disabled:!opacity-100 disabled:cursor-not-allowed"
-                        disabled={isApproveButtonDisabled}
-                      >
-                        {isApproveButtonDisabled ? (
-                          <Loader className="h-6 w-6 mx-[77px]" />
-                        ) : (
-                          <>
-                            <Icon name="authorise/16" />
-                            <span className="hidden md:inline-block">
-                              Authorise {selectedPayouts.length} pending
-                            </span>
-                          </>
-                        )}
-                      </Button>
-                    </LayoutWrapper>
-                  )}
-                </AnimatePresence>
-              </div>
-            )}
-            <Button size="large" onClick={onCreatePayout} className="w-10 h-10 md:w-full md:h-full">
-              <span className="hidden md:inline-block">Create payout</span>
-              <Icon name="add/16" className="md:hidden" />
-            </Button>
-          </div>
-        </div>
-
         <div className="mb-4">
           <FilterControlsRow
+            dateRange={dateRange}
             setDateRange={onDateChange}
             searchFilter={searchFilter}
             setSearchFilter={onSearch}
@@ -259,6 +209,7 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
             payoutsExist={payoutsExist}
             isLoadingMetrics={isLoadingMetrics}
             isUserAuthoriser={isUserAuthoriser}
+            onPageSizeChange={onPageSizeChange}
           />
         </div>
 
@@ -269,8 +220,6 @@ const PayoutDashboard: React.FC<PayoutDashboardProps> = ({
           message={systemError?.message}
           onDismiss={handlOnCloseSystemErrorModal}
         />
-
-        <Toaster positionY="top" positionX="right" duration={3000} />
       </div>
     </>
   )

@@ -125,6 +125,8 @@ export type UserRoleCreate = {
 }
 
 export interface Invoice {
+  id: string
+  name?: string
   invoiceNumber?: string
   paymentTerms?: string
   invoiceDate: Date
@@ -133,13 +135,19 @@ export interface Invoice {
   destinationIban?: string
   destinationAccountNumber?: string
   destinationSortCode?: string
-  currency: string
+  currency: Currency
   subtotal?: number
   discounts?: number
   taxes?: number
   totalAmount?: number
-  outstandingAmount?: number
   invoiceStatus?: string
   reference?: string
   remittanceEmail?: string
+}
+
+export interface PayrunCreate {
+  merchantID: string
+  name?: string
+  invoices: Invoice[]
+  totalAmount: number
 }

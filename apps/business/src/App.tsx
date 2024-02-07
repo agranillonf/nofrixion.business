@@ -7,13 +7,13 @@ import { ProtectedRoutes } from './lib/auth/ProtectedRoutes'
 import { RoleProtectedRoute } from './lib/auth/RoleProtectedRoute'
 import { getRoute } from './lib/utils/utils'
 import AccountPayablePage from './pages/accounts-payable/page'
+import PayrunDetailsPage from './pages/accounts-payable/payrun'
 import AccountReceivablePage from './pages/accounts-receivable/page'
 import AccountDashboardPage from './pages/current-accounts/account-dashboard'
 import CurrentAccountsPage from './pages/current-accounts/page'
 import DashboardPage from './pages/dashboard/page'
 import Layout from './pages/layout'
 import NotFound from './pages/NotFound'
-import PayoutsPage from './pages/payouts/page'
 import PricingPage from './pages/pricing/page'
 import UsersPage from './pages/users/page'
 import Root from './root'
@@ -34,6 +34,12 @@ export const App = () => {
               <Route element={<RoleProtectedRoute />}>
                 <Route path="accounts-payable" element={<AccountPayablePage />} />
               </Route>
+              <Route element={<RoleProtectedRoute />}>
+                <Route path="accounts-payable/payruns/:payrunId" element={<PayrunDetailsPage />} />
+              </Route>
+              <Route element={<RoleProtectedRoute />}>
+                <Route path="accounts-payable/:payoutId/:result" element={<AccountPayablePage />} />
+              </Route>
               <Route
                 element={
                   <RoleProtectedRoute minimumRequiredRole={LocalUserRoles.PaymentRequestor} />
@@ -53,13 +59,6 @@ export const App = () => {
               </Route>
               <Route element={<RoleProtectedRoute />}>
                 <Route path="current-accounts/:accountId" element={<AccountDashboardPage />} />
-              </Route>
-              {/* Payouts */}
-              <Route element={<RoleProtectedRoute />}>
-                <Route path="payouts" element={<PayoutsPage />} />
-              </Route>
-              <Route element={<RoleProtectedRoute />}>
-                <Route path="payouts/:payoutId/:result" element={<PayoutsPage />} />
               </Route>
               {/* User management */}
               <Route

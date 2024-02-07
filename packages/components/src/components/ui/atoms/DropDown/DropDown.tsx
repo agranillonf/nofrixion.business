@@ -15,6 +15,8 @@ const DropdownMenuSub = DropdownMenuPrimitive.Sub
 
 const DropdownMenuRadioGroup = DropdownMenuPrimitive.RadioGroup
 
+const DropdownMenuCheckboxItem = DropdownMenuPrimitive.CheckboxItem
+
 const itemClassname =
   'text-sm/8 flex select-none outline-none cursor-pointer py-2 data-[disabled]:opacity-50 data-[disabled]:cursor-not-allowed'
 
@@ -91,12 +93,8 @@ DropdownMenuItem.displayName = DropdownMenuPrimitive.Item.displayName
 
 export {
   DropdownMenu,
+  DropdownMenuCheckboxItem,
   DropdownMenuContent,
-  //   DropdownMenuCheckboxItem,
-  //   DropdownMenuRadioItem,
-  //   DropdownMenuLabel,
-  //   DropdownMenuSeparator,
-  //   DropdownMenuShortcut,
   DropdownMenuGroup,
   DropdownMenuItem,
   DropdownMenuPortal,

@@ -5,7 +5,6 @@ import { LocalAccount } from '../../../../../types/LocalTypes'
 import { cn } from '../../../../../utils'
 import { formatAmount } from '../../../../../utils/formatters'
 import { formatCurrency } from '../../../../../utils/uiFormaters'
-// import { cn } from '../../../../../utils'
 import {
   Select,
   SelectContent,
@@ -45,14 +44,12 @@ const SelectAccount: React.FC<SelectAccountPros> = ({
             <div className="w-full flex justify-between align-middle">
               {account && (
                 <>
-                  <span className="break-keep">
+                  <span className="break-keep truncate">
                     {accounts.find((x) => x.id === value)?.accountName}
                   </span>
-                  <span className="text-[#73888C]">
+                  <span className="text-[#73888C] whitespace-nowrap">
                     {account && formatCurrency(account.currency)}{' '}
-                    <span className="tabular-nums">
-                      {account && formatAmount(account.availableBalance)}
-                    </span>
+                    <span>{account && formatAmount(account.availableBalance)}</span>
                   </span>
                 </>
               )}
@@ -67,8 +64,8 @@ const SelectAccount: React.FC<SelectAccountPros> = ({
         {accounts.map((account) => (
           <SelectItem key={account.id} value={account.id} isText={false}>
             <div className="w-full flex justify-between">
-              <span className="break-keep">{account.accountName}</span>
-              <span className="text-[#73888C] font-normal">
+              <span className="break-keep truncate pr-2">{account.accountName}</span>
+              <span className="text-[#73888C] font-normal whitespace-nowrap tabular-nums">
                 {formatCurrency(account.currency)} {formatAmount(account.availableBalance)}
               </span>
             </div>

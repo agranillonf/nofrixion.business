@@ -16,6 +16,7 @@ export interface CustomModalProps extends BaseModalProps {
   showSupport?: boolean
   contentClassName?: string
   onUseAsDefaultChanged?: (isDefaultChecked: boolean) => void
+  scrollableContent?: boolean
 }
 
 export interface BaseModalProps {
@@ -23,6 +24,7 @@ export interface BaseModalProps {
   onApply?: (data: any) => void
   onDismiss: () => void
   showDefault?: boolean
+  showFooter?: boolean
 }
 
 interface CustomModalState {
@@ -43,6 +45,8 @@ const CustomModal = ({
   showSupport = false,
   contentClassName = 'max-w-md',
   onUseAsDefaultChanged,
+  showFooter = true,
+  scrollableContent = false,
 }: CustomModalProps) => {
   const [isDefaultChecked, setIsDefaultChecked] = useState<boolean>(false)
   const [currentState, setCurrentState] = useState<CustomModalState>()
@@ -102,16 +106,24 @@ const CustomModal = ({
                 animate={{ opacity: 1, scale: 1 }}
                 exit={{ opacity: 0, scale: 0.95 }}
                 transition={{ duration: 0.2 }}
+                className="flex flex-col h-full overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all"
               >
-                <div className="flex flex-col min-h-full justify-center overflow-hidden rounded-lg bg-white text-left align-middle shadow-xl transition-all">
-                  {title && (
-                    <Dialog.Title asChild>
-                      <h3 className="text-2xl font-semibold leading-8 md:leading-6 p-6 md:p-12 md:pb-8 md:pt-0 mt-12">
-                        {title}
-                      </h3>
-                    </Dialog.Title>
-                  )}
-                  <div className="px-6 md:px-12">{children}</div>
+                {title && (
+                  <Dialog.Title asChild>
+                    <h3 className="text-2xl font-semibold leading-8 md:leading-6 p-6 md:p-12 md:pb-8 md:pt-0 mt-12">
+                      {title}
+                    </h3>
+                  </Dialog.Title>
+                )}
+                <div
+                  className={cn('px-6 md:px-12', {
+                    'pb-12': !showFooter,
+                    'max-h-full overflow-y-auto': scrollableContent,
+                  })}
+                >
+                  {children}
+                </div>
+                {showFooter && (
                   <div
                     className={cn(
                       buttonRowClassName,
@@ -150,16 +162,16 @@ const CustomModal = ({
                       {buttonText}
                     </Button>
                   </div>
-                </div>
-                <Dialog.Close asChild>
-                  <button className="absolute top-0 right-0 mt-6 mr-6" onClick={handleOnDismiss}>
-                    <Icon
-                      name="close/16"
-                      className="w-4 h-4 transition stroke-control-grey hover:stroke-control-grey-hover"
-                    />
-                  </button>
-                </Dialog.Close>
+                )}
               </motion.div>
+              <Dialog.Close asChild>
+                <button className="absolute top-0 right-0 mt-6 mr-6" onClick={handleOnDismiss}>
+                  <Icon
+                    name="close/16"
+                    className="w-4 h-4 transition stroke-control-grey hover:stroke-control-grey-hover"
+                  />
+                </button>
+              </Dialog.Close>
             </Dialog.Content>
           </Dialog.Portal>
         )}

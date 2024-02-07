@@ -1,49 +1,54 @@
 import { Dialog, Transition } from '@headlessui/react'
+import { AnimatePresence, motion } from 'framer-motion'
 import { parse, ParseResult } from 'papaparse'
 import { Fragment, useEffect, useState } from 'react'
 
 import { LocalInvoice, ValidationResult } from '../../../../types/LocalTypes'
 import { validateInvoices } from '../../../../utils/validation'
+import { Button, Icon } from '../../atoms'
 import FileInput from '../../atoms/FileInput/FileInput'
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '../../atoms/Tabs/Tabs'
+import CustomModal from '../../CustomModal/CustomModal'
+import ImportInvoiceTable from '../../organisms/ImportInvoiceTable/ImportInvoiceTable'
 import BackArrow from '../../utils/BackArrow'
 
 export interface ImportInvoiceModalProps {
   isOpen: boolean
   onClose: () => void
+  onImport: (invoices: LocalInvoice[]) => void
 }
 
-const ImportInvoiceModal = ({ isOpen, onClose }: ImportInvoiceModalProps) => {
+const ImportInvoiceModal = ({ isOpen, onClose, onImport }: ImportInvoiceModalProps) => {
   const [validationResults, setValidationResults] = useState<ValidationResult[] | null>(null)
-  const [json, setJson] = useState<any>(null)
-  const [isError, setIsError] = useState(false)
+  const [invoices, setInvoices] = useState<LocalInvoice[] | undefined>()
+  const [hasUploadError, setHasUploadError] = useState(false)
   const [selectedTab, setSelectedTab] = useState<'upload' | 'review'>('upload')
   const [isLoading, setIsLoading] = useState(false)
+  const [selectedInvoices, setSelectedInvoices] = useState<string[]>([])
+  const [showErrorModal, setShowErrorModal] = useState(false)
+  const [fileName, setFilename] = useState<string>()
+
+  const linesWithErrors = validationResults?.filter((result) => !result.valid)
+
+  // Show error warning if user uploaded a file but there are no invoices
+  // or if there are invoices but there are lines with errors
+  const displayErrorWarning =
+    (fileName && (!invoices || invoices.length == 0)) ||
+    (linesWithErrors && linesWithErrors.length > 0)
 
   useEffect(() => {
-    if (!validationResults) {
-      return
+    if (isOpen) {
+      setSelectedTab('upload')
+      setFilename(undefined)
+      setValidationResults([])
+      setInvoices(undefined)
+      setSelectedInvoices([])
     }
-
-    // Temporary for displaying validation results
-    setJson(JSON.stringify(validationResults, null, 2))
-    console.log('-------------------------------')
-    console.log('Valid results')
-    console.log('-------------------------------')
-    console.log(JSON.stringify(validationResults?.filter((result) => result.valid)))
-
-    console.log('-------------------------------')
-    console.log('Invalid results')
-    console.log('-------------------------------')
-    console.error(validationResults?.filter((result) => !result.valid))
-
-    setIsLoading(false)
-    setSelectedTab('review')
-  }, [validationResults])
+  }, [isOpen])
 
   const handleFileAdded = (file: File) => {
     if (file && file.type != 'text/csv') {
-      setIsError(true)
+      setHasUploadError(true)
       setIsLoading(false)
       return
     }
@@ -59,18 +64,52 @@ const ImportInvoiceModal = ({ isOpen, onClose }: ImportInvoiceModalProps) => {
         parse(reader.result as string, {
           header: true,
           skipEmptyLines: true,
+          transform: (value: string) => (value == '' ? undefined : value),
           complete: (results: ParseResult<LocalInvoice>) => {
-            const validationResults = validateInvoices(results.data as LocalInvoice[])
-
+            const validationResults = validateInvoices(results.data)
             setValidationResults(validationResults)
+
+            // If there's at least one valid invoice, set the valid invoice(s)
+            const validResults = validationResults
+              .filter((result) => result.valid)
+              .map((result) => result.result)
+
+            setInvoices(validResults)
+
+            // Select all valid invoices
+            setSelectedInvoices(validResults.map((invoice) => invoice.InvoiceNumber))
+
+            setIsLoading(false)
+
+            // Only set the tab to review if there's at least one valid invoice
+            if (validResults.length > 0) {
+              setSelectedTab('review')
+            }
+
+            setFilename(file.name)
           },
-          error: (err: any) => {
-            console.error('PARSE ERROR', err)
-            setIsError(true)
+          error: () => {
+            setIsLoading(false)
+            setHasUploadError(true)
           },
         })
       }
     }
+  }
+
+  const onRemoveFile = () => {
+    setFilename(undefined)
+    setValidationResults([])
+    setInvoices(undefined)
+    setSelectedInvoices([])
+  }
+
+  const onImportInvoices = () => {
+    const invoicesToImport = invoices?.filter((invoice) =>
+      selectedInvoices?.includes(invoice.InvoiceNumber),
+    )
+
+    onImport(invoicesToImport ?? [])
   }
 
   return (
@@ -86,27 +125,51 @@ const ImportInvoiceModal = ({ isOpen, onClose }: ImportInvoiceModalProps) => {
             leaveFrom="opacity-100 scale-100"
             leaveTo="opacity-0 scale-95"
           >
-            <Dialog.Panel className="w-full transform bg-white text-left align-middle transition-all min-h-screen lg:px-0 lg:flex">
-              <div className="flex flex-row mt-[80px] w-full">
+            <Dialog.Panel className="w-full transform bg-white text-left align-middle transition-all min-h-screen lg:px-0 lg:flex fixed inset-0 overflow-y-auto z-50">
+              <div className="flex min-h-full flex-row pt-[80px] w-full">
                 <BackArrow
                   intent="close"
                   onClick={() => {
                     onClose()
                   }}
                 />
-                <div className="flex flex-col w-full -mt-2 pr-[122px]">
+                <div className="-mt-1 ml-[2.875rem] w-full pr-[7.625rem]">
                   <Dialog.Title
                     as="h3"
-                    className="text-[28px] font-semibold inline-block text-clip md:whitespace-nowrap -mr-6 ml-11 h-fit flex-nowrap"
+                    className="text-[28px]/8 font-semibold text-clip md:whitespace-nowrap flex-nowrap flex justify-between h-10"
                   >
                     Import invoices
+                    <AnimatePresence>
+                      {selectedInvoices?.length > 0 && selectedTab == 'review' && (
+                        <motion.div
+                          initial={{ opacity: 0 }}
+                          animate={{ opacity: 1 }}
+                          exit={{ opacity: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          <Button
+                            size="large"
+                            onClick={onImportInvoices}
+                            className="w-10 h-10 md:w-full md:h-12"
+                          >
+                            <span className="hidden md:inline-block">
+                              Import{' '}
+                              {selectedInvoices.length == 1
+                                ? 'invoice'
+                                : `${selectedInvoices.length} invoices`}
+                            </span>
+                            <Icon name="add/16" className="md:hidden" />
+                          </Button>
+                        </motion.div>
+                      )}
+                    </AnimatePresence>
                   </Dialog.Title>
 
-                  <Tabs value={selectedTab} defaultValue="upload" className="w-full ml-11 mt-14">
-                    <TabsList>
+                  <Tabs value={selectedTab} defaultValue="upload" className="w-full mt-14">
+                    <TabsList className="h-10 flex justify-normal">
                       <TabsTrigger
                         value="upload"
-                        className="first:rounded-l-md last:rounded-r-md text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg  data-[state=active]:text-default-text"
+                        className="rounded-l-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
                         onClick={() => setSelectedTab('upload')}
                       >
                         <div className="pr-4">1</div>
@@ -114,33 +177,159 @@ const ImportInvoiceModal = ({ isOpen, onClose }: ImportInvoiceModalProps) => {
                       </TabsTrigger>
                       <TabsTrigger
                         value="review"
-                        className="first:rounded-l-md last:rounded-r-md text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg  data-[state=active]:text-default-text"
+                        className="rounded-r-md text-default-text disabled:text-grey-text font-medium bg-main-grey transition-all focus-visible:outline-none disabled:pointer-events-none data-[state=active]:bg-information-bg h-full"
                         onClick={() => setSelectedTab('review')}
-                        disabled={true}
+                        disabled={fileName == undefined || !invoices || invoices?.length == 0}
                       >
                         <div className="pr-4">2</div>
                         <div>Review and import</div>
                       </TabsTrigger>
+                      <AnimatePresence>
+                        {displayErrorWarning && (
+                          <motion.div
+                            className="bg-error-bg p-3 flex rounded ml-auto h-11"
+                            initial={{ opacity: 0 }}
+                            animate={{ opacity: 1 }}
+                            exit={{ opacity: 0 }}
+                            transition={{ duration: 0.2 }}
+                          >
+                            <span className="text-sm">
+                              {invoices && invoices.length == 0 && (
+                                <>
+                                  {
+                                    'No valid invoices could be loaded. Please make sure you are using the right '
+                                  }
+                                  <a
+                                    // TODO: Replace with actual link
+                                    href="https://google.com"
+                                    target="_blank"
+                                    rel="noreferrer"
+                                    className="underline"
+                                  >
+                                    template
+                                  </a>
+                                  {'.'}
+                                </>
+                              )}
+
+                              {invoices &&
+                                invoices.length > 0 &&
+                                linesWithErrors &&
+                                linesWithErrors.length > 0 && (
+                                  <>
+                                    <span className="font-bold">{linesWithErrors.length}</span>{' '}
+                                    {linesWithErrors.length == 1 ? 'entry' : 'entries'} not included
+                                    because {linesWithErrors.length == 1 ? 'it has' : 'they have'}{' '}
+                                    errors.{' '}
+                                    <button
+                                      onClick={() => setShowErrorModal(true)}
+                                      className="underline"
+                                    >
+                                      Show details
+                                    </button>
+                                  </>
+                                )}
+                            </span>
+                          </motion.div>
+                        )}
+                      </AnimatePresence>
                     </TabsList>
                     <TabsContent value="upload" className="w-full">
-                      <div className="ml-1 pt-12 pr-10">
+                      <div className="pt-12">
                         <FileInput
                           onFileAdded={handleFileAdded}
-                          isError={isError}
-                          setIsError={setIsError}
+                          isError={hasUploadError}
+                          setIsError={setHasUploadError}
                           isLoading={isLoading}
                           setIsLoading={setIsLoading}
-                        />
+                        >
+                          {fileName && (
+                            <div className="flex flex-col justify-center items-center">
+                              <div className="flex gap-x-4 items-center">
+                                <span className="text-base/5 font-semibold">{fileName}</span>
+                                <button onClick={onRemoveFile}>
+                                  <Icon name="delete/16" className="text-control-grey-hover" />
+                                </button>
+                              </div>
+                              <span className="font-normal text-sm/8 text-control-grey">
+                                <span className="font-semibold">{invoices?.length}</span> invoice
+                                {invoices?.length == 1 ? ' ' : 's '}
+                                loaded
+                              </span>
+                            </div>
+                          )}
+                        </FileInput>
                       </div>
                     </TabsContent>
-                    <TabsContent value="review">
-                      <div className="text-xs bg-black text-blue-300 max-h-screen overflow-y-auto">
-                        <pre>{json}</pre>
-                      </div>
+                    <TabsContent value="review" className="mt-14 pb-14">
+                      {invoices && (
+                        <ImportInvoiceTable
+                          invoices={invoices}
+                          selectedInvoices={selectedInvoices}
+                          setSelectedInvoices={setSelectedInvoices}
+                        />
+                      )}
                     </TabsContent>
                   </Tabs>
                 </div>
               </div>
+
+              <CustomModal
+                title={`${linesWithErrors?.length} ${
+                  linesWithErrors?.length === 1 ? 'entry' : 'entries'
+                } with errors`}
+                showFooter={false}
+                open={showErrorModal}
+                onDismiss={() => {
+                  setShowErrorModal(false)
+                }}
+                contentClassName={'max-w-[50rem] h-[25rem]'}
+                scrollableContent
+              >
+                {/* Show error per line */}
+                {validationResults
+                  ?.filter((result) => !result.valid)
+                  .map((result, i) => {
+                    return (
+                      <div
+                        key={`import-error-${i}`}
+                        className="py-3 border-b border-border-grey text-sm flex"
+                      >
+                        <span className="font-semibold w-20 min-w-[5rem]">
+                          Line {result.lineNumber}
+                        </span>
+                        <div className="flex gap-x-4 gap-y-2 flex-wrap">
+                          {result.errors?.map((err, i) => {
+                            return (
+                              <div
+                                key={`import-error-detail-${i}`}
+                                className="flex items-center gap-x-2"
+                              >
+                                <Icon
+                                  name={
+                                    err.code == 'invalid_type'
+                                      ? err.received === 'undefined'
+                                        ? 'missing/16'
+                                        : 'error/16'
+                                      : 'error/16'
+                                  }
+                                  className={
+                                    err.code == 'invalid_type'
+                                      ? err.received === 'undefined'
+                                        ? 'text-control-grey-hover'
+                                        : 'text-negative-red'
+                                      : 'text-negative-red'
+                                  }
+                                />
+                                <span>{err.message}</span>
+                              </div>
+                            )
+                          })}
+                        </div>
+                      </div>
+                    )
+                  })}
+              </CustomModal>
             </Dialog.Panel>
           </Transition.Child>
         </Dialog>

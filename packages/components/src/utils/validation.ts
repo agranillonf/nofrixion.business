@@ -1,4 +1,4 @@
-import { coerce, literal, nativeEnum, object, string, ZodIssue } from 'zod'
+import { coerce, literal, nativeEnum, object, string } from 'zod'
 
 import { LocalInvoice, ValidationResult } from '../types/LocalTypes'
 
@@ -14,94 +14,100 @@ const InvoiceSchema = object({
   InvoiceStatus: string().optional(),
   Reference: string().optional(),
   RemittanceEmail: string()
-    .email('RemittanceEmail is not a valid email')
+    .email('Remittance email address has a wrong format.')
     .optional()
     .or(literal('')),
   DestinationAccountNumber: coerce
     .number({
-      invalid_type_error: 'DestinationAccountNumber must be a number',
+      invalid_type_error: 'Destination account number must be a number.',
     })
     .optional(),
   DestinationSortCode: coerce
     .number({
-      invalid_type_error: 'DestinationSortCode must be a number',
+      invalid_type_error: 'Destination sort code must be a number.',
     })
     .optional(),
   Subtotal: coerce
     .number({
-      invalid_type_error: 'Subtotal must be a number',
+      invalid_type_error: 'Subtotal must be a number.',
     })
     .optional(),
   Discounts: coerce
     .number({
-      invalid_type_error: 'Discounts must be a number',
+      invalid_type_error: 'Discounts must be a number.',
     })
     .optional(),
   Taxes: coerce
     .number({
-      invalid_type_error: 'Taxes must be a number',
+      invalid_type_error: 'Taxes must be a number.',
     })
     .optional(),
-  InvoiceDate: string()
-    .nullish()
-    .pipe(
-      coerce.date({
-        errorMap: (issue, { defaultError }) => ({
-          message:
-            issue.code === 'invalid_date'
-              ? 'InvoiceDate must be in the format YYYY-MM-DD'
-              : defaultError,
-        }),
+  InvoiceDate: string({
+    required_error: 'Invoice date missing.',
+  }).pipe(
+    coerce.date({
+      errorMap: (issue, { defaultError }) => ({
+        message: issue.code === 'invalid_date' ? 'Invoice date has a wrong format.' : defaultError,
       }),
-    ),
-  DueDate: string()
-    .nullish()
-    .pipe(
-      coerce.date({
-        errorMap: (issue, { defaultError }) => ({
-          message:
-            issue.code === 'invalid_date'
-              ? 'DueDate must be in the format YYYY-MM-DD'
-              : defaultError,
-        }),
+    }),
+  ),
+  DueDate: string({
+    required_error: 'Due date missing.',
+  }).pipe(
+    coerce.date({
+      errorMap: (issue, { defaultError }) => ({
+        message: issue.code === 'invalid_date' ? 'Due date has a wrong format.' : defaultError,
       }),
-    ),
-  Contact: string().nullish().and(string().min(1, 'Contact is required')),
-  Currency: nativeEnum(Currency, {
-    invalid_type_error: 'Invalid currency. Must be GBP or EUR',
-    required_error: 'Currency is required',
+    }),
+  ),
+  Contact: string({
+    required_error: 'Contact missing.',
   }),
-  TotalAmount: coerce
-    .number({
-      required_error: 'TotalAmount is required',
-      invalid_type_error: 'TotalAmount must be a number',
-    })
-    .min(1, 'TotalAmount must be greater than 0'),
-  OutstandingAmount: coerce
-    .number({
-      required_error: 'OutstandingAmount is required',
-      invalid_type_error: 'OutstandingAmount must be a number',
-    })
-    .min(0, 'OutstandingAmount must be greater than 0'),
+  Currency: nativeEnum(Currency, {
+    errorMap: (issue, { defaultError }) => {
+      if (issue.code === 'invalid_enum_value') {
+        return {
+          message: 'Invalid currency. Must be GBP or EUR.',
+        }
+      } else if (issue.code === 'invalid_type' && issue.received === 'undefined') {
+        return {
+          message: 'Currency missing.',
+        }
+      }
+
+      return {
+        message: defaultError,
+      }
+    },
+  }),
+  TotalAmount: string({
+    required_error: 'Total amount missing.',
+  }).pipe(
+    coerce
+      .number({
+        invalid_type_error: 'Total amount must be a number.',
+      })
+      .min(1, 'Total amount must be greater than 0.'),
+  ),
 })
   .refine((data) => {
     if (data.Currency === 'EUR' && validateIBAN(data.DestinationIban as string) === false) {
       return false
     }
     return true
-  }, 'DestinationIban is not a valid iban.')
+  }, 'Destination iban has a wrong format.')
   .refine((data) => {
     if (data.Currency === 'GBP' && !data.DestinationAccountNumber) {
       return false
     }
     return true
-  }, 'DestinationAccountNumber is invalid.')
+  }, 'Destination account number has a wrong format.')
   .refine((data) => {
     if (data.Currency === 'GBP' && !data.DestinationSortCode) {
       return false
     }
     return true
-  }, 'DestinationSortCode is invalid.')
+  }, 'Destination sort code has a wrong format.')
 
 const validateEmail = (email: string) => {
   const re = /^([a-zA-Z0-9._%-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,})$/
@@ -151,27 +157,22 @@ const validateIBAN = (iban: string): boolean => {
 const validateInvoices = (invoicePayments: LocalInvoice[]): ValidationResult[] => {
   const results: ValidationResult[] = []
 
-  const formatError = (issue: ZodIssue) => {
-    if (issue.code === 'invalid_type') {
-      return `${issue.path.join('.')} must be a ${issue.expected}`
-    }
-    return issue.message
-  }
-
   invoicePayments.map((invoicePayment, index) => {
     const result = InvoiceSchema.safeParse(invoicePayment)
 
+    // Line number is index + 2 because the first line is the header and the index starts at 0
+
     if (result.success) {
       results.push({
-        lineNumber: index + 1,
+        lineNumber: index + 2,
         valid: true,
-        result: invoicePayment,
+        result: result.data as LocalInvoice,
       })
     } else {
       results.push({
-        lineNumber: index + 1,
+        lineNumber: index + 2,
         valid: false,
-        errors: result.error.issues.map((issue) => formatError(issue)),
+        errors: result.error.issues,
         result: invoicePayment,
       })
     }

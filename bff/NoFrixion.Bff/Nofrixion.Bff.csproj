@@ -1,11 +1,11 @@
-﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+<Project Sdk="Microsoft.NET.Sdk.Web">
 
   <PropertyGroup>
     <TargetFramework>net7.0</TargetFramework>
     <Nullable>enable</Nullable>
     <ImplicitUsings>enable</ImplicitUsings>
-	<AssemblyVersion>0.1.22.0</AssemblyVersion>
-	<FileVersion>0.1.22.0</FileVersion>
+	<AssemblyVersion>0.0.1.0</AssemblyVersion>
+	<FileVersion>0.0.1.0</FileVersion>
   </PropertyGroup>
 
   <ItemGroup>
@@ -19,7 +19,7 @@
     <PackageReference Include="Serilog.Sinks.Console" Version="4.1.1-dev-00910" />
     <PackageReference Include="Serilog.Sinks.Seq" Version="5.2.3-dev-00262" />
     <PackageReference Include="StackExchange.Redis" Version="2.6.122" />
-    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.1.0-preview" />
+    <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.35.0" />
   </ItemGroup>
 
 

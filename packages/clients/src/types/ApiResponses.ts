@@ -1,3 +1,4 @@
+import { Invoice } from './ApiRequests'
 import {
   AccountIdentifierType,
   AddressType,
@@ -95,6 +96,7 @@ export type PaymentRequestPaymentAttempt = {
   status: PaymentResult
   walletName?: Wallets
   reconciledTransactionID?: string
+  pispAuthorisationFailedAt?: Date
 }
 
 export type PaymentRequestMinimal = {
@@ -576,3 +578,16 @@ export type PeriodicBalance = {
   balanceAt: Date
   balance: number
 }
+
+export interface Payrun {
+  id: string
+  name?: string
+  merchantID: string
+  invoices: Invoice[]
+  totalAmount: number
+  inserted: Date
+  lastUpdated: Date
+  scheduleDate?: Date
+}
+
+export type PayrunPageResponse = PageResponse<Payrun>

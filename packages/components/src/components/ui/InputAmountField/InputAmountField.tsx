@@ -14,12 +14,14 @@ export interface InputAmountFieldProps
   extends Omit<InputHTMLAttributes<HTMLInputElement>, 'onChange'> {
   currency: string
   onChange: (value: string) => void
-  onCurrencyChange: (currency: string) => void
+  onCurrencyChange?: (currency: string) => void
   allowCurrencyChange?: boolean
   min?: number // Need to override the default type to use them in IMaskInput
   max?: number // Need to override the default type to use them in IMaskInput
   value: string // Need to override the default type to use them in IMaskInput
   formSubmitted?: boolean
+  containerClassName?: string
+  currencyClassName?: string
 }
 
 const actionItemClassNames =
@@ -43,6 +45,9 @@ const InputAmountField: React.FC<InputAmountFieldProps> = ({
   onChange,
   formSubmitted,
   required,
+  className,
+  containerClassName,
+  currencyClassName,
   ...props
 }) => {
   const ref = useRef(null)
@@ -73,7 +78,7 @@ const InputAmountField: React.FC<InputAmountFieldProps> = ({
   }, [])
 
   useEffect(() => {
-    onCurrencyChange(selectedCurrency.code)
+    onCurrencyChange && onCurrencyChange(selectedCurrency.code)
   }, [selectedCurrency])
 
   return (
@@ -81,9 +86,19 @@ const InputAmountField: React.FC<InputAmountFieldProps> = ({
       {requiredErrorPrompt && (
         <div className="text-[#F32448] font-normal text-xs leading-4 text-right mb-2">REQUIRED</div>
       )}
-      <div className="flex w-full h-12 border border-border-grey rounded justify-between">
+      <div
+        className={cn(
+          'flex w-full h-12 border border-border-grey rounded justify-between',
+          containerClassName,
+        )}
+      >
         <div className="flex relative w-full">
-          <span className="flex absolute inset-y-0 pointer-events-none items-center ml-3 font-normal text-sm text-grey-text">
+          <span
+            className={cn(
+              'flex absolute inset-y-0 pointer-events-none items-center ml-3 font-normal text-sm text-grey-text',
+              currencyClassName,
+            )}
+          >
             {selectedCurrency.symbol}
           </span>
           <IMaskInput
@@ -93,6 +108,7 @@ const InputAmountField: React.FC<InputAmountFieldProps> = ({
                 'mr-1': allowCurrencyChange,
                 'pr-2 text-right text-xl leading-5 font-semibold': !allowCurrencyChange,
               },
+              className,
             )}
             mask={Number}
             scale={2}
